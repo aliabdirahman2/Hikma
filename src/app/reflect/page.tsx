@@ -54,6 +54,9 @@ export default function ReflectionPage() {
         setProfile(p => ({ ...p, veiledCount: p.veiledCount + 1 }));
         setStep("veiled");
       } else {
+        if (!result.soulStage || !result.temperamentBalance || !result.poeticReflection || !result.probingQuestions || !result.wisdomSeed) {
+            throw new Error("The model returned an incomplete reflection. Please try again.");
+        }
         setProfile({
           soulStage: result.soulStage,
           temperamentBalance: result.temperamentBalance,
@@ -108,8 +111,6 @@ export default function ReflectionPage() {
   const handleReadyForSincereReflection = async (chatHistory: Message[]) => {
     if (!selectedSymbol || !journalText) return;
     
-    // The UnveilingChat component shows its own loading state.
-    // We call the reflection action with the new context from the chat.
     try {
         const result = await reflectionAction({
             symbol: selectedSymbol,
@@ -119,7 +120,6 @@ export default function ReflectionPage() {
         });
 
         if (result.isVeiled) {
-            // The unveiling chat didn't work. Reset to the journal step.
             toast({
                 variant: "destructive",
                 title: "The Mirror Remains Veiled",
@@ -129,7 +129,19 @@ export default function ReflectionPage() {
             setReflection(null);
             setStep('journal');
         } else {
-            // SUCCESS! Transition to the sincere reflection page.
+            // Safeguard against incomplete data from the AI
+            if (!result.soulStage || !result.temperamentBalance || !result.poeticReflection || !result.probingQuestions || !result.wisdomSeed) {
+                toast({
+                    variant: "destructive",
+                    title: "An Incomplete Reflection",
+                    description: "Hikma's words are scattered. The reflection could not be fully formed. Please try again from your journal.",
+                });
+                setVeiledChat(false);
+                setReflection(null);
+                setStep('journal');
+                return;
+            }
+            
             toast({
                 title: "The Veil Lifts",
                 description: "Your heart has opened. Here is your reflection.",
@@ -156,7 +168,6 @@ export default function ReflectionPage() {
             title: "An error occurred",
             description: errorMessage,
         });
-        // On error, reset back to the journal step.
         setVeiledChat(false);
         setReflection(null);
         setStep('journal');
