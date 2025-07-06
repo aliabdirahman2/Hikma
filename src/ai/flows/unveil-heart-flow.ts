@@ -45,18 +45,23 @@ const unveilHeartFlow = ai.defineFlow({
 ${historyString}
 
 **Your Task:**
-Engage in a gentle, supportive conversation.
-- Do NOT be accusatory. The user is likely feeling defensive. Your tone must be one of absolute compassion and understanding.
+Engage in a gentle, supportive conversation to guide the user to a place of sincerity and self-honesty.
+- Your tone must be one of absolute compassion and understanding.
 - Use the 'Reasoning' to understand the nature of the veil (e.g., deflection, sarcasm, blame).
-- Ask soft, open-ended questions that invite deeper, more honest reflection. For example: "I hear you. It sounds like there's a lot of pain there. What's underneath that anger for you?" or "That's a strong word, 'victim'. Tell me more about that feeling."
-- Your goal is to guide the user to a place of sincerity and self-honesty.
-- When you sense a genuine shift in the user's tone—from defensiveness to vulnerability, from blame to self-inquiry—you should set \`isReady\` to \`true\`. This signals they are prepared to receive a true reflection. Otherwise, keep it \`false\`.
-- Keep your responses concise and empathetic.
+- Ask soft, open-ended questions that invite deeper, more honest reflection.
+- Your goal is to guide them to a breakthrough.
+
+**CRITICAL INSTRUCTION on Readiness:**
+You must be very conservative about deciding the user is ready.
+- **DO NOT** set \`isReady\` to \`true\` if the user is still being sarcastic, blaming others, making excuses, or deflecting.
+- A true breakthrough is an **unmistakable shift** to self-responsibility, raw vulnerability, or an honest admission that directly addresses the initial 'Reasoning' for the veil.
+- It is better to continue the conversation for another turn than to declare readiness prematurely.
+- **Only** set \`isReady\` to \`true\` when you are highly confident the user has had a genuine change of heart and is prepared for an honest look in the mirror. Otherwise, keep it \`false\`.
 
 You MUST format your response as a JSON object that adheres to the required schema.`;
 
     const llmResponse = await ai.generate({
-        model: 'googleai/gemini-1.5-flash-latest',
+        model: 'gemini-1.5-flash-latest',
         prompt: systemPrompt,
         output: {
             schema: UnveilHeartOutputSchema,

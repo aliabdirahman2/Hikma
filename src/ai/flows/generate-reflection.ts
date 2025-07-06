@@ -6,20 +6,29 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {ReflectionInputSchema, ReflectionOutputSchema, type ReflectionInput, type ReflectionOutput, type Message} from '@/lib/types';
+import {ReflectionInputSchema, ReflectionOutputSchema, type ReflectionInput, type ReflectionOutput} from '@/lib/types';
 
 
 export async function generateReflection(input: ReflectionInput): Promise<ReflectionOutput> {
   const unveilingContext = input.unveilingHistory && input.unveilingHistory.length > 0
     ? `
-**Unveiling Conversation Context:**
-The user's initial reflection was veiled. They have since had a conversation to help them open up. This conversation should be treated as a more honest addendum to their journal entry. Use this new context to provide a sincere reflection and ensure 'isVeiled' is false.
+---
+**CRITICAL CONTEXT: UNVEILING BREAKTHROUGH**
+The user's initial reflection was veiled. They have just completed a conversation with you that resulted in a breakthrough. This conversation history is the MOST IMPORTANT context for this reflection. Their final messages represent a new, more honest state.
+
+**Unveiling Conversation History:**
 ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.content}`).join('\n')}
+
+**YOUR MANDATE:**
+You MUST use this new, honest context to generate a sincere, non-veiled reflection.
+- The 'isVeiled' flag MUST be 'false'.
+- All fields for a sincere reflection ('soulStage', 'temperamentBalance', 'poeticReflection', 'probingQuestions', 'wisdomSeed') MUST be fully populated. There are no exceptions. This is not an analysis of a new entry; it is the fulfillment of a breakthrough.
+---
 `
     : '';
 
   const { output } = await ai.generate({
-    model: 'googleai/gemini-1.5-flash-latest',
+    model: 'gemini-1.5-flash-latest',
     prompt: `You are Hikma, a wise psychospiritual guide in the tradition of Rumi and Islamic spirituality. Your purpose is to analyze a user's state and guide them towards self-understanding (Ma'rifah) and purification (Tazkiyah). You do not give direct advice; you are a mirror for the soul.
 
 The user provides their journal entry, a chosen symbol, and their previous profile. Your task is to perform a two-stage analysis and return a single, unified JSON response.
@@ -27,17 +36,15 @@ The user provides their journal entry, a chosen symbol, and their previous profi
 **User's Input:**
 - Symbol: ${input.symbol}
 - Journal: """${input.journal}"""
-${unveilingContext}
 - Previous Profile: ${JSON.stringify(input.previousProfile)}
-
----
+${unveilingContext}
 
 **Your Analysis Task & Output Format:**
 
 You MUST return your entire response as a single JSON object that adheres to the required output schema.
 
-**1. Veiled Reflection Analysis:**
-First, analyze the journal entry for its honesty and depth. A veil (hijab) is an act of self-deception, avoidance, or insincerity.
+**1. Veiled Reflection Analysis (Primary Task if no Unveiling Context):**
+If there is NO Unveiling Context, first analyze the journal entry for its honesty and depth. A veil (hijab) is an act of self-deception, avoidance, or insincerity.
 - **Signs of Veiling:** Look for vagueness, sarcasm, deflection, blaming others without self-reflection, contradictions (e.g., "I don't care but I'm angry"), or a tone suggesting the user is not being honest with themselves.
 
 **2. Output Generation:**
@@ -48,9 +55,9 @@ You will always generate a JSON object containing \`isVeiled\` and \`reasoning\`
   - In \`reasoning\`, explain *why* you detected a veil.
   - DO NOT include any other fields in the JSON object except for \`isVeiled\` and \`reasoning\`.
 
-- **IF NOT VEILED (SINCERE):**
+- **IF NOT VEILED (SINCERE or Post-Unveiling):**
   - Set \`isVeiled\` to \`false\`.
-  - In \`reasoning\`, explain your diagnosis, connecting their words and symbol to the soul stage and temperament shift.
+  - In \`reasoning\`, explain your diagnosis, connecting their words and symbol to the soul stage and temperament shift. If this follows an unveiling, incorporate the breakthrough in your reasoning.
   - You MUST THEN POPULATE ALL the following fields: \`soulStage\`, \`temperamentBalance\`, \`poeticReflection\`, \`probingQuestions\`, and \`wisdomSeed\`.
   - The optional field (\`optionalPrompt\`) should only be included if it is truly relevant and insightful.
 
@@ -67,14 +74,10 @@ Adhere strictly to this structure.`,
     throw new Error("The wise one is silent for now. The model did not return a response.");
   }
 
-  if (output.isVeiled) {
-    return output;
-  }
-  
   // After an unveiling chat, if the model *still* fails to produce a complete reflection,
-  // we treat it as a logical failure, not a system error. We return a specific "veiled"
-  // response to guide the user gracefully.
-  if (!output.soulStage || !output.temperamentBalance || !output.poeticReflection || !output.probingQuestions || !output.wisdomSeed) {
+  // we treat it as a logical failure. We return a specific "veiled"
+  // response to guide the user gracefully. This is our final safeguard.
+  if (!output.isVeiled && (!output.soulStage || !output.temperamentBalance || !output.poeticReflection || !output.probingQuestions || !output.wisdomSeed)) {
       return {
         isVeiled: true,
         reasoning: "The reflection is still incomplete, even after our talk. That is okay. The heart opens at its own pace. Perhaps try writing in your journal again with a new sense of clarity.",
