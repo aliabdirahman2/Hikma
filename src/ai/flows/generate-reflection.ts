@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A psychospiritual diagnostic AI agent.
@@ -120,6 +121,9 @@ You MUST return your entire response as a single JSON object that adheres to the
       prompt: fullPrompt,
       output: {
           schema: ReflectionOutputSchema,
+      },
+      config: {
+        temperature: 0.1,
       }
     });
 
