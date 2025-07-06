@@ -1,5 +1,3 @@
-import { ArchiveClient } from "@/components/ArchiveClient";
-
 export const metadata = {
   title: "Reflection Archive | Hikma",
   description: "Revisit your journey and trace your inner themes.",
@@ -13,10 +11,9 @@ export default function ArchivePage() {
           The Reflection Ledger
         </h1>
         <p className="text-lg text-muted-foreground">
-          Trace your movement and recognize recurring inner themes.
+          This feature is being re-imagined for the new chat experience.
         </p>
       </div>
-      <ArchiveClient />
     </div>
   );
 }

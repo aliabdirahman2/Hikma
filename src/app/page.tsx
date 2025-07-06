@@ -1,112 +1,148 @@
 "use client";
 
-import { useState } from "react";
-import { ReflectionForm } from "@/components/ReflectionForm";
-import { ReflectionDisplay } from "@/components/ReflectionDisplay";
-import { JournalArea } from "@/components/JournalArea";
-import type { GenerateReflectionOutput } from "@/ai/flows/generate-reflection";
-import type { Temperament, SoulStage, ReflectionEntry } from "@/lib/types";
+import { useState, useRef, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Send } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
+import { chatAction } from "@/app/actions";
+import type { Message } from "@/lib/types";
+
+const formSchema = z.object({
+  message: z.string().min(1, "Message cannot be empty."),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function Home() {
-  const [reflection, setReflection] = useState<GenerateReflectionOutput | null>(null);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: "model",
+      content:
+        "Peace be upon you. What is stirring in the ocean of your heart today?",
+    },
+  ]);
   const [isLoading, setIsLoading] = useState(false);
-  const [temperament, setTemperament] = useState<Temperament | null>(null);
-  const [soulStage, setSoulStage] = useState<SoulStage | null>(null);
   const { toast } = useToast();
-  const router = useRouter();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleReflectionGenerated = (
-    data: GenerateReflectionOutput,
-    temp: Temperament,
-    stage: SoulStage
-  ) => {
-    setReflection(data);
-    setTemperament(temp);
-    setSoulStage(stage);
-    setIsLoading(false);
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      message: "",
+    },
+  });
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleLoading = (loading: boolean) => {
-    setIsLoading(loading);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
+
+  const handleSubmit = async (data: FormValues) => {
+    const userInput: Message = { role: "user", content: data.message };
+    const newMessages = [...messages, userInput];
+    setMessages(newMessages);
+    form.reset();
+    setIsLoading(true);
+
+    try {
+      const result = await chatAction({ history: newMessages });
+      const botResponse: Message = { role: "model", content: result.response };
+      setMessages((prevMessages) => [...prevMessages, botResponse]);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "An error occurred",
+        description: "Could not get a response. Please try again later.",
+      });
+      // remove the user message if the bot fails
+      setMessages(messages);
+    } finally {
+      setIsLoading(false);
+    }
   };
-
-  const handleSave = (journalText: string) => {
-    if (!reflection || !temperament || !soulStage) return;
-
-    const newEntry: ReflectionEntry = {
-      id: new Date().toISOString(),
-      date: new Date().toISOString(),
-      temperament,
-      soulStage,
-      reflection,
-      journal: journalText,
-    };
-
-    const existingEntries: ReflectionEntry[] = JSON.parse(
-      localStorage.getItem("reflectionLedger") || "[]"
-    );
-    localStorage.setItem(
-      "reflectionLedger",
-      JSON.stringify([newEntry, ...existingEntries])
-    );
-
-    toast({
-      title: "Reflection Saved",
-      description: "Your entry has been added to the ledger.",
-    });
-
-    // Reset state for a new reflection
-    setReflection(null);
-    setTemperament(null);
-    setSoulStage(null);
-
-    // Optional: navigate to archive after saving
-    router.push('/archive');
-  };
-  
-  const handleNewReflection = () => {
-    setReflection(null);
-    setTemperament(null);
-    setSoulStage(null);
-  }
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-12">
-      <div className="flex flex-col items-center text-center">
-        {!reflection && (
-          <h1 className="font-headline text-4xl md:text-5xl text-primary mb-4">
-            Peace be upon you.
-          </h1>
-        )}
+    <div className="container mx-auto h-[calc(100vh-57px)] flex flex-col max-w-3xl bg-card border-x p-0">
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-6">
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={cn("flex items-start gap-4 animate-in fade-in", {
+                "justify-end": message.role === "user",
+              })}
+            >
+              {message.role === "model" && (
+                <Avatar className="h-10 w-10 border">
+                  <AvatarFallback className="bg-primary text-primary-foreground font-headline">
+                    H
+                  </AvatarFallback>
+                </Avatar>
+              )}
+              <div
+                className={cn("max-w-md rounded-lg p-3 text-base shadow-sm", {
+                  "bg-primary text-primary-foreground": message.role === "user",
+                  "bg-muted text-card-foreground": message.role === "model",
+                })}
+              >
+                <p className="whitespace-pre-wrap leading-relaxed">
+                  {message.content}
+                </p>
+              </div>
+              {message.role === "user" && (
+                <Avatar className="h-10 w-10 border">
+                  <AvatarFallback>You</AvatarFallback>
+                </Avatar>
+              )}
+            </div>
+          ))}
+          {isLoading && (
+            <div className="flex items-start gap-4">
+              <Avatar className="h-10 w-10 border">
+                <AvatarFallback className="bg-primary text-primary-foreground font-headline">
+                  H
+                </AvatarFallback>
+              </Avatar>
+              <div className="bg-muted rounded-lg p-3">
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-muted-foreground animate-pulse"></div>
+                  <div className="w-2 h-2 rounded-full bg-muted-foreground animate-pulse [animation-delay:0.2s]"></div>
+                  <div className="w-2 h-2 rounded-full bg-muted-foreground animate-pulse [animation-delay:0.4s]"></div>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </ScrollArea>
 
-        {isLoading && (
-          <div className="flex flex-col items-center justify-center space-y-4 my-16">
-            <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-primary"></div>
-            <p className="font-headline text-muted-foreground">
-              Hikma is contemplating...
-            </p>
-          </div>
-        )}
-
-        {!isLoading && !reflection && (
-          <ReflectionForm
-            onReflectionGenerated={handleReflectionGenerated}
-            onLoading={handleLoading}
+      <div className="p-4 border-t bg-background">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="flex items-center gap-2"
+        >
+          <Input
+            {...form.register("message")}
+            placeholder="Speak your heart..."
+            autoComplete="off"
+            disabled={isLoading}
+            className="flex-1"
           />
-        )}
-
-        {!isLoading && reflection && temperament && soulStage && (
-          <>
-            <ReflectionDisplay
-              reflection={reflection}
-              temperament={temperament}
-              soulStage={soulStage}
-            />
-            <JournalArea onSave={handleSave} onNewReflection={handleNewReflection} />
-          </>
-        )}
+          <Button type="submit" size="icon" disabled={isLoading}>
+            <Send className="h-5 w-5" />
+            <span className="sr-only">Send</span>
+          </Button>
+        </form>
       </div>
     </div>
   );

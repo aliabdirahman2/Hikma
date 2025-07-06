@@ -1,20 +1,19 @@
 "use server";
 
 import {
-  generateReflection,
-  type GenerateReflectionInput,
-  type GenerateReflectionOutput,
+  chat,
+  type ChatInput,
+  type ChatOutput,
 } from "@/ai/flows/generate-reflection";
 
-export async function generateReflectionAction(
-  input: GenerateReflectionInput
-): Promise<GenerateReflectionOutput> {
+export async function chatAction(
+  input: ChatInput
+): Promise<ChatOutput> {
   try {
-    const output = await generateReflection(input);
+    const output = await chat(input);
     return output;
   } catch (error) {
-    console.error("Error generating reflection:", error);
-    // Re-throw or handle as needed, e.g., return a custom error object.
-    throw new Error("Failed to generate reflection. Please try again.");
+    console.error("Error in chat action:", error);
+    throw new Error("Failed to get a response. Please try again.");
   }
 }

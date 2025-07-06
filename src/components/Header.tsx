@@ -24,7 +24,7 @@ export function Header() {
           </Link>
           <nav className="flex items-center gap-6 text-sm">
             <Link href="/" className={navLinkClasses("/")}>
-              Reflect
+              Chat
             </Link>
             <Link href="/archive" className={navLinkClasses("/archive")}>
               Archive
