@@ -7,13 +7,6 @@ import {
   PolarAngleAxis,
   ResponsiveContainer,
 } from "recharts";
-import { Eye } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 type TemperamentData = {
   sanguine: number;
@@ -26,29 +19,8 @@ interface TemperamentWheelProps {
   data: TemperamentData;
 }
 
-const temperamentDescriptions: Record<string, string> = {
-  Sanguine: "Air element. Associated with optimism and sociality.",
-  Choleric: "Fire element. Associated with ambition and leadership.",
-  Phlegmatic: "Water element. Associated with calmness and peace.",
-  Melancholic: "Earth element. Associated with thoughtfulness and sensitivity.",
-};
-
 const CustomAngleAxisTick = (props: any) => {
   const { x, y, textAnchor, payload } = props;
-  const term = payload.value.split(" (")[0];
-  const description =
-    temperamentDescriptions[term as keyof typeof temperamentDescriptions] || "";
-
-  // This positioning logic is simplified for clarity, assuming a relatively standard font size.
-  // You may need to adjust these offsets if you change font styles significantly.
-  let textX = x;
-  if (textAnchor === "end") {
-    textX = x - 15; // move text to the left of the icon
-  } else if (textAnchor === "start") {
-    textX = x + 15; // move text to the right of the icon
-  }
-  
-  const iconX = textAnchor === 'end' ? x - 14 : x - 2;
 
   return (
     <g transform={`translate(${x},${y})`}>
@@ -59,23 +31,8 @@ const CustomAngleAxisTick = (props: any) => {
         fill="hsl(var(--muted-foreground))"
         fontSize={12}
       >
-        {term}
+        {payload.value}
       </text>
-      {/* foreignObject allows embedding HTML (like our tooltip) inside an SVG */}
-      <foreignObject x={textAnchor === 'end' ? -15 : 5} y={-8} width={16} height={16}>
-        <TooltipProvider delayDuration={100}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="w-full h-full flex items-center justify-center cursor-pointer">
-                <Eye className="h-4 w-4 text-muted-foreground/70 hover:text-primary" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              <p>{description}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </foreignObject>
     </g>
   );
 };
