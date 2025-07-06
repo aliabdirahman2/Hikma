@@ -13,14 +13,15 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-type Symbol = "wind" | "flame" | "water" | "earth";
+const symbols = [
+  { id: 'wind', icon: <Wind className="w-10 h-10" />, label: 'Wind (Air)' },
+  { id: 'flame', icon: <Flame className="w-10 h-10" />, label: 'Flame (Fire)' },
+  { id: 'water', icon: <Droplets className="w-10 h-10" />, label: 'Water (Water)' },
+  { id: 'earth', icon: <Mountain className="w-10 h-10" />, label: 'Earth (Earth)' },
+] as const;
 
-const symbolMap: Record<Symbol, { icon: ReactElement; label: string }> = {
-  wind: { icon: <Wind className="w-10 h-10" />, label: "Wind (Air)" },
-  flame: { icon: <Flame className="w-10 h-10" />, label: "Flame (Fire)" },
-  water: { icon: <Droplets className="w-10 h-10" />, label: "Water (Water)" },
-  earth: { icon: <Mountain className="w-10 h-10" />, label: "Earth (Earth)" },
-};
+type Symbol = typeof symbols[number]['id'];
+
 
 export default function ReflectionPage() {
   const [step, setStep] = useState<"symbol" | "journal" | "reflection">("symbol");
@@ -111,14 +112,14 @@ export default function ReflectionPage() {
             <h1 className="font-headline text-3xl md:text-4xl text-center mb-4 text-primary">A Symbolic Prompt</h1>
             <p className="text-muted-foreground text-center text-lg mb-10">Choose the image that feels closest to your state today.</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {(Object.keys(symbolMap) as Symbol[]).map((key) => (
+              {symbols.map((symbol) => (
                 <button
-                  key={key}
-                  onClick={() => handleSymbolSelect(key)}
+                  key={symbol.id}
+                  onClick={() => handleSymbolSelect(symbol.id)}
                   className="group aspect-square flex flex-col items-center justify-center p-4 bg-muted/50 rounded-lg border-2 border-transparent hover:border-primary hover:bg-accent transition-all duration-300"
                 >
-                  <div className="text-primary transition-transform duration-300 group-hover:scale-110">{symbolMap[key].icon}</div>
-                  <p className="font-headline text-lg mt-4 text-muted-foreground group-hover:text-primary transition-colors">{symbolMap[key].label}</p>
+                  <div className="text-primary transition-transform duration-300 group-hover:scale-110">{symbol.icon}</div>
+                  <p className="font-headline text-lg mt-4 text-muted-foreground group-hover:text-primary transition-colors">{symbol.label}</p>
                 </button>
               ))}
             </div>
