@@ -93,14 +93,7 @@ First, analyze the journal entry for its honesty and depth. The soul's mirror ca
 - **Signs of Veiling:** Look for vagueness, sarcasm, deflection, blaming others without self-reflection, contradictions (e.g., "I don't care but I'm angry"), or a tone suggesting the user is not being honest with themselves.
 
 **If Veiled:**
-If you detect veiling, your entire output MUST be a JSON object with EXACTLY this structure, omitting all other optional fields:
-\`\`\`json
-{
-  "isVeiled": true,
-  "reasoning": "A gentle explanation of why the mirror is cloudy, based on the user's tone or words."
-}
-\`\`\`
-The reflection cannot proceed without honesty.
+If you detect veiling, your entire output MUST be a JSON object with 'isVeiled' set to true, and 'reasoning' explaining why. All other optional fields from the schema must be omitted. For example: { "isVeiled": true, "reasoning": "The mirror is cloudy because the entry focuses on blame rather than self-reflection." }
 
 **Stage 2: Full Reflection (If Not Veiled)**
 If the entry is sincere, your entire output MUST be a JSON object with \`isVeiled\` set to \`false\` and all of the following fields populated according to your analysis.
@@ -119,6 +112,24 @@ If the entry is sincere, your entire output MUST be a JSON object with \`isVeile
     - **quote:** A relevant quote from the Qur'an or an Islamic scholar. E.g., for Kibr: "Ibn Ata'illah says, 'How can the heart be illumined when the forms of creatures are reflected in its mirror?'"`,
   config: {
     temperature: 0.1,
+    safetySettings: [
+      {
+        category: 'HARM_CATEGORY_HATE_SPEECH',
+        threshold: 'BLOCK_ONLY_HIGH',
+      },
+      {
+        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+        threshold: 'BLOCK_ONLY_HIGH',
+      },
+      {
+        category: 'HARM_CATEGORY_HARASSMENT',
+        threshold: 'BLOCK_ONLY_HIGH',
+      },
+      {
+        category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+        threshold: 'BLOCK_ONLY_HIGH',
+      },
+    ],
   }
 });
 
