@@ -90,6 +90,7 @@ const reflectionFlow = ai.defineFlow(
       prompt: `Symbol: {{{symbol}}}
 Journal: {{{journal}}}
 Previous Profile: ${JSON.stringify(input.previousProfile)}`,
+      input: input,
       output: {
           schema: ReflectionOutputSchema,
       }
