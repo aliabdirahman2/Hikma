@@ -3,8 +3,6 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import { Header } from "@/components/Header";
-import { SidebarProvider, Sidebar, SidebarContent, SidebarInset } from "@/components/ui/sidebar";
-import { HabitTracker } from "@/components/HabitTracker";
 
 export const metadata: Metadata = {
   title: "Hikma",
@@ -36,19 +34,10 @@ export default function RootLayout({
           "font-body"
         )}
       >
-        <SidebarProvider>
-           <Sidebar side="left" className="w-[300px] border-r" collapsible="icon">
-            <SidebarContent className="p-0">
-              <HabitTracker />
-            </SidebarContent>
-          </Sidebar>
-          <SidebarInset>
-            <div className="relative flex min-h-screen flex-col">
-              <Header />
-              <main className="flex-1">{children}</main>
-            </div>
-          </SidebarInset>
-        </SidebarProvider>
+        <div className="relative flex min-h-screen flex-col">
+          <Header />
+          <main className="flex-1">{children}</main>
+        </div>
         <Toaster />
       </body>
     </html>
