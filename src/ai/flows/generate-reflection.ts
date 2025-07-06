@@ -20,7 +20,7 @@ The user's initial reflection was veiled. They have just completed a conversatio
 ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.content}`).join('\n')}
 
 **YOUR MANDATE:**
-You MUST use this new, honest context to generate a sincere, non-veiled reflection.
+You MUST use this new, honest context togenerate a sincere, non-veiled reflection.
 - The 'isVeiled' flag MUST be 'false'.
 - All fields for a sincere reflection ('soulStage', 'temperamentBalance', 'poeticReflection', 'probingQuestions', 'wisdomSeed') MUST be fully populated. There are no exceptions. This is not an analysis of a new entry; it is the fulfillment of a breakthrough.
 ---
@@ -74,23 +74,6 @@ Adhere strictly to this structure.`,
     throw new Error("The wise one is silent for now. The model did not return a response.");
   }
 
-  // After an unveiling chat, if the model *still* fails to produce a complete reflection,
-  // we treat it as a logical failure. We return a specific "veiled"
-  // response to guide the user gracefully. This is our final safeguard.
-  if (!output.isVeiled && (!output.soulStage || !output.temperamentBalance || !output.poeticReflection || !output.probingQuestions || !output.wisdomSeed)) {
-      return {
-        isVeiled: true,
-        reasoning: "The reflection is still incomplete, even after our talk. That is okay. The heart opens at its own pace. Perhaps try writing in your journal again with a new sense of clarity.",
-        soulStage: undefined,
-        temperamentBalance: undefined,
-        poeticReflection: undefined,
-        probingQuestions: undefined,
-        wisdomSeed: undefined,
-        optionalPrompt: undefined,
-        prescribedHabits: undefined,
-      };
-  }
-  
   if (output.temperamentBalance) {
     const { sanguine, choleric, melancholic, phlegmatic } = output.temperamentBalance;
     const total = sanguine + choleric + melancholic + phlegmatic;
