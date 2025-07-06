@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -24,7 +25,10 @@ export function Header() {
           </Link>
           <nav className="flex items-center gap-6 text-sm">
             <Link href="/" className={navLinkClasses("/")}>
-              Chat
+              Dashboard
+            </Link>
+            <Link href="/reflect" className={navLinkClasses("/reflect")}>
+              Reflect
             </Link>
             <Link href="/archive" className={navLinkClasses("/archive")}>
               Archive
