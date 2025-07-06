@@ -43,7 +43,7 @@ Examples of the desired output format:
 Your response MUST ONLY be the phrase itself, inside the JSON object. Do not add any explanation, greeting, or conversational text.`;
 
     const llmResponse = await ai.generate({
-        model: 'googleai/gemini-1.5-pro-latest',
+        model: 'googleai/gemini-1.5-flash-latest',
         system: systemPrompt,
         prompt: `Journal: ${input.journal}\n\nReflection: ${JSON.stringify(input.reflection)}`,
         output: {
