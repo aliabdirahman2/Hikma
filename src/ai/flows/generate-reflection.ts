@@ -142,8 +142,8 @@ const reflectionFlow = ai.defineFlow(
       throw new Error("The wise one is silent for now. The model did not return a response.");
     }
     
-    // If not veiled, ensure temperament numbers sum to 100
-    if (!output.isVeiled) {
+    // If not veiled, and if temperamentBalance exists, ensure numbers sum to 100
+    if (!output.isVeiled && output.temperamentBalance) {
       const { sanguine, choleric, melancholic, phlegmatic } = output.temperamentBalance;
       const total = sanguine + choleric + melancholic + phlegmatic;
       
@@ -166,4 +166,3 @@ const reflectionFlow = ai.defineFlow(
     return output;
   }
 );
-
