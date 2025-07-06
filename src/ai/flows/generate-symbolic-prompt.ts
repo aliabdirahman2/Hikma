@@ -12,13 +12,13 @@ import {z} from 'zod';
 import type {FullReflection} from '@/lib/types';
 
 
-export const SymbolicPromptInputSchema = z.object({
+const SymbolicPromptInputSchema = z.object({
   reflection: z.custom<FullReflection>(),
   journal: z.string().describe("The user's original journal entry."),
 });
 export type SymbolicPromptInput = z.infer<typeof SymbolicPromptInputSchema>;
 
-export const SymbolicPromptOutputSchema = z.object({
+const SymbolicPromptOutputSchema = z.object({
   symbolicPhrase: z.string().describe("The generated poetic phrase."),
 });
 export type SymbolicPromptOutput = z.infer<typeof SymbolicPromptOutputSchema>;

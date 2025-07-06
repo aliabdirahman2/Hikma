@@ -12,14 +12,14 @@ import {z} from 'zod';
 import type {Message, FullReflection} from '@/lib/types';
 
 
-export const ChatInputSchema = z.object({
+const ChatInputSchema = z.object({
   history: z.custom<Message[]>(),
   reflection: z.custom<FullReflection>(),
   journal: z.string(),
 });
 export type ChatInput = z.infer<typeof ChatInputSchema>;
 
-export const ChatOutputSchema = z.object({
+const ChatOutputSchema = z.object({
   response: z.string().describe("Hikma's conversational response."),
 });
 export type ChatOutput = z.infer<typeof ChatOutputSchema>;
