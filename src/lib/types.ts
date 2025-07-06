@@ -32,18 +32,16 @@ export type TrackedHabit = PrescribedHabit & {
   completedDates: string[]; // array of ISO date strings 'YYYY-MM-DD'
 };
 
-const DivineNameSchema = z.object({
-    name: z.string(),
-    prompt: z.string(),
+export const ReflectionInputSchema = z.object({
+  symbol: z.enum(['flame', 'water', 'wind', 'earth']),
+  journal: z.string(),
+  previousProfile: z.object({
+    soulStage: z.string(),
+    veiledCount: z.number(),
+    temperamentBalance: TemperamentBalanceSchema,
+  })
 });
-export type DivineName = z.infer<typeof DivineNameSchema>;
-
-const SpiritualConceptSchema = z.object({
-    name: z.string(),
-    description: z.string(),
-    quote: z.string(),
-});
-export type SpiritualConcept = z.infer<typeof SpiritualConceptSchema>;
+export type ReflectionInput = z.infer<typeof ReflectionInputSchema>;
 
 
 export const ReflectionOutputSchema = z.object({
@@ -56,8 +54,6 @@ export const ReflectionOutputSchema = z.object({
   wisdomSeed: z.string().optional(),
   optionalPrompt: z.string().optional(),
   prescribedHabits: z.array(HabitSchema).optional(),
-  divineName: DivineNameSchema.optional(),
-  spiritualConcepts: z.array(SpiritualConceptSchema).optional(),
 });
 export type ReflectionOutput = z.infer<typeof ReflectionOutputSchema>;
 
