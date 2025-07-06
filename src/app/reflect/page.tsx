@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState, type ReactElement } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,7 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ChatWithHikma } from "@/components/ChatWithHikma";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 
 const symbols = [
   { id: 'wind', icon: <Wind className="w-10 h-10" />, label: 'Wind (Air)' },
@@ -83,7 +81,7 @@ export default function ReflectionPage() {
         setProfile({
           soulStage: result.soulStage!,
           temperamentBalance: result.temperamentBalance!,
-          veiledCount: 0, // Reset veiled count on a successful reflection
+          veiledCount: 0,
         });
 
         const newArchiveEntry: ArchivedReflection = {
@@ -146,7 +144,6 @@ export default function ReflectionPage() {
           <motion.div key="journal" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }}>
             <h1 className="font-headline text-3xl md:text-4xl text-center mb-4 text-primary">Speak Your Heart</h1>
             <p className="text-muted-foreground text-center text-lg mb-8">What tension, regret, or contradiction is present for you?</p>
-             <p className="text-muted-foreground text-center text-sm mb-8 italic">This symbol doesn’t determine your reflection—it’s a mirror you choose for yourself today.</p>
             <Textarea
               value={journalText}
               onChange={(e) => setJournalText(e.target.value)}
@@ -196,29 +193,6 @@ export default function ReflectionPage() {
                 </CardContent>
               </Card>
 
-              {reflection.reasoning && (
-                <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="item-1" className="border-none">
-                        <AccordionTrigger className="text-primary hover:no-underline justify-center text-sm pt-0">Why did Hikma say this?</AccordionTrigger>
-                        <AccordionContent className="text-center text-muted-foreground">
-                            {reflection.reasoning}
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
-              )}
-                
-              {reflection.divineName && (
-                <Card className="bg-gradient-to-br from-primary/10 to-accent/20">
-                    <CardHeader>
-                        <CardTitle className="font-headline text-xl">Divine Name of the Day</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-lg font-semibold text-primary">{reflection.divineName.name}</p>
-                        <p className="mt-1 italic">&ldquo;{reflection.divineName.prompt}&rdquo;</p>
-                    </CardContent>
-                </Card>
-              )}
-
               <Card>
                 <CardHeader>
                   <CardTitle className="font-headline text-2xl">Probing Questions</CardTitle>
@@ -250,60 +224,7 @@ export default function ReflectionPage() {
                   </Card>
                 )}
               </div>
-              
-                {reflection.spiritualConcepts && reflection.spiritualConcepts.length > 0 && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary"><BookOpen />Spiritual Themes</CardTitle>
-                             <CardDescription>Classical concepts present in your reflection.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex flex-wrap gap-3">
-                            {reflection.spiritualConcepts.map((concept) => (
-                                <Dialog key={concept.name}>
-                                    <DialogTrigger asChild>
-                                        <Button variant="outline" size="sm">{concept.name}</Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                        <DialogHeader>
-                                            <DialogTitle className="font-headline text-2xl text-primary">{concept.name}</DialogTitle>
-                                        </DialogHeader>
-                                        <div className="space-y-4 py-4">
-                                          <p className="text-base">{concept.description}</p>
-                                          <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground">
-                                              {concept.quote}
-                                          </blockquote>
-                                        </div>
-                                    </DialogContent>
-                                </Dialog>
-                            ))}
-                        </CardContent>
-                    </Card>
-                )}
 
-              {reflection.prescribedHabits && reflection.prescribedHabits.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary"><Leaf />Prescriptions of the Self</CardTitle>
-                    <CardDescription>Gentle invitations to practice, based on your reflection.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {reflection.prescribedHabits.map((habit, i) => (
-                      <div key={i} className="p-4 rounded-lg border bg-muted/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div>
-                          <h4 className="font-semibold">{habit.name} <span className="ml-2 text-xs font-normal text-muted-foreground bg-accent px-2 py-0.5 rounded-full">{habit.label}</span></h4>
-                          <p className="text-sm text-muted-foreground italic mt-1">&ldquo;{habit.why}&rdquo;</p>
-                          <p className="text-sm font-medium mt-2">Practice: {habit.frequency}</p>
-                        </div>
-                        <Button onClick={() => handleAcceptHabit(habit)} className="sm:ml-4 flex-shrink-0">
-                          <PlusCircle className="mr-2 h-4 w-4" />
-                          Accept Practice
-                        </Button>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
-                
                <div className="mt-8 border-t pt-8">
                  <ChatWithHikma reflection={reflection} journal={journalText} />
                </div>

@@ -1,4 +1,3 @@
-
 import type { PsychospiritualProfile } from "./types";
 
 export const INITIAL_PROFILE: PsychospiritualProfile = {

@@ -23,11 +23,13 @@ const SymbolicPromptOutputSchema = z.object({
 });
 export type SymbolicPromptOutput = z.infer<typeof SymbolicPromptOutputSchema>;
 
-export async function generateSymbolicPrompt(input: SymbolicPromptInput): Promise<SymbolicPromptOutput> {
-    return symbolicPromptFlow(input);
-}
 
-const systemPrompt = `You are an AI assistant with a specific task. Based on the provided journal entry and a corresponding psychospiritual reflection, your goal is to create a single, new, evocative, and poetic metaphorical phrase.
+const symbolicPromptFlow = ai.defineFlow({
+    name: 'symbolicPromptFlow',
+    inputSchema: SymbolicPromptInputSchema,
+    outputSchema: SymbolicPromptOutputSchema,
+}, async (input) => {
+    const systemPrompt = `You are an AI assistant with a specific task. Based on the provided journal entry and a corresponding psychospiritual reflection, your goal is to create a single, new, evocative, and poetic metaphorical phrase.
 
 This phrase should encapsulate a core theme or tension from the user's input. It should be short, abstract, and open to interpretation.
 
@@ -40,15 +42,8 @@ Examples of the desired output format:
 
 Your response MUST ONLY be the phrase itself, inside the JSON object. Do not add any explanation, greeting, or conversational text.`;
 
-
-const symbolicPromptFlow = ai.defineFlow({
-    name: 'symbolicPromptFlow',
-    inputSchema: SymbolicPromptInputSchema,
-    outputSchema: SymbolicPromptOutputSchema,
-}, async (input) => {
-
     const llmResponse = await ai.generate({
-        model: ai.model,
+        model: 'googleai/gemini-1.5-pro-latest',
         system: systemPrompt,
         prompt: `Journal: ${input.journal}\n\nReflection: ${JSON.stringify(input.reflection)}`,
         output: {
@@ -63,3 +58,7 @@ const symbolicPromptFlow = ai.defineFlow({
     }
     return output;
 });
+
+export async function generateSymbolicPrompt(input: SymbolicPromptInput): Promise<SymbolicPromptOutput> {
+    return symbolicPromptFlow(input);
+}

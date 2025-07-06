@@ -1,18 +1,15 @@
-
 "use server";
 
 import { generateReflection } from "@/ai/flows/generate-reflection";
 import type { ReflectionInput, ReflectionOutput } from "@/ai/flows/generate-reflection";
 import {
   generateSymbolicPrompt,
-  type SymbolicPromptInput,
-  type SymbolicPromptOutput,
 } from "@/ai/flows/generate-symbolic-prompt";
+import type { SymbolicPromptInput, SymbolicPromptOutput } from "@/ai/flows/generate-symbolic-prompt";
 import {
   continueChat,
-  type ChatInput,
-  type ChatOutput,
 } from "@/ai/flows/continue-chat";
+import type { ChatInput, ChatOutput } from "@/ai/flows/continue-chat";
 
 
 export async function reflectionAction(

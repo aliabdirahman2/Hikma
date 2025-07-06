@@ -1,4 +1,3 @@
-
 "use client";
 
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -25,7 +24,6 @@ import { Badge } from "@/components/ui/badge";
 export default function ArchivePage() {
   const [archive] = useLocalStorage<ArchivedReflection[]>("hikma-archive", []);
 
-  // Show the newest reflections first
   const sortedArchive = [...archive].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
@@ -105,44 +103,30 @@ export default function ArchivePage() {
                                         />
                                     </div>
                                 </div>
-                                {entry.reflection.divineName && (
+                                {entry.reflection.poeticReflection && (
                                   <div>
-                                    <h4 className="font-headline text-lg text-primary mb-2 flex items-center gap-2"><Sparkles className="size-5"/>Divine Name of the Day</h4>
-                                    <p><span className="font-semibold">{entry.reflection.divineName.name}:</span> <span className="italic">{entry.reflection.divineName.prompt}</span></p>
+                                    <h4 className="font-headline text-lg text-primary mb-2">
+                                      Hikma's Reflection
+                                    </h4>
+                                    <p className="italic whitespace-pre-wrap leading-relaxed">
+                                      “{entry.reflection.poeticReflection}”
+                                    </p>
                                   </div>
                                 )}
-                                {entry.reflection.spiritualConcepts && entry.reflection.spiritualConcepts.length > 0 && (
+                                {entry.reflection.probingQuestions && (
                                   <div>
-                                    <h4 className="font-headline text-lg text-primary mb-2 flex items-center gap-2"><BookOpen className="size-5"/>Spiritual Themes</h4>
-                                    <div className="flex flex-wrap gap-2">
-                                      {entry.reflection.spiritualConcepts.map(concept => (
-                                        <Badge key={concept.name} variant="secondary">{concept.name}</Badge>
+                                    <h4 className="font-headline text-lg text-primary mb-2">
+                                      Probing Questions
+                                    </h4>
+                                    <ul className="list-disc pl-5 space-y-2 text-sm">
+                                      {entry.reflection.probingQuestions.map((q, i) => (
+                                        <li key={i}>{q}</li>
                                       ))}
-                                    </div>
+                                    </ul>
                                   </div>
                                 )}
-                                <div>
-                                  <h4 className="font-headline text-lg text-primary mb-2">
-                                    Hikma's Reflection
-                                  </h4>
-                                  <p className="italic whitespace-pre-wrap leading-relaxed">
-                                    “{entry.reflection.poeticReflection!}”
-                                  </p>
-                                </div>
-
-                                <div>
-                                  <h4 className="font-headline text-lg text-primary mb-2">
-                                    Probing Questions
-                                  </h4>
-                                  <ul className="list-disc pl-5 space-y-2 text-sm">
-                                    {entry.reflection.probingQuestions!.map((q, i) => (
-                                      <li key={i}>{q}</li>
-                                    ))}
-                                  </ul>
-                                </div>
                             </>
                         )}
-
                       </div>
                     </AccordionContent>
                   </AccordionItem>
