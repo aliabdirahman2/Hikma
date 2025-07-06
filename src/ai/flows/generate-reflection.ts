@@ -47,7 +47,11 @@ const chatFlow = ai.defineFlow(
     outputSchema: ChatOutputSchema,
   },
   async input => {
-    const history: MessageData[] = input.history.map(m => ({
+    const fullHistory = input.history;
+    const lastUserMessage = fullHistory[fullHistory.length - 1];
+
+    // The history for the model should not include the latest user message
+    const modelHistory: MessageData[] = fullHistory.slice(0, -1).map(m => ({
         role: m.role,
         content: [{text: m.content}]
     }));
@@ -55,7 +59,8 @@ const chatFlow = ai.defineFlow(
     const llmResponse = await ai.generate({
       model: ai.model,
       system: systemPrompt,
-      history: history,
+      prompt: lastUserMessage.content,
+      history: modelHistory,
       output: {
           schema: ChatOutputSchema,
       }
