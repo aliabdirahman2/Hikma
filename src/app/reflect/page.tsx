@@ -1,11 +1,10 @@
-
 "use client";
 import React, { useState, type ReactElement } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2 } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, PlusCircle, Leaf } from "lucide-react";
 import { reflectionAction } from "@/app/actions";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import type { FullReflection, PsychospiritualProfile } from "@/lib/types";
+import type { FullReflection, PsychospiritualProfile, TrackedHabit, PrescribedHabit } from "@/lib/types";
 import { INITIAL_PROFILE } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,11 +28,35 @@ export default function ReflectionPage() {
   const [reflection, setReflection] = useState<FullReflection | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [profile, setProfile] = useLocalStorage<PsychospiritualProfile>("hikma-profile", INITIAL_PROFILE);
+  const [habits, setHabits] = useLocalStorage<TrackedHabit[]>("hikma-habits", []);
   const { toast } = useToast();
 
   const handleSymbolSelect = (symbol: Symbol) => {
     setSelectedSymbol(symbol);
     setStep("journal");
+  };
+
+  const handleAcceptHabit = (habit: PrescribedHabit) => {
+    if (habits.some(h => h.name === habit.name)) {
+        toast({
+            variant: "default",
+            title: "Practice Already Accepted",
+            description: `You are already tracking "${habit.name}".`,
+        });
+        return;
+    }
+
+    const newHabit: TrackedHabit = {
+        ...habit,
+        id: new Date().toISOString() + Math.random(),
+        createdAt: new Date().toISOString(),
+        completedDates: [],
+    };
+    setHabits(prevHabits => [...prevHabits, newHabit]);
+    toast({
+        title: "Practice Accepted",
+        description: `"${habit.name}" has been added to your journey.`,
+    });
   };
 
   const handleSubmit = async () => {
@@ -155,6 +178,31 @@ export default function ReflectionPage() {
                   </Card>
                 )}
               </div>
+              
+              {reflection.prescribedHabits && reflection.prescribedHabits.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary"><Leaf />Prescriptions of the Self</CardTitle>
+                    <CardDescription>Gentle invitations to practice, based on your reflection.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {reflection.prescribedHabits.map((habit, i) => (
+                      <div key={i} className="p-4 rounded-lg border bg-muted/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                          <h4 className="font-semibold">{habit.name} <span className="ml-2 text-xs font-normal text-muted-foreground bg-accent px-2 py-0.5 rounded-full">{habit.label}</span></h4>
+                          <p className="text-sm text-muted-foreground italic mt-1">&ldquo;{habit.why}&rdquo;</p>
+                          <p className="text-sm font-medium mt-2">Practice: {habit.frequency}</p>
+                        </div>
+                        <Button onClick={() => handleAcceptHabit(habit)} className="sm:ml-4 flex-shrink-0">
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          Accept Practice
+                        </Button>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+
                <div className="mt-8 flex justify-center">
                  <Button onClick={() => setStep('symbol')} size="lg" variant="outline">
                    Begin a New Reflection <ArrowRight className="ml-2 h-5 w-5" />

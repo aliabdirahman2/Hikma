@@ -27,6 +27,12 @@ const ReflectionInputSchema = z.object({
 });
 export type ReflectionInput = z.infer<typeof ReflectionInputSchema>;
 
+const HabitSchema = z.object({
+  name: z.string().describe("A short, actionable name for the habit. e.g. 'Morning Stillness'"),
+  why: z.string().describe("The reason or spiritual intention behind this habit. e.g. 'To calm the restless waters of the mind.'"),
+  frequency: z.string().describe("The suggested frequency for the practice. e.g., 'Every dawn', '3x per week'"),
+  label: z.string().describe("A single, soul-based label for the habit. e.g., 'Awareness', 'Humility', 'Restraint'"),
+});
 
 const ReflectionOutputSchema = z.object({
   soulStage: z.string().describe("A short, poetic description of the user's current soul stage (Nafs). Examples: 'The soul at peace,' 'The inspired soul,' 'The soul in contention.'"),
@@ -35,6 +41,7 @@ const ReflectionOutputSchema = z.object({
   probingQuestions: z.array(z.string()).describe("2-3 open-ended questions to gently challenge the user's perspective."),
   wisdomSeed: z.string().describe("A single, memorable sentence of wisdom."),
   optionalPrompt: z.string().optional().describe("An optional, one-sentence prompt for meditation, breathwork, or dhikr."),
+  prescribedHabits: z.array(HabitSchema).optional().describe("1-2 small, actionable spiritual practices prescribed to the user based on their reflection, positioned as gentle invitations."),
 });
 export type ReflectionOutput = z.infer<typeof ReflectionOutputSchema>;
 
@@ -63,6 +70,7 @@ Generate a response with these exact components:
 - **probingQuestions:** Exactly 2-3 open-ended questions that encourage self-reflection and help balance their temperament.
 - **wisdomSeed:** A single, memorable sentence of wisdom.
 - **optionalPrompt:** If relevant, a simple one-sentence prompt for meditation or breathwork. Otherwise, omit this field.
+- **prescribedHabits**: After generating the reflection, you may also prescribe 1-2 small habits as 'Prescriptions of the Self'. These should be based on the user's temperament imbalance and diagnosed nafs state (e.g., if they show excess choleric temperament, suggest a habit for patience). Each habit needs a 'name', a 'why' (the intention), a 'frequency', and a soul-based 'label' (e.g., 'Awareness', 'Humility', 'Restraint'). Position them as gentle invitations, not commands. If no habits feel appropriate, omit this field.
 
 You are a guide pointing the way. The user holds the key. You must return your entire response in the specified JSON format.`;
 
