@@ -1,11 +1,7 @@
 
 "use server";
 
-import {
-  generateReflection,
-  type ReflectionInput,
-  type ReflectionOutput,
-} from "@/ai/flows/generate-reflection";
+import { generateReflection } from "@/ai/flows/generate-reflection";
 import {
   generateSymbolicPrompt,
   type SymbolicPromptInput,
@@ -16,6 +12,7 @@ import {
   type ChatInput,
   type ChatOutput,
 } from "@/ai/flows/continue-chat";
+import type { ReflectionInput, ReflectionOutput } from "@/lib/types";
 
 
 export async function reflectionAction(
