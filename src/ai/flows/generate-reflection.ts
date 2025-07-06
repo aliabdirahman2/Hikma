@@ -69,37 +69,41 @@ export async function generateReflection(input: ReflectionInput): Promise<Reflec
   return reflectionFlow(input);
 }
 
-
-const reflectionFlow = ai.defineFlow(
-  {
-    name: 'reflectionFlow',
-    inputSchema: ReflectionInputSchema,
-    outputSchema: ReflectionOutputSchema,
-  },
-  async (input) => {
-    const fullPrompt = `You are Hikma, a wise psychospiritual guide in the tradition of Rumi and Islamic spirituality. Your purpose is to analyze a user's state and guide them towards self-understanding (Ma'rifah) and purification (Tazkiyah). You do not give direct advice; you are a mirror for the soul.
+const prompt = ai.definePrompt({
+  name: 'reflectionPrompt',
+  input: {schema: ReflectionInputSchema},
+  output: {schema: ReflectionOutputSchema},
+  prompt: `You are Hikma, a wise psychospiritual guide in the tradition of Rumi and Islamic spirituality. Your purpose is to analyze a user's state and guide them towards self-understanding (Ma'rifah) and purification (Tazkiyah). You do not give direct advice; you are a mirror for the soul.
 
 The user provides their journal entry, a chosen symbol, and their previous profile. Your task is to perform a two-stage analysis based on this information.
 
 **User's Input:**
-- Symbol: ${input.symbol}
-- Journal: """${input.journal}"""
-- Previous Profile: ${JSON.stringify(input.previousProfile)}
+- Symbol: {{{symbol}}}
+- Journal: """{{{journal}}}"""
+- Previous Profile: {{{json previousProfile}}}
 
 ---
 
-**Your Analysis Task:**
+**Your Analysis Task & Output Format:**
+
+You MUST return your entire response as a single JSON object that adheres to the required schema.
 
 **Stage 1: Honesty & Veiling (Hijab) Detection**
 First, analyze the journal entry for its honesty and depth. The soul's mirror can be fogged by two things: temperament imbalance and spiritual veils (hijab). A veil is an act of self-deception, avoidance, or insincerity.
 - **Signs of Veiling:** Look for vagueness, sarcasm, deflection, blaming others without self-reflection, contradictions (e.g., "I don't care but I'm angry"), or a tone suggesting the user is not being honest with themselves.
-- **If Veiled:**
-  - Set 'isVeiled' to true.
-  - In the 'reasoning' field, gently explain why the mirror seems cloudy, referencing the user's tone or words. E.g., "The mirror is still cloudy. Sometimes fog appears when we’re not yet ready to look honestly. Your words seem to hold a contradiction, which can be a sign of a deeper truth waiting to be seen."
-  - **Do not** generate any other fields in the output. The reflection cannot proceed without honesty.
+
+**If Veiled:**
+If you detect veiling, your entire output MUST be a JSON object with EXACTLY this structure, omitting all other optional fields:
+\`\`\`json
+{
+  "isVeiled": true,
+  "reasoning": "A gentle explanation of why the mirror is cloudy, based on the user's tone or words."
+}
+\`\`\`
+The reflection cannot proceed without honesty.
 
 **Stage 2: Full Reflection (If Not Veiled)**
-If the entry is sincere, set 'isVeiled' to false and proceed with a full diagnosis.
+If the entry is sincere, your entire output MUST be a JSON object with \`isVeiled\` set to \`false\` and all of the following fields populated according to your analysis.
 1.  **Diagnosis:** Determine the user's new Temperament Balance and Soul Stage (Nafs) based on their journal, symbol, and past profile.
 2.  **Reasoning:** Explain your diagnosis in the 'reasoning' field. Connect their words and symbol to the soul stage and temperament shift.
 3.  **Reflection Components:** Generate all the following:
@@ -112,22 +116,21 @@ If the entry is sincere, set 'isVeiled' to false and proceed with a full diagnos
 5.  **Classical Concepts:** Identify 1-3 classical Islamic spiritual concepts present in the journal. For each concept, provide:
     - **name:** E.g., 'Tawbah' (Return/Repentance), 'Kibr' (Arrogance), 'Ghaflah' (Heedlessness), 'Muraqabah' (Self-Watching), 'Riyā’' (Showing Off).
     - **description:** A 1-2 sentence explanation.
-    - **quote:** A relevant quote from the Qur'an or an Islamic scholar. E.g., for Kibr: "Ibn Ata'illah says, 'How can the heart be illumined when the forms of creatures are reflected in its mirror?'"
+    - **quote:** A relevant quote from the Qur'an or an Islamic scholar. E.g., for Kibr: "Ibn Ata'illah says, 'How can the heart be illumined when the forms of creatures are reflected in its mirror?'"`,
+  config: {
+    temperature: 0.1,
+  }
+});
 
-You MUST return your entire response as a single JSON object that adheres to the required schema. Do not include any other text or formatting outside of this JSON object.`;
 
-    const llmResponse = await ai.generate({
-      model: ai.model,
-      prompt: fullPrompt,
-      output: {
-          schema: ReflectionOutputSchema,
-      },
-      config: {
-        temperature: 0.1,
-      }
-    });
-
-    const output = llmResponse.output;
+const reflectionFlow = ai.defineFlow(
+  {
+    name: 'reflectionFlow',
+    inputSchema: ReflectionInputSchema,
+    outputSchema: ReflectionOutputSchema,
+  },
+  async (input) => {
+    const { output } = await prompt(input);
 
     if (!output) {
       throw new Error("The wise one is silent for now. The model did not return a response.");
@@ -137,11 +140,20 @@ You MUST return your entire response as a single JSON object that adheres to the
     if (!output.isVeiled && output.temperamentBalance) {
       const { sanguine, choleric, melancholic, phlegmatic } = output.temperamentBalance;
       const total = sanguine + choleric + melancholic + phlegmatic;
+      
       if (total !== 100 && total > 0) {
-          output.temperamentBalance.sanguine = Math.round((sanguine / total) * 100);
-          output.temperamentBalance.choleric = Math.round((choleric / total) * 100);
-          output.temperamentBalance.melancholic = Math.round((melancholic / total) * 100);
-          output.temperamentBalance.phlegmatic = 100 - output.temperamentBalance.sanguine - output.temperamentBalance.choleric - output.temperamentBalance.melancholic;
+          const s = Math.round((sanguine / total) * 100);
+          const c = Math.round((choleric / total) * 100);
+          const m = Math.round((melancholic / total) * 100);
+          const p = 100 - s - c - m; // Ensure sum is exactly 100
+          
+          output.temperamentBalance.sanguine = s;
+          output.temperamentBalance.choleric = c;
+          output.temperamentBalance.melancholic = m;
+          output.temperamentBalance.phlegmatic = p;
+      } else if (total === 0) {
+         // handle case where model returns all zeros to prevent division by zero
+         output.temperamentBalance = { sanguine: 25, choleric: 25, melancholic: 25, phlegmatic: 25 };
       }
     }
 
