@@ -39,39 +39,42 @@ const CustomAngleAxisTick = (props: any) => {
   const description =
     temperamentDescriptions[term as keyof typeof temperamentDescriptions] || "";
 
-  const termWidth = term.length * 7;
-  let finalX = x;
-  
-  if (textAnchor === "start") {
-    finalX = x + 8;
-  } else if (textAnchor === "end") {
-    finalX = x - 8 - termWidth;
-  } else {
-    finalX = x - termWidth / 2;
+  // This positioning logic is simplified for clarity, assuming a relatively standard font size.
+  // You may need to adjust these offsets if you change font styles significantly.
+  let textX = x;
+  if (textAnchor === "end") {
+    textX = x - 15; // move text to the left of the icon
+  } else if (textAnchor === "start") {
+    textX = x + 15; // move text to the right of the icon
   }
+  
+  const iconX = textAnchor === 'end' ? x - 14 : x - 2;
 
   return (
-    <g>
+    <g transform={`translate(${x},${y})`}>
       <text
-        x={finalX}
-        y={y + 4}
-        textAnchor="start"
+        x={0}
+        y={4}
+        textAnchor={textAnchor}
         fill="hsl(var(--muted-foreground))"
         fontSize={12}
       >
         {term}
       </text>
-      <foreignObject x={finalX + termWidth + 4} y={y - 8} width={16} height={16}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="w-full h-full flex items-center justify-center cursor-pointer">
-              <Eye className="h-4 w-4 text-muted-foreground/70 hover:text-primary" />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="top">
-            <p>{description}</p>
-          </TooltipContent>
-        </Tooltip>
+      {/* foreignObject allows embedding HTML (like our tooltip) inside an SVG */}
+      <foreignObject x={textAnchor === 'end' ? -15 : 5} y={-8} width={16} height={16}>
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="w-full h-full flex items-center justify-center cursor-pointer">
+                <Eye className="h-4 w-4 text-muted-foreground/70 hover:text-primary" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>{description}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </foreignObject>
     </g>
   );
@@ -86,7 +89,6 @@ export function TemperamentWheel({ data }: TemperamentWheelProps) {
   ];
 
   return (
-    <TooltipProvider delayDuration={100}>
       <ResponsiveContainer width="100%" height={300}>
         <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
           <PolarGrid stroke="hsl(var(--border))" />
@@ -100,6 +102,5 @@ export function TemperamentWheel({ data }: TemperamentWheelProps) {
           />
         </RadarChart>
       </ResponsiveContainer>
-    </TooltipProvider>
   );
 }
