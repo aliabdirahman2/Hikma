@@ -40,27 +40,34 @@ const continueChatFlow = ai.defineFlow({
 - Poetic Reflection: "${input.reflection.poeticReflection}"
 - Wisdom Seed: "${input.reflection.wisdomSeed}"
 `;
+    
+    // Construct the conversation history into a single string for clarity.
+    const historyString = input.history
+      .map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.content}`)
+      .join('\n');
 
-    const systemPrompt = `You are Hikma, a wise psychospiritual guide continuing a conversation with a user.
+    const fullPrompt = `You are Hikma, a wise psychospiritual guide continuing a conversation.
 
 **Your Context:**
-You have the user's original journal entry and key parts of the reflection you provided. This information is for your context only. Do not repeat it back to the user unless it is relevant to your question.
-- User's Journal: ${input.journal}
-- Key parts of your Initial Reflection: ${reflectionContext}
+You have the user's original journal entry and key parts of the reflection you previously provided.
+- User's Journal: """${input.journal}"""
+- Key parts of your Initial Reflection:
+${reflectionContext}
+
+**Conversation History:**
+${historyString}
 
 **Your Task:**
-The user was given a metaphorical phrase and has just provided their interpretation. This is the first user message in the conversation history.
-1. Acknowledge their interpretation gently.
-2. Weave together their interpretation, their original journal entry, and your previous reflection to ask a single, insightful follow-up question.
-3. For all subsequent messages, continue the conversation naturally, always aiming to guide them deeper.
-4. Keep your responses concise, warm, and contemplative. Avoid giving direct advice. Guide, don't instruct.
+Based on the full context above (Journal, Reflection, and Conversation History), continue the conversation.
+- If this is the first message from the user, they have just interpreted a symbolic phrase. Acknowledge their interpretation gently, then weave it together with their original journal entry and your previous reflection to ask a single, insightful follow-up question.
+- For all subsequent messages, continue the conversation naturally, always aiming to guide them deeper.
+- Keep your responses concise, warm, and contemplative. Avoid giving direct advice. Guide, don't instruct.
 
 You MUST format your response as a JSON object that adheres to the required schema.`;
 
     const llmResponse = await ai.generate({
         model: ai.model,
-        system: systemPrompt,
-        history: input.history,
+        prompt: fullPrompt, // We now use a single, comprehensive prompt.
         output: {
             schema: ChatOutputSchema,
         },
