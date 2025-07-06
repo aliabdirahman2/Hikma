@@ -16,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { SoulMirror } from "@/components/SoulMirror";
 
 export default function DashboardPage() {
   const [profile] = useLocalStorage<PsychospiritualProfile>(
@@ -42,10 +43,11 @@ export default function DashboardPage() {
             </CardTitle>
             <CardDescription>A poetic sense of your place.</CardDescription>
           </CardHeader>
-          <CardContent className="flex-grow">
-            <p className="text-lg italic text-center py-4 text-primary">
+          <CardContent className="flex-grow flex flex-col justify-between text-center">
+            <p className="text-lg italic text-primary">
               &ldquo;{profile.soulStage}&rdquo;
             </p>
+            <SoulMirror temperamentBalance={profile.temperamentBalance} />
           </CardContent>
         </Card>
 
