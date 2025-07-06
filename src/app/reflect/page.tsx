@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState, type ReactElement } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -95,10 +96,11 @@ export default function ReflectionPage() {
         setStep("reflection");
       }
     } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Could not get a reflection. Please try again.";
       toast({
         variant: "destructive",
         title: "An error occurred",
-        description: "Could not get a reflection. Please try again.",
+        description: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -182,7 +184,7 @@ export default function ReflectionPage() {
           </motion.div>
         )}
 
-        {step === "reflection" && reflection && (
+        {step === "reflection" && reflection && !reflection.isVeiled && (
           <motion.div key="reflection" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }} className="w-full">
             <div className="space-y-6">
               <Card>
@@ -190,7 +192,7 @@ export default function ReflectionPage() {
                   <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary"><Wand2/>Poetic Reflection</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-lg italic whitespace-pre-wrap leading-relaxed">&ldquo;{reflection.poeticReflection}&rdquo;</p>
+                  <p className="text-lg italic whitespace-pre-wrap leading-relaxed">&ldquo;{reflection.poeticReflection!}&rdquo;</p>
                 </CardContent>
               </Card>
 
@@ -223,7 +225,7 @@ export default function ReflectionPage() {
                 </CardHeader>
                 <CardContent>
                   <ul className="list-disc pl-5 space-y-2 text-base">
-                    {reflection.probingQuestions.map((q, i) => <li key={i}>{q}</li>)}
+                    {reflection.probingQuestions!.map((q, i) => <li key={i}>{q}</li>)}
                   </ul>
                 </CardContent>
               </Card>
@@ -234,7 +236,7 @@ export default function ReflectionPage() {
                     <CardTitle className="font-headline text-xl">Wisdom Seed</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="font-medium">{reflection.wisdomSeed}</p>
+                    <p className="font-medium">{reflection.wisdomSeed!}</p>
                   </CardContent>
                 </Card>
                 {reflection.optionalPrompt && (

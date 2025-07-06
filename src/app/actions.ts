@@ -26,6 +26,9 @@ export async function reflectionAction(
     return output;
   } catch (error) {
     console.error("Error in reflection action:", error);
+    if (error instanceof Error) {
+        throw new Error(error.message);
+    }
     throw new Error("Failed to get a reflection. Please try again.");
   }
 }

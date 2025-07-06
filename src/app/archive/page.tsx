@@ -1,3 +1,4 @@
+
 "use client";
 
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -61,7 +62,7 @@ export default function ArchivePage() {
                     <CardDescription className="italic text-primary mt-1">
                       {entry.reflection.isVeiled 
                         ? <span className="text-amber-600">A Veiled Reflection</span> 
-                        : `“${entry.reflection.soulStage}”`
+                        : `“${entry.reflection.soulStage!}”`
                       }
                     </CardDescription>
                   </div>
@@ -125,7 +126,7 @@ export default function ArchivePage() {
                                     Hikma's Reflection
                                   </h4>
                                   <p className="italic whitespace-pre-wrap leading-relaxed">
-                                    “{entry.reflection.poeticReflection}”
+                                    “{entry.reflection.poeticReflection!}”
                                   </p>
                                 </div>
 
@@ -152,7 +153,7 @@ export default function ArchivePage() {
                     <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <Quote className="w-4 h-4 text-primary" />
                     <span className="font-bold mr-1">Wisdom Seed:</span>
-                    {entry.reflection.wisdomSeed}
+                    {entry.reflection.wisdomSeed!}
                     </p>
                 </CardFooter>
               )}

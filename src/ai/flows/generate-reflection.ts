@@ -48,26 +48,24 @@ const SpiritualConceptSchema = z.object({
 });
 
 
-const VeiledOutputSchema = z.object({
-  isVeiled: z.literal(true).describe("The journal entry seems evasive, dishonest, or low-effort."),
-  reasoning: z.string().describe("The reasoning for why the reflection is considered veiled."),
+// A single, unified schema for the output.
+export const ReflectionOutputSchema = z.object({
+  isVeiled: z.boolean().describe("This field is ALWAYS required. Set to true if the journal entry seems evasive, dishonest, or low-effort. Otherwise, set to false."),
+  reasoning: z.string().describe("This field is ALWAYS required. If veiled, explain the reasoning. If not veiled, explain the diagnosis, connecting journal, symbol, and soul stage."),
+  
+  // These fields are ONLY required if isVeiled is false.
+  soulStage: z.string().optional().describe("A short, poetic description of the user's current soul stage (Nafs)."),
+  temperamentBalance: TemperamentBalanceSchema.optional().describe("The user's new temperament balance, where the four values sum to 100."),
+  poeticReflection: z.string().optional().describe("A short, metaphorical reflection on the user's journal entry, in the style of Rumi."),
+  probingQuestions: z.array(z.string()).min(2).max(3).optional().describe("2-3 open-ended questions to gently challenge the user's perspective."),
+  wisdomSeed: z.string().optional().describe("A single, memorable sentence of wisdom."),
+  
+  // These fields are always optional.
+  optionalPrompt: z.string().optional().describe("An optional, one-sentence prompt for meditation, breathwork, or dhikr."),
+  prescribedHabits: z.array(HabitSchema).max(2).optional().describe("0 to 2 small, actionable spiritual practices prescribed to the user based on their reflection."),
+  divineName: DivineNameSchema.optional().describe("A Divine Name to contemplate, based on the user's reflection."),
+  spiritualConcepts: z.array(SpiritualConceptSchema).max(3).optional().describe("0 to 3 classical Islamic spiritual concepts identified in the journal entry."),
 });
-
-const FullReflectionOutputSchema = z.object({
-    isVeiled: z.literal(false),
-    reasoning: z.string().describe("The reasoning for the diagnosis, connecting journal, symbol, and soul stage."),
-    soulStage: z.string().describe("A short, poetic description of the user's current soul stage (Nafs)."),
-    temperamentBalance: TemperamentBalanceSchema.describe("The user's new temperament balance, where the four values sum to 100."),
-    poeticReflection: z.string().describe("A short, metaphorical reflection on the user's journal entry, in the style of Rumi."),
-    probingQuestions: z.array(z.string()).min(2).max(3).describe("2-3 open-ended questions to gently challenge the user's perspective."),
-    wisdomSeed: z.string().describe("A single, memorable sentence of wisdom."),
-    optionalPrompt: z.string().optional().describe("An optional, one-sentence prompt for meditation, breathwork, or dhikr."),
-    prescribedHabits: z.array(HabitSchema).max(2).optional().describe("0 to 2 small, actionable spiritual practices prescribed to the user based on their reflection."),
-    divineName: DivineNameSchema.optional().describe("A Divine Name to contemplate, based on the user's reflection."),
-    spiritualConcepts: z.array(SpiritualConceptSchema).max(3).optional().describe("0 to 3 classical Islamic spiritual concepts identified in the journal entry."),
-});
-
-const ReflectionOutputSchema = z.union([VeiledOutputSchema, FullReflectionOutputSchema]);
 export type ReflectionOutput = z.infer<typeof ReflectionOutputSchema>;
 
 
@@ -81,7 +79,7 @@ const prompt = ai.definePrompt({
   output: {schema: ReflectionOutputSchema},
   prompt: `You are Hikma, a wise psychospiritual guide in the tradition of Rumi and Islamic spirituality. Your purpose is to analyze a user's state and guide them towards self-understanding (Ma'rifah) and purification (Tazkiyah). You do not give direct advice; you are a mirror for the soul.
 
-The user provides their journal entry, a chosen symbol, and their previous profile. Your task is to perform a two-stage analysis and return a JSON response that matches one of two types based on your findings.
+The user provides their journal entry, a chosen symbol, and their previous profile. Your task is to perform a two-stage analysis and return a single, unified JSON response.
 
 **User's Input:**
 - Symbol: {{{symbol}}}
@@ -95,16 +93,24 @@ The user provides their journal entry, a chosen symbol, and their previous profi
 You MUST return your entire response as a single JSON object that adheres to the required output schema.
 
 **1. Veiled Reflection Analysis:**
-First, analyze the journal entry for its honesty and depth. The soul's mirror can be fogged by two things: temperament imbalance and spiritual veils (hijab). A veil is an act of self-deception, avoidance, or insincerity.
+First, analyze the journal entry for its honesty and depth. A veil (hijab) is an act of self-deception, avoidance, or insincerity.
 - **Signs of Veiling:** Look for vagueness, sarcasm, deflection, blaming others without self-reflection, contradictions (e.g., "I don't care but I'm angry"), or a tone suggesting the user is not being honest with themselves.
-- **Output if Veiled:** If you detect veiling, your entire output MUST be a JSON object with 'isVeiled' set to true, and 'reasoning' explaining why.
 
-**2. Full Reflection Analysis:**
-If the entry is sincere, your entire output MUST be a JSON object with \`isVeiled\` set to \`false\` and ALL other required fields from the schema populated.
-- **Diagnosis:** Determine the user's new Temperament Balance and Soul Stage (Nafs).
-- **Reasoning:** Explain your diagnosis in the 'reasoning' field. Connect their words and symbol to the soul stage and temperament shift.
-- **Reflection Components:** Generate all the required components: a poetic reflection, probing questions, and a wisdom seed.
-- **Optional Components:** Only include the optional fields (\`optionalPrompt\`, \`prescribedHabits\`, \`divineName\`, \`spiritualConcepts\`) if they are truly relevant and insightful. Do not include them otherwise. Adhere strictly to the output schema.`,
+**2. Output Generation:**
+You will always generate a JSON object containing \`isVeiled\` and \`reasoning\`.
+
+- **IF VEILED:**
+  - Set \`isVeiled\` to \`true\`.
+  - In \`reasoning\`, explain *why* you detected a veil.
+  - DO NOT include any other fields in the JSON object except for \`isVeiled\` and \`reasoning\`.
+
+- **IF NOT VEILED (SINCERE):**
+  - Set \`isVeiled\` to \`false\`.
+  - In \`reasoning\`, explain your diagnosis, connecting their words and symbol to the soul stage and temperament shift.
+  - You MUST THEN POPULATE ALL the following fields: \`soulStage\`, \`temperamentBalance\`, \`poeticReflection\`, \`probingQuestions\`, and \`wisdomSeed\`.
+  - The optional fields (\`optionalPrompt\`, \`prescribedHabits\`, \`divineName\`, \`spiritualConcepts\`) should only be included if they are truly relevant and insightful. Do not include them otherwise.
+
+Adhere strictly to this structure.`,
   config: {
     temperature: 0.2,
     safetySettings: [
@@ -140,6 +146,15 @@ const reflectionFlow = ai.defineFlow(
 
     if (!output) {
       throw new Error("The wise one is silent for now. The model did not return a response.");
+    }
+    
+    // If not veiled, validate that the required fields for an unveiled reflection are present.
+    // This is a critical safeguard against model flakiness.
+    if (!output.isVeiled) {
+        if (!output.soulStage || !output.temperamentBalance || !output.poeticReflection || !output.probingQuestions || !output.wisdomSeed) {
+            console.error("Model returned incomplete unveiled reflection:", output);
+            throw new Error("The model returned an incomplete reflection. Please try again.");
+        }
     }
     
     // If not veiled, and if temperamentBalance exists, ensure numbers sum to 100
