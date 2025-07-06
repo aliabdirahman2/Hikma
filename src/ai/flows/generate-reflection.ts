@@ -40,6 +40,7 @@ const ReflectionOutputSchema = z.object({
   poeticReflection: z.string().describe("A short, metaphorical reflection on the user's journal entry, in the style of Rumi."),
   probingQuestions: z.array(z.string()).describe("2-3 open-ended questions to gently challenge the user's perspective."),
   wisdomSeed: z.string().describe("A single, memorable sentence of wisdom."),
+  reasoning: z.string().describe("A brief, gentle explanation for the user about why this reflection was generated, connecting their input to the output. E.g., 'Based on your writing's tone, you seem to be wrestling with regret, which indicates movement between these soul stages.'"),
   optionalPrompt: z.string().optional().describe("An optional, one-sentence prompt for meditation, breathwork, or dhikr."),
   prescribedHabits: z.array(HabitSchema).optional().describe("1-2 small, actionable spiritual practices prescribed to the user based on their reflection, positioned as gentle invitations."),
 });
@@ -69,6 +70,7 @@ Generate a response with these exact components:
 - **poeticReflection:** A concise, metaphorical reflection on their journal entry.
 - **probingQuestions:** Exactly 2-3 open-ended questions that encourage self-reflection and help balance their temperament.
 - **wisdomSeed:** A single, memorable sentence of wisdom.
+- **reasoning:** A brief, gentle explanation for the user about why this reflection was generated. Connect their written words and chosen symbol to the resulting soul stage and temperament shift. Start with a phrase like "Based on your writing's tone..." or "Your words about X, viewed through the symbol of Y, suggest...".
 - **optionalPrompt:** If relevant, a simple one-sentence prompt for meditation or breathwork. Otherwise, omit this field.
 - **prescribedHabits**: After generating the reflection, you may also prescribe 1-2 small habits as 'Prescriptions of the Self'. These should be based on the user's temperament imbalance and diagnosed nafs state (e.g., if they show excess choleric temperament, suggest a habit for patience). Each habit needs a 'name', a 'why' (the intention), a 'frequency', and a soul-based 'label' (e.g., 'Awareness', 'Humility', 'Restraint'). Position them as gentle invitations, not commands. If no habits feel appropriate, omit this field.
 

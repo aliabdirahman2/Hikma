@@ -4,13 +4,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, PlusCircle, Leaf } from "lucide-react";
 import { reflectionAction } from "@/app/actions";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import type { FullReflection, PsychospiritualProfile, TrackedHabit, PrescribedHabit } from "@/lib/types";
+import type { FullReflection, PsychospiritualProfile, TrackedHabit, PrescribedHabit, ArchivedReflection } from "@/lib/types";
 import { INITIAL_PROFILE } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 type Symbol = "wind" | "flame" | "water" | "earth";
 
@@ -29,6 +30,7 @@ export default function ReflectionPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [profile, setProfile] = useLocalStorage<PsychospiritualProfile>("hikma-profile", INITIAL_PROFILE);
   const [habits, setHabits] = useLocalStorage<TrackedHabit[]>("hikma-habits", []);
+  const [archive, setArchive] = useLocalStorage<ArchivedReflection[]>("hikma-archive", []);
   const { toast } = useToast();
 
   const handleSymbolSelect = (symbol: Symbol) => {
@@ -74,6 +76,15 @@ export default function ReflectionPage() {
         soulStage: result.soulStage,
         temperamentBalance: result.temperamentBalance,
       });
+
+      const newArchiveEntry: ArchivedReflection = {
+          date: new Date().toISOString(),
+          reflection: result,
+          journal: journalText,
+          symbol: selectedSymbol,
+      };
+      setArchive(prevArchive => [...prevArchive, newArchiveEntry]);
+      
       setStep("reflection");
     } catch (error) {
       toast({
@@ -118,6 +129,7 @@ export default function ReflectionPage() {
           <motion.div key="journal" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }}>
             <h1 className="font-headline text-3xl md:text-4xl text-center mb-4 text-primary">Speak Your Heart</h1>
             <p className="text-muted-foreground text-center text-lg mb-8">What tension, regret, or contradiction is present for you?</p>
+             <p className="text-muted-foreground text-center text-sm mb-8 italic">This symbol doesn’t determine your reflection—it’s a mirror you choose for yourself today.</p>
             <Textarea
               value={journalText}
               onChange={(e) => setJournalText(e.target.value)}
@@ -146,6 +158,17 @@ export default function ReflectionPage() {
                   <p className="text-lg italic whitespace-pre-wrap leading-relaxed">&ldquo;{reflection.poeticReflection}&rdquo;</p>
                 </CardContent>
               </Card>
+
+              {reflection.reasoning && (
+                <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="item-1" className="border-none">
+                        <AccordionTrigger className="text-primary hover:no-underline justify-center text-sm pt-0">Why did Hikma say this?</AccordionTrigger>
+                        <AccordionContent className="text-center text-muted-foreground">
+                            {reflection.reasoning}
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+              )}
 
               <Card>
                 <CardHeader>

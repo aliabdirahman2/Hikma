@@ -29,3 +29,10 @@ export type TrackedHabit = PrescribedHabit & {
   createdAt: string; // ISO date string
   completedDates: string[]; // array of ISO date strings 'YYYY-MM-DD'
 };
+
+export type ArchivedReflection = {
+  date: string; // ISO date string
+  reflection: FullReflection;
+  journal: string;
+  symbol: "wind" | "flame" | "water" | "earth";
+};
