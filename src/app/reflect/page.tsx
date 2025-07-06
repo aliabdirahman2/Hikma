@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, type ReactElement } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, PlusCircle, Leaf } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, PlusCircle, Leaf, MessageCircle } from "lucide-react";
 import { reflectionAction } from "@/app/actions";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import type { FullReflection, PsychospiritualProfile, TrackedHabit, PrescribedHabit, ArchivedReflection } from "@/lib/types";
+import type { FullReflection, PsychospiritualProfile, TrackedHabit, PrescribedHabit, ArchivedReflection, Message } from "@/lib/types";
 import { INITIAL_PROFILE } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ChatWithHikma } from "@/components/ChatWithHikma";
 
 const symbols = [
   { id: 'wind', icon: <Wind className="w-10 h-10" />, label: 'Wind (Air)' },
@@ -104,6 +105,13 @@ export default function ReflectionPage() {
     out: { opacity: 0, y: -20 },
   };
 
+  const resetFlow = () => {
+    setStep('symbol');
+    setReflection(null);
+    setJournalText("");
+    setSelectedSymbol(null);
+  }
+
   return (
     <div className="container mx-auto max-w-3xl px-4 py-12 min-h-[calc(100vh-150px)] flex flex-col justify-center">
       <AnimatePresence mode="wait">
@@ -149,7 +157,7 @@ export default function ReflectionPage() {
         )}
         
         {step === "reflection" && reflection && (
-          <motion.div key="reflection" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }}>
+          <motion.div key="reflection" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }} className="w-full">
             <div className="space-y-6">
               <Card>
                 <CardHeader>
@@ -226,9 +234,13 @@ export default function ReflectionPage() {
                   </CardContent>
                 </Card>
               )}
+                
+               <div className="mt-8 border-t pt-8">
+                 <ChatWithHikma reflection={reflection} journal={journalText} />
+               </div>
 
-               <div className="mt-8 flex justify-center">
-                 <Button onClick={() => setStep('symbol')} size="lg" variant="outline">
+               <div className="mt-8 flex justify-center border-t pt-8">
+                 <Button onClick={resetFlow} size="lg" variant="outline">
                    Begin a New Reflection <ArrowRight className="ml-2 h-5 w-5" />
                  </Button>
                </div>

@@ -118,14 +118,3 @@ Previous Profile: ${JSON.stringify(input.previousProfile)}`;
     return output;
   }
 );
-// This is a placeholder for the old chat flow to prevent build errors.
-// It will not be used in the new UI.
-const ChatInputSchema = z.object({
-  history: z.array(z.object({role: z.enum(['user', 'model']), content: z.string()})),
-});
-const ChatOutputSchema = z.object({
-  response: z.string()
-});
-export async function chat(input: z.infer<typeof ChatInputSchema>): Promise<z.infer<typeof ChatOutputSchema>> {
-  return {response: 'This flow is deprecated.'};
-}
