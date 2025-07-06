@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -63,18 +62,16 @@ const CustomAngleAxisTick = (props: any) => {
         {term}
       </text>
       <foreignObject x={finalX + termWidth + 4} y={y - 8} width={16} height={16}>
-        <TooltipProvider delayDuration={100}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div style={{ cursor: "help" }}>
-                <Eye className="h-4 w-4 text-muted-foreground/70 hover:text-primary" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              <p>{description}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="w-full h-full flex items-center justify-center cursor-pointer">
+              <Eye className="h-4 w-4 text-muted-foreground/70 hover:text-primary" />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="top">
+            <p>{description}</p>
+          </TooltipContent>
+        </Tooltip>
       </foreignObject>
     </g>
   );
@@ -89,18 +86,20 @@ export function TemperamentWheel({ data }: TemperamentWheelProps) {
   ];
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
-        <PolarGrid stroke="hsl(var(--border))" />
-        <PolarAngleAxis dataKey="subject" tick={<CustomAngleAxisTick />} />
-        <Radar
-          name="Temperament"
-          dataKey="value"
-          stroke="hsl(var(--primary))"
-          fill="hsl(var(--primary))"
-          fillOpacity={0.6}
-        />
-      </RadarChart>
-    </ResponsiveContainer>
+    <TooltipProvider delayDuration={100}>
+      <ResponsiveContainer width="100%" height={300}>
+        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
+          <PolarGrid stroke="hsl(var(--border))" />
+          <PolarAngleAxis dataKey="subject" tick={<CustomAngleAxisTick />} />
+          <Radar
+            name="Temperament"
+            dataKey="value"
+            stroke="hsl(var(--primary))"
+            fill="hsl(var(--primary))"
+            fillOpacity={0.6}
+          />
+        </RadarChart>
+      </ResponsiveContainer>
+    </TooltipProvider>
   );
 }
