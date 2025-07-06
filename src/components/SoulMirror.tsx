@@ -1,4 +1,3 @@
-
 "use client";
 
 import { cn } from "@/lib/utils";
@@ -8,10 +7,16 @@ interface SoulMirrorProps {
   temperamentBalance: PsychospiritualProfile["temperamentBalance"];
 }
 
-// A base icon for the mirror itself. A simple grey circle.
+// A base icon for the mirror itself. A darker, more polished stone look.
 const MirrorIcon = () => (
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full">
-        <circle cx="50" cy="50" r="48" fill="#E5E7EB" stroke="#D1D5DB" strokeWidth="2" />
+         <defs>
+            <radialGradient id="mirrorGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" style={{stopColor: '#4A5568', stopOpacity: 1}} />
+                <stop offset="100%" style={{stopColor: '#2D3748', stopOpacity: 1}} />
+            </radialGradient>
+        </defs>
+        <circle cx="50" cy="50" r="48" fill="url(#mirrorGradient)" stroke="#1A202C" strokeWidth="2" />
     </svg>
 );
 
@@ -19,18 +24,23 @@ const MirrorIcon = () => (
 export function SoulMirror({ temperamentBalance }: SoulMirrorProps) {
   const { sanguine, choleric, melancholic, phlegmatic } = temperamentBalance;
 
-  // Calculate imbalance score. Max possible score is 150.
+  // Calculate imbalance score. A perfectly balanced score is 0. Max possible score is 150.
   const imbalanceScore =
     Math.abs(sanguine - 25) +
     Math.abs(choleric - 25) +
     Math.abs(melancholic - 25) +
     Math.abs(phlegmatic - 25);
 
-  // Normalize score to a 0-1 range for opacity. Let's cap max fog at 80% opacity.
-  const fogOpacity = Math.min(0.8, (imbalanceScore / 150) * 1.2);
+  // Normalize score to a 0-1 range for opacity. Capped at 90% opacity for heavy fog.
+  const fogOpacity = Math.min(0.9, imbalanceScore / 150);
 
-  // Determine if the light 'nur' should pulse. Let's say if imbalance is low.
-  const showNur = imbalanceScore < 40; // less than ~25% imbalance
+  // The divine light (nur) should only appear when the soul is nearing balance.
+  // We'll set a much stricter threshold of 25.
+  const showNur = imbalanceScore < 25;
+
+  // The opacity of the nur should be strongest when perfectly balanced (score of 0)
+  // and fade out completely as it approaches the threshold of 25.
+  const nurOpacity = showNur ? 1 - (imbalanceScore / 25) : 0;
 
   return (
     <div className="relative w-48 h-48 mx-auto my-4" aria-label="A metaphorical mirror reflecting your soul's current state.">
@@ -40,23 +50,25 @@ export function SoulMirror({ temperamentBalance }: SoulMirrorProps) {
         <div
             className="absolute inset-0 w-full h-full rounded-full transition-opacity duration-1000"
             style={{
-                background: 'radial-gradient(circle, rgba(245,245,220,0.1) 0%, rgba(245,245,220,0.8) 70%)',
+                // A neutral, dusty fog
+                background: 'radial-gradient(circle, rgba(200, 200, 190, 0.2) 0%, rgba(150, 150, 140, 0.9) 80%)',
                 opacity: fogOpacity,
             }}
             aria-hidden="true"
         />
 
         {/* Nur (Light) Animation */}
-        {showNur && (
-            <div
-                className="absolute inset-0 w-full h-full rounded-full nur-pulse"
-                style={{
-                    boxShadow: '0 0 20px 5px hsl(var(--accent)), 0 0 40px 15px hsl(var(--primary) / 0.5)',
-                    opacity: 1 - (imbalanceScore / 40) * 0.7, // light is stronger when more balanced
-                }}
-                aria-hidden="true"
-            />
-        )}
+        <div
+            className={cn(
+                "absolute inset-0 w-full h-full rounded-full transition-opacity duration-1000",
+                showNur && 'nur-pulse' // Apply pulse animation only when light is visible
+            )}
+            style={{
+                boxShadow: '0 0 25px 8px hsl(var(--accent)), 0 0 50px 20px hsl(var(--primary) / 0.6)',
+                opacity: nurOpacity,
+            }}
+            aria-hidden="true"
+        />
     </div>
   );
 }
