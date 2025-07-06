@@ -101,7 +101,9 @@ export default function Home() {
               </div>
               {message.role === "user" && (
                 <Avatar className="h-10 w-10 border">
-                  <AvatarFallback>You</AvatarFallback>
+                  <AvatarFallback className="bg-foreground text-background">
+                    N
+                  </AvatarFallback>
                 </Avatar>
               )}
             </div>
@@ -129,8 +131,13 @@ export default function Home() {
       <div className="p-4 border-t bg-background">
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-4"
         >
+          <Avatar className="h-10 w-10 border hidden sm:flex">
+            <AvatarFallback className="bg-foreground text-background">
+              N
+            </AvatarFallback>
+          </Avatar>
           <Input
             {...form.register("message")}
             placeholder="Speak your heart..."

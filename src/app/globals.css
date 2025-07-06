@@ -8,48 +8,48 @@ body {
 
 @layer base {
   :root {
-    --background: 60 56% 91%;
-    --foreground: 300 10% 20%;
-    --card: 60 56% 93%;
-    --card-foreground: 300 10% 20%;
-    --popover: 60 56% 91%;
-    --popover-foreground: 300 10% 20%;
-    --primary: 300 100% 25.1%;
-    --primary-foreground: 60 56% 91%;
-    --secondary: 30 48% 80%;
-    --secondary-foreground: 300 100% 25.1%;
-    --muted: 30 48% 85%;
-    --muted-foreground: 300 10% 40%;
-    --accent: 30 48% 66.1%;
-    --accent-foreground: 300 100% 25.1%;
+    --background: 48 83% 95%;
+    --foreground: 240 10% 10%;
+    --card: 48 83% 95%;
+    --card-foreground: 240 10% 10%;
+    --popover: 48 83% 95%;
+    --popover-foreground: 240 10% 10%;
+    --primary: 275 60% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 275 60% 80%;
+    --secondary-foreground: 275 60% 50%;
+    --muted: 39 56% 90%;
+    --muted-foreground: 240 10% 30%;
+    --accent: 40 30% 85%;
+    --accent-foreground: 240 10% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 300 10% 80%;
-    --input: 300 10% 85%;
-    --ring: 300 100% 25.1%;
+    --border: 40 30% 80%;
+    --input: 40 30% 88%;
+    --ring: 275 60% 50%;
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 300 10% 10%;
-    --foreground: 60 56% 91%;
-    --card: 300 10% 12%;
-    --card-foreground: 60 56% 91%;
-    --popover: 300 10% 10%;
-    --popover-foreground: 60 56% 91%;
-    --primary: 30 48% 66.1%;
-    --primary-foreground: 300 10% 10%;
-    --secondary: 300 100% 18%;
-    --secondary-foreground: 30 48% 66.1%;
-    --muted: 300 100% 15%;
-    --muted-foreground: 60 56% 80%;
-    --accent: 300 100% 25.1%;
-    --accent-foreground: 60 56% 91%;
+    --background: 240 10% 10%;
+    --foreground: 48 83% 95%;
+    --card: 240 10% 10%;
+    --card-foreground: 48 83% 95%;
+    --popover: 240 10% 10%;
+    --popover-foreground: 48 83% 95%;
+    --primary: 275 60% 60%;
+    --primary-foreground: 240 10% 10%;
+    --secondary: 275 60% 20%;
+    --secondary-foreground: 275 60% 70%;
+    --muted: 240 5% 15%;
+    --muted-foreground: 48 83% 90%;
+    --accent: 275 60% 30%;
+    --accent-foreground: 48 83% 95%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 300 10% 25%;
-    --input: 300 10% 25%;
-    --ring: 30 48% 66.1%;
+    --border: 240 5% 25%;
+    --input: 240 5% 25%;
+    --ring: 275 60% 60%;
   }
 }
 
@@ -59,6 +59,5 @@ body {
   }
   body {
     @apply bg-background text-foreground;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v5h-1v-5h-9v5h-1v-5h-9v5h-1v-5h-9v5h-1v-5h-9v5h-1v-5h-9v5h-1v-5h-9v5h-1v-5h-9v5h-1v-5h-9v5H0v-1h5v-9H0v-1h5v-9H0v-1h5v-9H0v-1h5v-9H0v-1h5v-9H0v-1h5v-9H0v-1h5v-9H0v-1h5v-9H0v-1h5V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5zm10 95V15h9v80h-9zm-10 0V15h9v80h-9zm-10 0V15h9v80h-9zm-10 0V15h9v80h-9zm-10 0V15h9v80h-9zm-10 0V15h9v80h-9zm-10 0V15h9v80h-9zm-10 0V15h9v80h-9zM6 85h9v9H6v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zM6 75h9v9H6v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zM6 65h9v9H6v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zM6 55h9v9H6v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zM6 45h9v9H6v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zM6 35h9v9H6v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zM6 25h9v9H6v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zM6 15h9v9H6v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9zm10 0h9v9h-9v-9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   }
 }
