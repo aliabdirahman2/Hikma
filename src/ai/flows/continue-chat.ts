@@ -34,19 +34,28 @@ const continueChatFlow = ai.defineFlow({
     inputSchema: ChatInputSchema,
     outputSchema: ChatOutputSchema,
 }, async (input) => {
+    // Create a more concise context string to avoid overly large prompts.
+    const reflectionContext = `
+- Soul Stage: ${input.reflection.soulStage}
+- Poetic Reflection: "${input.reflection.poeticReflection}"
+- Wisdom Seed: "${input.reflection.wisdomSeed}"
+`;
+
     const systemPrompt = `You are Hikma, a wise psychospiritual guide continuing a conversation with a user.
 
 **Your Context:**
-You have the user's original journal entry and the reflection you provided. This information is for your context only. Do not repeat it back to the user unless it is relevant to your question.
+You have the user's original journal entry and key parts of the reflection you provided. This information is for your context only. Do not repeat it back to the user unless it is relevant to your question.
 - User's Journal: ${input.journal}
-- Initial Reflection: ${JSON.stringify(input.reflection)}
+- Key parts of your Initial Reflection: ${reflectionContext}
 
 **Your Task:**
 The user was given a metaphorical phrase and has just provided their interpretation. This is the first user message in the conversation history.
 1. Acknowledge their interpretation gently.
 2. Weave together their interpretation, their original journal entry, and your previous reflection to ask a single, insightful follow-up question.
 3. For all subsequent messages, continue the conversation naturally, always aiming to guide them deeper.
-4. Keep your responses concise, warm, and contemplative. Avoid giving direct advice. Guide, don't instruct.`;
+4. Keep your responses concise, warm, and contemplative. Avoid giving direct advice. Guide, don't instruct.
+
+You MUST format your response as a JSON object that adheres to the required schema.`;
 
     const llmResponse = await ai.generate({
         model: ai.model,
