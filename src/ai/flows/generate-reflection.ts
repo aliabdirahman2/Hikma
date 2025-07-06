@@ -17,7 +17,7 @@ const TemperamentBalanceSchema = z.object({
   phlegmatic: z.number().describe('Water element. Associated with calmness, and peace. A number between 0-100.'),
 });
 
-export const ReflectionInputSchema = z.object({
+const ReflectionInputSchema = z.object({
   symbol: z.enum(['flame', 'water', 'wind', 'earth']).describe("The symbolic image the user chose, representing their current state."),
   journal: z.string().describe("The user's journal entry about their tensions, regrets, or contradictions."),
   previousProfile: z.object({
@@ -28,7 +28,7 @@ export const ReflectionInputSchema = z.object({
 export type ReflectionInput = z.infer<typeof ReflectionInputSchema>;
 
 
-export const ReflectionOutputSchema = z.object({
+const ReflectionOutputSchema = z.object({
   soulStage: z.string().describe("A short, poetic description of the user's current soul stage (Nafs). Examples: 'The soul at peace,' 'The inspired soul,' 'The soul in contention.'"),
   temperamentBalance: TemperamentBalanceSchema.describe("The user's new temperament balance, where the four values sum to 100."),
   poeticReflection: z.string().describe("A short, metaphorical reflection on the user's journal entry, in the style of Rumi."),
