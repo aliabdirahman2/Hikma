@@ -8,6 +8,13 @@ import {
   PolarAngleAxis,
   ResponsiveContainer,
 } from "recharts";
+import { Eye } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type TemperamentData = {
   sanguine: number;
@@ -19,6 +26,59 @@ type TemperamentData = {
 interface TemperamentWheelProps {
   data: TemperamentData;
 }
+
+const temperamentDescriptions: Record<string, string> = {
+  Sanguine: "Air element. Associated with optimism and sociality.",
+  Choleric: "Fire element. Associated with ambition and leadership.",
+  Phlegmatic: "Water element. Associated with calmness and peace.",
+  Melancholic: "Earth element. Associated with thoughtfulness and sensitivity.",
+};
+
+const CustomAngleAxisTick = (props: any) => {
+  const { x, y, textAnchor, payload } = props;
+  const term = payload.value.split(" (")[0];
+  const description =
+    temperamentDescriptions[term as keyof typeof temperamentDescriptions] || "";
+
+  const termWidth = term.length * 7;
+  let finalX = x;
+  
+  if (textAnchor === "start") {
+    finalX = x + 8;
+  } else if (textAnchor === "end") {
+    finalX = x - 8 - termWidth;
+  } else {
+    finalX = x - termWidth / 2;
+  }
+
+  return (
+    <g>
+      <text
+        x={finalX}
+        y={y + 4}
+        textAnchor="start"
+        fill="hsl(var(--muted-foreground))"
+        fontSize={12}
+      >
+        {term}
+      </text>
+      <foreignObject x={finalX + termWidth + 4} y={y - 8} width={16} height={16}>
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div style={{ cursor: "help" }}>
+                <Eye className="h-4 w-4 text-muted-foreground/70 hover:text-primary" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>{description}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </foreignObject>
+    </g>
+  );
+};
 
 export function TemperamentWheel({ data }: TemperamentWheelProps) {
   const chartData = [
@@ -32,10 +92,7 @@ export function TemperamentWheel({ data }: TemperamentWheelProps) {
     <ResponsiveContainer width="100%" height={300}>
       <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
         <PolarGrid stroke="hsl(var(--border))" />
-        <PolarAngleAxis
-          dataKey="subject"
-          tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
-        />
+        <PolarAngleAxis dataKey="subject" tick={<CustomAngleAxisTick />} />
         <Radar
           name="Temperament"
           dataKey="value"
