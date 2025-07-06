@@ -71,9 +71,21 @@ Adhere strictly to this structure.`,
     return output;
   }
   
+  // After an unveiling chat, if the model *still* fails to produce a complete reflection,
+  // we treat it as a logical failure, not a system error. We return a specific "veiled"
+  // response to guide the user gracefully.
   if (!output.soulStage || !output.temperamentBalance || !output.poeticReflection || !output.probingQuestions || !output.wisdomSeed) {
-      console.error("Model returned incomplete unveiled reflection:", output);
-      throw new Error("The model returned an incomplete reflection. Please try again.");
+      return {
+        isVeiled: true,
+        reasoning: "The reflection is still incomplete, even after our talk. That is okay. The heart opens at its own pace. Perhaps try writing in your journal again with a new sense of clarity.",
+        soulStage: undefined,
+        temperamentBalance: undefined,
+        poeticReflection: undefined,
+        probingQuestions: undefined,
+        wisdomSeed: undefined,
+        optionalPrompt: undefined,
+        prescribedHabits: undefined,
+      };
   }
   
   if (output.temperamentBalance) {

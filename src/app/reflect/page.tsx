@@ -55,6 +55,7 @@ export default function ReflectionPage() {
         setStep("veiled");
       } else {
         if (!result.soulStage || !result.temperamentBalance || !result.poeticReflection || !result.probingQuestions || !result.wisdomSeed) {
+            // This case should be rare now with server-side checks, but as a fallback:
             throw new Error("The model returned an incomplete reflection. Please try again.");
         }
         setProfile({
@@ -123,7 +124,7 @@ export default function ReflectionPage() {
             toast({
                 variant: "destructive",
                 title: "The Mirror Remains Veiled",
-                description: "It seems the heart is not yet ready. That is okay. Perhaps try writing in your journal again with a fresh perspective.",
+                description: result.reasoning,
             });
             setVeiledChat(false);
             setReflection(null);
