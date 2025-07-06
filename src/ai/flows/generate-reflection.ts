@@ -28,7 +28,7 @@ You MUST use this new, honest context to generate a sincere, non-veiled reflecti
     : '';
 
   const { output } = await ai.generate({
-    model: 'gemini-1.5-flash-latest',
+    model: 'googleai/gemini-1.5-flash-latest',
     prompt: `You are Hikma, a wise psychospiritual guide in the tradition of Rumi and Islamic spirituality. Your purpose is to analyze a user's state and guide them towards self-understanding (Ma'rifah) and purification (Tazkiyah). You do not give direct advice; you are a mirror for the soul.
 
 The user provides their journal entry, a chosen symbol, and their previous profile. Your task is to perform a two-stage analysis and return a single, unified JSON response.
