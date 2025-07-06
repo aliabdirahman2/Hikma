@@ -1,18 +1,17 @@
 "use client";
 import React, { useState, type ReactElement } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, PlusCircle, Leaf, MessageCircle, AlertTriangle, BookOpen } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, MessageCircle, AlertTriangle, BookOpen, Heart } from "lucide-react";
 import { reflectionAction } from "@/app/actions";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import type { FullReflection, PsychospiritualProfile, TrackedHabit, PrescribedHabit, ArchivedReflection, SpiritualConcept } from "@/lib/types";
+import type { FullReflection, PsychospiritualProfile, ArchivedReflection } from "@/lib/types";
 import { INITIAL_PROFILE } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ChatWithHikma } from "@/components/ChatWithHikma";
+import { UnveilingChat } from "@/components/UnveilingChat";
 
 const symbols = [
   { id: 'wind', icon: <Wind className="w-10 h-10" />, label: 'Wind (Air)' },
@@ -29,37 +28,14 @@ export default function ReflectionPage() {
   const [journalText, setJournalText] = useState("");
   const [reflection, setReflection] = useState<FullReflection | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [veiledChat, setVeiledChat] = useState(false);
   const [profile, setProfile] = useLocalStorage<PsychospiritualProfile>("hikma-profile", INITIAL_PROFILE);
-  const [habits, setHabits] = useLocalStorage<TrackedHabit[]>("hikma-habits", []);
   const [archive, setArchive] = useLocalStorage<ArchivedReflection[]>("hikma-archive", []);
   const { toast } = useToast();
 
   const handleSymbolSelect = (symbol: Symbol) => {
     setSelectedSymbol(symbol);
     setStep("journal");
-  };
-
-  const handleAcceptHabit = (habit: PrescribedHabit) => {
-    if (habits.some(h => h.name === habit.name)) {
-        toast({
-            variant: "default",
-            title: "Practice Already Accepted",
-            description: `You are already tracking "${habit.name}".`,
-        });
-        return;
-    }
-
-    const newHabit: TrackedHabit = {
-        ...habit,
-        id: new Date().toISOString() + Math.random(),
-        createdAt: new Date().toISOString(),
-        completedDates: [],
-    };
-    setHabits(prevHabits => [...prevHabits, newHabit]);
-    toast({
-        title: "Practice Accepted",
-        description: `"${habit.name}" has been added to your journey.`,
-    });
   };
 
   const handleSubmit = async () => {
@@ -79,8 +55,8 @@ export default function ReflectionPage() {
         setStep("veiled");
       } else {
         setProfile({
-          soulStage: result.soulStage!,
-          temperamentBalance: result.temperamentBalance!,
+          soulStage: result.soulStage,
+          temperamentBalance: result.temperamentBalance,
           veiledCount: 0,
         });
 
@@ -116,6 +92,26 @@ export default function ReflectionPage() {
     setReflection(null);
     setJournalText("");
     setSelectedSymbol(null);
+    setVeiledChat(false);
+  }
+
+  const handleTryAgain = () => {
+    setVeiledChat(false);
+    setReflection(null);
+    setStep('journal');
+  }
+  
+  const handleStartVeiledChat = () => {
+    setVeiledChat(true);
+  }
+  
+  const handleRerunReflection = () => {
+    setVeiledChat(false);
+    setReflection(null);
+    setStep('journal');
+    setTimeout(() => {
+        handleSubmit();
+    }, 100);
   }
 
   return (
@@ -162,26 +158,39 @@ export default function ReflectionPage() {
         )}
         
         {step === "veiled" && reflection && (
-          <motion.div key="veiled" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }} className="w-full text-center">
-            <Card className="max-w-md mx-auto">
-              <CardHeader>
-                <div className="mx-auto bg-amber-100 dark:bg-amber-900 p-3 rounded-full w-fit">
-                    <AlertTriangle className="size-8 text-amber-500" />
-                </div>
-                <CardTitle className="font-headline text-2xl text-primary mt-4">The Mirror is Veiled</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-lg italic text-muted-foreground">&ldquo;{reflection.reasoning}&rdquo;</p>
-                <p className="mt-4 text-sm">Honesty is the first step on any true path. The mirror cannot reflect what is hidden.</p>
-                <Button onClick={resetFlow} className="mt-6">
-                    Try Again with an Open Heart
-                </Button>
-              </CardContent>
-            </Card>
+          <motion.div key="veiled" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }} className="w-full">
+             {veiledChat ? (
+                <UnveilingChat 
+                    journal={journalText} 
+                    reasoning={reflection.reasoning}
+                    onReady={handleRerunReflection}
+                />
+            ) : (
+                <Card className="max-w-md mx-auto text-center">
+                    <CardHeader>
+                        <div className="mx-auto bg-amber-100 dark:bg-amber-900 p-3 rounded-full w-fit">
+                            <AlertTriangle className="size-8 text-amber-500" />
+                        </div>
+                        <CardTitle className="font-headline text-2xl text-primary mt-4">The Mirror is Veiled</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-lg italic text-muted-foreground">&ldquo;{reflection.reasoning}&rdquo;</p>
+                        <p className="mt-4 text-sm">Honesty is the first step on any true path. The mirror cannot reflect what is hidden.</p>
+                        <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+                            <Button onClick={handleTryAgain}>
+                                <BookOpen className="mr-2" /> Try Again
+                            </Button>
+                            <Button onClick={handleStartVeiledChat} variant="secondary">
+                                <Heart className="mr-2"/> Talk to Unveil
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
           </motion.div>
         )}
 
-        {step === "reflection" && reflection && !reflection.isVeiled && (
+        {step === "reflection" && reflection && (
           <motion.div key="reflection" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }} className="w-full">
             <div className="space-y-6">
               <Card>
@@ -189,7 +198,7 @@ export default function ReflectionPage() {
                   <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary"><Wand2/>Poetic Reflection</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-lg italic whitespace-pre-wrap leading-relaxed">&ldquo;{reflection.poeticReflection!}&rdquo;</p>
+                  <p className="text-lg italic whitespace-pre-wrap leading-relaxed">&ldquo;{reflection.poeticReflection}&rdquo;</p>
                 </CardContent>
               </Card>
 
@@ -199,7 +208,7 @@ export default function ReflectionPage() {
                 </CardHeader>
                 <CardContent>
                   <ul className="list-disc pl-5 space-y-2 text-base">
-                    {reflection.probingQuestions!.map((q, i) => <li key={i}>{q}</li>)}
+                    {reflection.probingQuestions.map((q, i) => <li key={i}>{q}</li>)}
                   </ul>
                 </CardContent>
               </Card>
@@ -210,7 +219,7 @@ export default function ReflectionPage() {
                     <CardTitle className="font-headline text-xl">Wisdom Seed</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="font-medium">{reflection.wisdomSeed!}</p>
+                    <p className="font-medium">{reflection.wisdomSeed}</p>
                   </CardContent>
                 </Card>
                 {reflection.optionalPrompt && (

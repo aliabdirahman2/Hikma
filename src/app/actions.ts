@@ -9,6 +9,8 @@ import {
   continueChat,
 } from "@/ai/flows/continue-chat";
 import type { ChatInput, ChatOutput } from "@/ai/flows/continue-chat";
+import { unveilHeart } from "@/ai/flows/unveil-heart-flow";
+import type { UnveilHeartInput, UnveilHeartOutput } from "@/ai/flows/unveil-heart-flow";
 import type { ReflectionInput, ReflectionOutput } from "@/lib/types";
 
 
@@ -47,6 +49,21 @@ export async function continueChatAction(
     return output;
   } catch (error) {
     console.error("Error in continueChatAction:", error);
+    throw new Error("Failed to get a chat response. Please try again.");
+  }
+}
+
+export async function unveilHeartAction(
+  input: UnveilHeartInput
+): Promise<UnveilHeartOutput> {
+  try {
+    const output = await unveilHeart(input);
+    return output;
+  } catch (error) {
+    console.error("Error in unveilHeartAction:", error);
+    if (error instanceof Error) {
+        throw new Error(error.message);
+    }
     throw new Error("Failed to get a chat response. Please try again.");
   }
 }
