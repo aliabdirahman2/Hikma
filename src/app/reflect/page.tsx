@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, MessageCircle, AlertTriangle, BookOpen, Heart } from "lucide-react";
 import { reflectionAction } from "@/app/actions";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import type { FullReflection, PsychospiritualProfile, ArchivedReflection } from "@/lib/types";
+import type { FullReflection, PsychospiritualProfile, ArchivedReflection, Message } from "@/lib/types";
 import { INITIAL_PROFILE } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -105,14 +105,63 @@ export default function ReflectionPage() {
     setVeiledChat(true);
   }
   
-  const handleRerunReflection = () => {
-    setVeiledChat(false);
-    setReflection(null);
-    setStep('journal');
-    setTimeout(() => {
-        handleSubmit();
-    }, 100);
-  }
+  const handleReadyForSincereReflection = async (chatHistory: Message[]) => {
+    if (!selectedSymbol || !journalText) return;
+    
+    // The UnveilingChat component shows its own loading state.
+    // We call the reflection action with the new context from the chat.
+    try {
+        const result = await reflectionAction({
+            symbol: selectedSymbol,
+            journal: journalText,
+            previousProfile: profile,
+            unveilingHistory: chatHistory,
+        });
+
+        if (result.isVeiled) {
+            // The unveiling chat didn't work. Reset to the journal step.
+            toast({
+                variant: "destructive",
+                title: "The Mirror Remains Veiled",
+                description: "It seems the heart is not yet ready. That is okay. Perhaps try writing in your journal again with a fresh perspective.",
+            });
+            setVeiledChat(false);
+            setReflection(null);
+            setStep('journal');
+        } else {
+            // SUCCESS! Transition to the sincere reflection page.
+            toast({
+                title: "The Veil Lifts",
+                description: "Your heart has opened. Here is your reflection.",
+            });
+            setReflection(result);
+            setProfile({
+                soulStage: result.soulStage,
+                temperamentBalance: result.temperamentBalance,
+                veiledCount: 0,
+            });
+            const newArchiveEntry: ArchivedReflection = {
+                date: new Date().toISOString(),
+                reflection: result,
+                journal: journalText,
+                symbol: selectedSymbol,
+            };
+            setArchive(prevArchive => [...prevArchive, newArchiveEntry]);
+            setStep("reflection");
+        }
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Could not get a reflection. Please try again.";
+        toast({
+            variant: "destructive",
+            title: "An error occurred",
+            description: errorMessage,
+        });
+        // On error, reset back to the journal step.
+        setVeiledChat(false);
+        setReflection(null);
+        setStep('journal');
+    }
+  };
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-12 min-h-[calc(100vh-150px)] flex flex-col justify-center">
@@ -163,7 +212,7 @@ export default function ReflectionPage() {
                 <UnveilingChat 
                     journal={journalText} 
                     reasoning={reflection.reasoning}
-                    onReady={handleRerunReflection}
+                    onReady={handleReadyForSincereReflection}
                 />
             ) : (
                 <Card className="max-w-md mx-auto text-center">

@@ -39,7 +39,8 @@ export const ReflectionInputSchema = z.object({
     soulStage: z.string(),
     veiledCount: z.number(),
     temperamentBalance: TemperamentBalanceSchema,
-  })
+  }),
+  unveilingHistory: z.custom<Message[]>().optional(),
 });
 export type ReflectionInput = z.infer<typeof ReflectionInputSchema>;
 

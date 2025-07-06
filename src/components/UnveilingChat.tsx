@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 interface UnveilingChatProps {
   journal: string;
   reasoning: string;
-  onReady: () => void;
+  onReady: (chatHistory: Message[]) => void;
 }
 
 export function UnveilingChat({ journal, reasoning, onReady }: UnveilingChatProps) {
@@ -23,6 +23,7 @@ export function UnveilingChat({ journal, reasoning, onReady }: UnveilingChatProp
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -34,7 +35,7 @@ export function UnveilingChat({ journal, reasoning, onReady }: UnveilingChatProp
 
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isTransitioning) return;
 
     const newUserMessage: Message = { role: "user", content: input };
     const newMessages = [...messages, newUserMessage];
@@ -52,13 +53,10 @@ export function UnveilingChat({ journal, reasoning, onReady }: UnveilingChatProp
         setMessages(prev => [...prev, { role: "model", content: result.response }]);
 
         if (result.isReady) {
-            setTimeout(() => {
-              toast({
-                title: "The Veil Lifts",
-                description: "Your heart is opening. Let's try reflecting again.",
-              });
-              onReady();
-            }, 2000);
+            setIsTransitioning(true);
+            // The parent component will handle the transition and any toasts.
+            // We just signal that we're ready and pass the conversation history.
+            onReady(newMessages);
         }
 
     } catch (error) {
@@ -72,6 +70,16 @@ export function UnveilingChat({ journal, reasoning, onReady }: UnveilingChatProp
         setIsLoading(false);
     }
   };
+
+  if (isTransitioning) {
+    return (
+        <Card className="w-full text-center p-8 flex flex-col items-center justify-center min-h-[400px]">
+            <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary mb-4" />
+            <p className="font-headline text-xl text-primary">Generating your new reflection...</p>
+            <p className="text-muted-foreground">The mirror clears...</p>
+        </Card>
+    );
+  }
 
   return (
     <Card className="w-full">

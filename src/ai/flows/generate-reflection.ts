@@ -6,10 +6,18 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {ReflectionInputSchema, ReflectionOutputSchema, type ReflectionInput, type ReflectionOutput} from '@/lib/types';
+import {ReflectionInputSchema, ReflectionOutputSchema, type ReflectionInput, type ReflectionOutput, type Message} from '@/lib/types';
 
 
 export async function generateReflection(input: ReflectionInput): Promise<ReflectionOutput> {
+  const unveilingContext = input.unveilingHistory && input.unveilingHistory.length > 0
+    ? `
+**Unveiling Conversation Context:**
+The user's initial reflection was veiled. They have since had a conversation to help them open up. This conversation should be treated as a more honest addendum to their journal entry. Use this new context to provide a sincere reflection and ensure 'isVeiled' is false.
+${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.content}`).join('\n')}
+`
+    : '';
+
   const { output } = await ai.generate({
     model: 'googleai/gemini-1.5-flash-latest',
     prompt: `You are Hikma, a wise psychospiritual guide in the tradition of Rumi and Islamic spirituality. Your purpose is to analyze a user's state and guide them towards self-understanding (Ma'rifah) and purification (Tazkiyah). You do not give direct advice; you are a mirror for the soul.
@@ -19,6 +27,7 @@ The user provides their journal entry, a chosen symbol, and their previous profi
 **User's Input:**
 - Symbol: ${input.symbol}
 - Journal: """${input.journal}"""
+${unveilingContext}
 - Previous Profile: ${JSON.stringify(input.previousProfile)}
 
 ---
