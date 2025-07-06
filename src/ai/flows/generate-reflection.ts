@@ -7,7 +7,7 @@
  * - ChatOutput - The return type for the chat function.
  */
 import {ai} from '@/ai/genkit';
-import { generate, type MessageData } from 'genkit';
+import {type MessageData} from 'genkit';
 import {z} from 'zod';
 
 const MessageSchema = z.object({
@@ -52,7 +52,7 @@ const chatFlow = ai.defineFlow(
         content: [{text: m.content}]
     }));
 
-    const llmResponse = await generate({
+    const llmResponse = await ai.generate({
       model: ai.model,
       system: systemPrompt,
       history: history,
