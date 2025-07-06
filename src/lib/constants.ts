@@ -3,6 +3,7 @@ import type { PsychospiritualProfile } from "./types";
 
 export const INITIAL_PROFILE: PsychospiritualProfile = {
   soulStage: "The journey begins...",
+  veiledCount: 0,
   temperamentBalance: {
     sanguine: 25,
     choleric: 25,

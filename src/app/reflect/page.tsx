@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, type ReactElement } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, PlusCircle, Leaf, MessageCircle } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, PlusCircle, Leaf, MessageCircle, AlertTriangle, BookOpen } from "lucide-react";
 import { reflectionAction } from "@/app/actions";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import type { FullReflection, PsychospiritualProfile, TrackedHabit, PrescribedHabit, ArchivedReflection, Message } from "@/lib/types";
+import type { FullReflection, PsychospiritualProfile, TrackedHabit, PrescribedHabit, ArchivedReflection, SpiritualConcept } from "@/lib/types";
 import { INITIAL_PROFILE } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ChatWithHikma } from "@/components/ChatWithHikma";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 
 const symbols = [
   { id: 'wind', icon: <Wind className="w-10 h-10" />, label: 'Wind (Air)' },
@@ -23,9 +24,8 @@ const symbols = [
 
 type Symbol = typeof symbols[number]['id'];
 
-
 export default function ReflectionPage() {
-  const [step, setStep] = useState<"symbol" | "journal" | "reflection">("symbol");
+  const [step, setStep] = useState<"symbol" | "journal" | "reflection" | "veiled">("symbol");
   const [selectedSymbol, setSelectedSymbol] = useState<Symbol | null>(null);
   const [journalText, setJournalText] = useState("");
   const [reflection, setReflection] = useState<FullReflection | null>(null);
@@ -74,20 +74,26 @@ export default function ReflectionPage() {
         previousProfile: profile,
       });
       setReflection(result);
-      setProfile({
-        soulStage: result.soulStage,
-        temperamentBalance: result.temperamentBalance,
-      });
 
-      const newArchiveEntry: ArchivedReflection = {
-          date: new Date().toISOString(),
-          reflection: result,
-          journal: journalText,
-          symbol: selectedSymbol,
-      };
-      setArchive(prevArchive => [...prevArchive, newArchiveEntry]);
-      
-      setStep("reflection");
+      if (result.isVeiled) {
+        setProfile(p => ({ ...p, veiledCount: p.veiledCount + 1 }));
+        setStep("veiled");
+      } else {
+        setProfile({
+          soulStage: result.soulStage!,
+          temperamentBalance: result.temperamentBalance!,
+          veiledCount: 0, // Reset veiled count on a successful reflection
+        });
+
+        const newArchiveEntry: ArchivedReflection = {
+            date: new Date().toISOString(),
+            reflection: result,
+            journal: journalText,
+            symbol: selectedSymbol,
+        };
+        setArchive(prevArchive => [...prevArchive, newArchiveEntry]);
+        setStep("reflection");
+      }
     } catch (error) {
       toast({
         variant: "destructive",
@@ -156,6 +162,26 @@ export default function ReflectionPage() {
           </motion.div>
         )}
         
+        {step === "veiled" && reflection && (
+          <motion.div key="veiled" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }} className="w-full text-center">
+            <Card className="max-w-md mx-auto">
+              <CardHeader>
+                <div className="mx-auto bg-amber-100 dark:bg-amber-900 p-3 rounded-full w-fit">
+                    <AlertTriangle className="size-8 text-amber-500" />
+                </div>
+                <CardTitle className="font-headline text-2xl text-primary mt-4">The Mirror is Veiled</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-lg italic text-muted-foreground">&ldquo;{reflection.reasoning}&rdquo;</p>
+                <p className="mt-4 text-sm">Honesty is the first step on any true path. The mirror cannot reflect what is hidden.</p>
+                <Button onClick={resetFlow} className="mt-6">
+                    Try Again with an Open Heart
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
         {step === "reflection" && reflection && (
           <motion.div key="reflection" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }} className="w-full">
             <div className="space-y-6">
@@ -177,6 +203,18 @@ export default function ReflectionPage() {
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
+              )}
+                
+              {reflection.divineName && (
+                <Card className="bg-gradient-to-br from-primary/10 to-accent/20">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-xl">Divine Name of the Day</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-lg font-semibold text-primary">{reflection.divineName.name}</p>
+                        <p className="mt-1 italic">&ldquo;{reflection.divineName.prompt}&rdquo;</p>
+                    </CardContent>
+                </Card>
               )}
 
               <Card>
@@ -211,6 +249,35 @@ export default function ReflectionPage() {
                 )}
               </div>
               
+                {reflection.spiritualConcepts && reflection.spiritualConcepts.length > 0 && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary"><BookOpen />Spiritual Themes</CardTitle>
+                             <CardDescription>Classical concepts present in your reflection.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex flex-wrap gap-3">
+                            {reflection.spiritualConcepts.map((concept) => (
+                                <Dialog key={concept.name}>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline" size="sm">{concept.name}</Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle className="font-headline text-2xl text-primary">{concept.name}</DialogTitle>
+                                        </DialogHeader>
+                                        <div className="space-y-4 py-4">
+                                          <p className="text-base">{concept.description}</p>
+                                          <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground">
+                                              {concept.quote}
+                                          </blockquote>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                            ))}
+                        </CardContent>
+                    </Card>
+                )}
+
               {reflection.prescribedHabits && reflection.prescribedHabits.length > 0 && (
                 <Card>
                   <CardHeader>

@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Info } from "lucide-react";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import type { PsychospiritualProfile } from "@/lib/types";
 import { INITIAL_PROFILE } from "@/lib/constants";
@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { SoulMirror } from "@/components/SoulMirror";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function DashboardPage() {
   const [profile] = useLocalStorage<PsychospiritualProfile>(
@@ -41,13 +42,34 @@ export default function DashboardPage() {
             <CardTitle className="font-headline text-2xl">
               Current Soul Stage
             </CardTitle>
-            <CardDescription>A poetic sense of your place.</CardDescription>
+            <CardDescription className="flex items-center gap-1">
+              A poetic sense of your place.
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Info className="size-3.5 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs text-center p-3">
+                            <p>Your soul is like a mirror. When it is clear, it reflects qualities like mercy, patience, and justice—the Names of the Divine.</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex-grow flex flex-col justify-between text-center">
             <p className="text-lg italic text-primary">
               &ldquo;{profile.soulStage}&rdquo;
             </p>
-            <SoulMirror temperamentBalance={profile.temperamentBalance} />
+            <SoulMirror 
+                temperamentBalance={profile.temperamentBalance} 
+                veiledCount={profile.veiledCount}
+            />
+             {profile.veiledCount > 0 && (
+                <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 p-3 rounded-md border border-amber-200 dark:border-amber-800">
+                    <p className="font-semibold">The Mirror is Veiled</p>
+                    <p className="italic">&ldquo;Balance without truth is equilibrium in illusion. Peace comes through unveiling.&rdquo;</p>
+                </div>
+             )}
           </CardContent>
         </Card>
 

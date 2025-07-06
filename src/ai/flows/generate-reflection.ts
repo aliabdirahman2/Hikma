@@ -22,6 +22,7 @@ const ReflectionInputSchema = z.object({
   journal: z.string().describe("The user's journal entry about their tensions, regrets, or contradictions."),
   previousProfile: z.object({
     soulStage: z.string(),
+    veiledCount: z.number(),
     temperamentBalance: TemperamentBalanceSchema,
   }).describe("The user's profile from the previous session.")
 });
@@ -34,15 +35,31 @@ const HabitSchema = z.object({
   label: z.string().describe("A single, soul-based label for the habit. e.g., 'Awareness', 'Humility', 'Restraint'"),
 });
 
+const DivineNameSchema = z.object({
+    name: z.string().describe("The Divine Name identified from the reflection (e.g., Al-Sabur, Al-Hakeem)."),
+    prompt: z.string().describe("A one-sentence prompt inviting the user to embody this Name."),
+});
+
+const SpiritualConceptSchema = z.object({
+    name: z.string().describe("The name of the classical Islamic concept (e.g., Tawbah, Kibr, Ghaflah)."),
+    description: z.string().describe("A 1-2 sentence description of the concept."),
+    quote: z.string().describe("A relevant quote from the Qur'an or an Islamic scholar."),
+});
+
 const ReflectionOutputSchema = z.object({
-  soulStage: z.string().describe("A short, poetic description of the user's current soul stage (Nafs). Examples: 'The soul at peace,' 'The inspired soul,' 'The soul in contention.'"),
-  temperamentBalance: TemperamentBalanceSchema.describe("The user's new temperament balance, where the four values sum to 100."),
-  poeticReflection: z.string().describe("A short, metaphorical reflection on the user's journal entry, in the style of Rumi."),
-  probingQuestions: z.array(z.string()).describe("2-3 open-ended questions to gently challenge the user's perspective."),
-  wisdomSeed: z.string().describe("A single, memorable sentence of wisdom."),
-  reasoning: z.string().describe("A brief, gentle explanation for the user about why this reflection was generated, connecting their input to the output. E.g., 'Based on your writing's tone, you seem to be wrestling with regret, which indicates movement between these soul stages.'"),
+  isVeiled: z.boolean().describe("Whether the journal entry seems evasive, dishonest, or low-effort."),
+  reasoning: z.string().describe("The reasoning for the entire reflection. If isVeiled is true, this should explain why. Otherwise, it explains the diagnosis."),
+  
+  soulStage: z.string().optional().describe("A short, poetic description of the user's current soul stage (Nafs)."),
+  temperamentBalance: TemperamentBalanceSchema.optional().describe("The user's new temperament balance, where the four values sum to 100."),
+  poeticReflection: z.string().optional().describe("A short, metaphorical reflection on the user's journal entry, in the style of Rumi."),
+  probingQuestions: z.array(z.string()).optional().describe("2-3 open-ended questions to gently challenge the user's perspective."),
+  wisdomSeed: z.string().optional().describe("A single, memorable sentence of wisdom."),
   optionalPrompt: z.string().optional().describe("An optional, one-sentence prompt for meditation, breathwork, or dhikr."),
-  prescribedHabits: z.array(HabitSchema).optional().describe("1-2 small, actionable spiritual practices prescribed to the user based on their reflection, positioned as gentle invitations."),
+  prescribedHabits: z.array(HabitSchema).optional().describe("1-2 small, actionable spiritual practices prescribed to the user based on their reflection."),
+
+  divineName: DivineNameSchema.optional().describe("A Divine Name to contemplate, based on the user's reflection."),
+  spiritualConcepts: z.array(SpiritualConceptSchema).optional().describe("1-3 classical Islamic spiritual concepts identified in the journal entry."),
 });
 export type ReflectionOutput = z.infer<typeof ReflectionOutputSchema>;
 
@@ -51,30 +68,35 @@ export async function generateReflection(input: ReflectionInput): Promise<Reflec
   return reflectionFlow(input);
 }
 
-const systemPrompt = `You are Hikma, a wise psychospiritual guide in the tradition of Rumi. Your purpose is to analyze a user's state through symbolic and written input, then guide them towards self-understanding with metaphor and gentle questions. You do not give direct advice; you are a mirror for the soul.
+const systemPrompt = `You are Hikma, a wise psychospiritual guide in the tradition of Rumi and Islamic spirituality. Your purpose is to analyze a user's state and guide them towards self-understanding (Ma'rifah) and purification (Tazkiyah). You do not give direct advice; you are a mirror for the soul.
 
-The user will provide:
-1.  A chosen symbol: 'flame' (Choleric/Fire), 'water' (Phlegmatic/Water), 'earth' (Melancholic/Earth), or 'wind' (Sanguine/Air). This is their initial energetic leaning.
-2.  A journal entry about their inner state.
-3.  Their previous psychospiritual profile.
+The user provides their journal entry, a chosen symbol, and their previous profile. Your task is to perform a two-stage analysis.
 
-Your task is to perform a diagnosis and generate a structured response.
+**Stage 1: Honesty & Veiling (Hijab) Detection**
+First, analyze the journal entry for its honesty and depth. The soul's mirror can be fogged by two things: temperament imbalance and spiritual veils (hijab). A veil is an act of self-deception, avoidance, or insincerity.
+- **Signs of Veiling:** Look for vagueness, sarcasm, deflection, blaming others without self-reflection, contradictions (e.g., "I don't care but I'm angry"), or a tone suggesting the user is not being honest with themselves.
+- **If Veiled:**
+  - Set 'isVeiled' to true.
+  - In the 'reasoning' field, gently explain why the mirror seems cloudy, referencing the user's tone or words. E.g., "The mirror is still cloudy. Sometimes fog appears when we’re not yet ready to look honestly. Your words seem to hold a contradiction, which can be a sign of a deeper truth waiting to be seen."
+  - **Do not** generate any other fields. The reflection cannot proceed without honesty.
 
-**1. Psychospiritual Diagnosis:**
-Based on all inputs, you will determine:
-- **New Temperament Balance:** Analyze the journal entry in light of the chosen symbol. Update their temperament balance. The four values (sanguine, choleric, melancholic, phlegmatic) must sum to 100. For example, if their last state was balanced but they chose 'flame' and wrote about ambition, their new choleric score should increase.
-- **New Soul Stage (Nafs):** Based on the themes in their journal (regret, longing, peace, service, ego), provide a new, short, poetic description of their current soul stage. Examples: 'A soul between remorse and return,' 'The heart in the cave before the dawn,' 'A spirit learning to fly.'
+**Stage 2: Full Reflection (If Not Veiled)**
+If the entry is sincere, set 'isVeiled' to false and proceed with a full diagnosis.
+1.  **Diagnosis:** Determine the user's new Temperament Balance and Soul Stage (Nafs) based on their journal, symbol, and past profile.
+2.  **Reasoning:** Explain your diagnosis in the 'reasoning' field. Connect their words and symbol to the soul stage and temperament shift.
+3.  **Reflection Components:** Generate all the following:
+    - **poeticReflection:** A concise, metaphorical reflection.
+    - **probingQuestions:** 2-3 open-ended questions.
+    - **wisdomSeed:** A single, memorable sentence of wisdom.
+    - **optionalPrompt:** If relevant, a simple prompt for practice (meditation, dhikr).
+    - **prescribedHabits**: If appropriate, 1-2 small habits.
+4.  **Divine Name of the Day:** Based on the reflection, identify one of the 99 Names of Allah that is most relevant for the user to contemplate. Provide the Name (e.g., Al-Sabur) and a one-sentence 'prompt' inviting them to embody it. E.g., "Today, your soul is invited to reflect Al-Sabur (The Patient). What would embodying that look like in your life?"
+5.  **Classical Concepts:** Identify 1-3 classical Islamic spiritual concepts present in the journal. For each concept, provide:
+    - **name:** E.g., 'Tawbah' (Return/Repentance), 'Kibr' (Arrogance), 'Ghaflah' (Heedlessness), 'Muraqabah' (Self-Watching), 'Riyā’' (Showing Off).
+    - **description:** A 1-2 sentence explanation.
+    - **quote:** A relevant quote from the Qur'an or an Islamic scholar. E.g., for Kibr: "Ibn Ata'illah says, 'How can the heart be illumined when the forms of creatures are reflected in its mirror?'"
 
-**2. Structured Reflection:**
-Generate a response with these exact components:
-- **poeticReflection:** A concise, metaphorical reflection on their journal entry.
-- **probingQuestions:** Exactly 2-3 open-ended questions that encourage self-reflection and help balance their temperament.
-- **wisdomSeed:** A single, memorable sentence of wisdom.
-- **reasoning:** A brief, gentle explanation for the user about why this reflection was generated. Connect their written words and chosen symbol to the resulting soul stage and temperament shift. Start with a phrase like "Based on your writing's tone..." or "Your words about X, viewed through the symbol of Y, suggest...".
-- **optionalPrompt:** If relevant, a simple one-sentence prompt for meditation or breathwork. Otherwise, omit this field.
-- **prescribedHabits**: After generating the reflection, you may also prescribe 1-2 small habits as 'Prescriptions of the Self'. These should be based on the user's temperament imbalance and diagnosed nafs state (e.g., if they show excess choleric temperament, suggest a habit for patience). Each habit needs a 'name', a 'why' (the intention), a 'frequency', and a soul-based 'label' (e.g., 'Awareness', 'Humility', 'Restraint'). Position them as gentle invitations, not commands. If no habits feel appropriate, omit this field.
-
-You are a guide pointing the way. The user holds the key. You must return your entire response in the specified JSON format.`;
+You must return your entire response in the specified JSON format.`;
 
 
 const reflectionFlow = ai.defineFlow(
@@ -84,7 +106,6 @@ const reflectionFlow = ai.defineFlow(
     outputSchema: ReflectionOutputSchema,
   },
   async (input) => {
-    // Manually construct the prompt to avoid any templating issues.
     const fullPrompt = `Symbol: ${input.symbol}
 Journal: ${input.journal}
 Previous Profile: ${JSON.stringify(input.previousProfile)}`;
@@ -92,7 +113,7 @@ Previous Profile: ${JSON.stringify(input.previousProfile)}`;
     const llmResponse = await ai.generate({
       model: ai.model,
       system: systemPrompt,
-      prompt: fullPrompt, // Use the manually constructed prompt string.
+      prompt: fullPrompt,
       output: {
           schema: ReflectionOutputSchema,
       }
@@ -104,16 +125,17 @@ Previous Profile: ${JSON.stringify(input.previousProfile)}`;
       throw new Error("The wise one is silent for now. The model did not return a response.");
     }
     
-    // Ensure the numbers sum to 100
-    const { sanguine, choleric, melancholic, phlegmatic } = output.temperamentBalance;
-    const total = sanguine + choleric + melancholic + phlegmatic;
-    if (total !== 100 && total > 0) {
-        output.temperamentBalance.sanguine = Math.round((sanguine / total) * 100);
-        output.temperamentBalance.choleric = Math.round((choleric / total) * 100);
-        output.temperamentBalance.melancholic = Math.round((melancholic / total) * 100);
-        output.temperamentBalance.phlegmatic = 100 - output.temperamentBalance.sanguine - output.temperamentBalance.choleric - output.temperamentBalance.melancholic;
+    // If not veiled, ensure temperament numbers sum to 100
+    if (!output.isVeiled && output.temperamentBalance) {
+      const { sanguine, choleric, melancholic, phlegmatic } = output.temperamentBalance;
+      const total = sanguine + choleric + melancholic + phlegmatic;
+      if (total !== 100 && total > 0) {
+          output.temperamentBalance.sanguine = Math.round((sanguine / total) * 100);
+          output.temperamentBalance.choleric = Math.round((choleric / total) * 100);
+          output.temperamentBalance.melancholic = Math.round((melancholic / total) * 100);
+          output.temperamentBalance.phlegmatic = 100 - output.temperamentBalance.sanguine - output.temperamentBalance.choleric - output.temperamentBalance.melancholic;
+      }
     }
-
 
     return output;
   }

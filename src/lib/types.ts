@@ -5,8 +5,20 @@ export type Message = {
   content: string;
 };
 
+export type DivineName = {
+  name: string;
+  prompt: string;
+};
+
+export type SpiritualConcept = {
+    name: string;
+    description: string;
+    quote: string;
+};
+
 export type PsychospiritualProfile = {
   soulStage: string;
+  veiledCount: number;
   temperamentBalance: {
     sanguine: number;
     choleric: number;

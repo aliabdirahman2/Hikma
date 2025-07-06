@@ -4,7 +4,7 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import type { ArchivedReflection } from "@/lib/types";
 import { TemperamentWheel } from "@/components/TemperamentWheel";
 import { format } from "date-fns";
-import { ArchiveRestore, Quote } from "lucide-react";
+import { ArchiveRestore, Quote, BookOpen, Sparkles } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -19,6 +19,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 
 export default function ArchivePage() {
   const [archive] = useLocalStorage<ArchivedReflection[]>("hikma-archive", []);
@@ -58,7 +59,10 @@ export default function ArchivePage() {
                       {format(new Date(entry.date), "MMMM d, yyyy")}
                     </CardTitle>
                     <CardDescription className="italic text-primary mt-1">
-                      &ldquo;{entry.reflection.soulStage}&rdquo;
+                      {entry.reflection.isVeiled 
+                        ? <span className="text-amber-600">A Veiled Reflection</span> 
+                        : `“${entry.reflection.soulStage}”`
+                      }
                     </CardDescription>
                   </div>
                   <div className="text-sm text-muted-foreground">
@@ -76,55 +80,82 @@ export default function ArchivePage() {
                       <div className="space-y-6">
                         <div>
                           <h4 className="font-headline text-lg text-primary mb-2">
-                            Temperament Balance
-                          </h4>
-                          <div className="min-h-[250px]">
-                            <TemperamentWheel
-                              data={entry.reflection.temperamentBalance}
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 className="font-headline text-lg text-primary mb-2">
                             Your Words
                           </h4>
                           <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground">
                             {entry.journal}
                           </blockquote>
                         </div>
+                        
+                        {entry.reflection.isVeiled ? (
+                            <div>
+                                <h4 className="font-headline text-lg text-amber-600 mb-2">Reasoning for Veil</h4>
+                                <p className="italic text-muted-foreground">{entry.reflection.reasoning}</p>
+                            </div>
+                        ) : (
+                            <>
+                                <div>
+                                    <h4 className="font-headline text-lg text-primary mb-2">
+                                        Temperament Balance
+                                    </h4>
+                                    <div className="min-h-[250px]">
+                                        <TemperamentWheel
+                                        data={entry.reflection.temperamentBalance!}
+                                        />
+                                    </div>
+                                </div>
+                                {entry.reflection.divineName && (
+                                  <div>
+                                    <h4 className="font-headline text-lg text-primary mb-2 flex items-center gap-2"><Sparkles className="size-5"/>Divine Name of the Day</h4>
+                                    <p><span className="font-semibold">{entry.reflection.divineName.name}:</span> <span className="italic">{entry.reflection.divineName.prompt}</span></p>
+                                  </div>
+                                )}
+                                {entry.reflection.spiritualConcepts && entry.reflection.spiritualConcepts.length > 0 && (
+                                  <div>
+                                    <h4 className="font-headline text-lg text-primary mb-2 flex items-center gap-2"><BookOpen className="size-5"/>Spiritual Themes</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                      {entry.reflection.spiritualConcepts.map(concept => (
+                                        <Badge key={concept.name} variant="secondary">{concept.name}</Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                                <div>
+                                  <h4 className="font-headline text-lg text-primary mb-2">
+                                    Hikma's Reflection
+                                  </h4>
+                                  <p className="italic whitespace-pre-wrap leading-relaxed">
+                                    “{entry.reflection.poeticReflection}”
+                                  </p>
+                                </div>
 
-                        <div>
-                          <h4 className="font-headline text-lg text-primary mb-2">
-                            Hikma's Reflection
-                          </h4>
-                          <p className="italic whitespace-pre-wrap leading-relaxed">
-                            &ldquo;{entry.reflection.poeticReflection}&rdquo;
-                          </p>
-                        </div>
+                                <div>
+                                  <h4 className="font-headline text-lg text-primary mb-2">
+                                    Probing Questions
+                                  </h4>
+                                  <ul className="list-disc pl-5 space-y-2 text-sm">
+                                    {entry.reflection.probingQuestions!.map((q, i) => (
+                                      <li key={i}>{q}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                            </>
+                        )}
 
-                        <div>
-                          <h4 className="font-headline text-lg text-primary mb-2">
-                            Probing Questions
-                          </h4>
-                          <ul className="list-disc pl-5 space-y-2 text-sm">
-                            {entry.reflection.probingQuestions.map((q, i) => (
-                              <li key={i}>{q}</li>
-                            ))}
-                          </ul>
-                        </div>
                       </div>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
               </CardContent>
-              <CardFooter className="bg-muted/50 p-4">
-                <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <Quote className="w-4 h-4 text-primary" />
-                  <span className="font-bold mr-1">Wisdom Seed:</span>
-                  {entry.reflection.wisdomSeed}
-                </p>
-              </CardFooter>
+              {!entry.reflection.isVeiled && (
+                <CardFooter className="bg-muted/50 p-4">
+                    <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Quote className="w-4 h-4 text-primary" />
+                    <span className="font-bold mr-1">Wisdom Seed:</span>
+                    {entry.reflection.wisdomSeed}
+                    </p>
+                </CardFooter>
+              )}
             </Card>
           ))}
         </div>
