@@ -84,13 +84,15 @@ const reflectionFlow = ai.defineFlow(
     outputSchema: ReflectionOutputSchema,
   },
   async (input) => {
+    // Manually construct the prompt to avoid any templating issues.
+    const fullPrompt = `Symbol: ${input.symbol}
+Journal: ${input.journal}
+Previous Profile: ${JSON.stringify(input.previousProfile)}`;
+    
     const llmResponse = await ai.generate({
       model: ai.model,
       system: systemPrompt,
-      prompt: `Symbol: {{{symbol}}}
-Journal: {{{journal}}}
-Previous Profile: ${JSON.stringify(input.previousProfile)}`,
-      input: input,
+      prompt: fullPrompt, // Use the manually constructed prompt string.
       output: {
           schema: ReflectionOutputSchema,
       }
