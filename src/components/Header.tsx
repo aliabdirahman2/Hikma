@@ -35,6 +35,9 @@ export function Header() {
             <Link href="/archive" className={navLinkClasses("/archive")}>
               Archive
             </Link>
+            <Link href="/features" className={navLinkClasses("/features")}>
+              Features
+            </Link>
           </nav>
         </div>
       </div>
