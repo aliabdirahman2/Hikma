@@ -61,7 +61,7 @@ You must be very conservative about deciding the user is ready.
 You MUST format your response as a JSON object that adheres to the required schema.`;
 
     const llmResponse = await ai.generate({
-        model: 'googleai/gemini-1.5-flash-latest',
+        model: 'googleai/gemini-1.5-pro-latest',
         prompt: systemPrompt,
         output: {
             schema: UnveilHeartOutputSchema,
