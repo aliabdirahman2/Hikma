@@ -22,10 +22,7 @@ export async function reflectionAction(
     return output;
   } catch (error) {
     console.error("Error in reflection action:", error);
-    if (error instanceof Error) {
-        throw new Error(error.message);
-    }
-    throw new Error("Failed to get a reflection. Please try again.");
+    throw new Error("Failed to get a reflection. The AI may be busy or the input may have been blocked. Please try again.");
   }
 }
 
@@ -37,7 +34,7 @@ export async function generateSymbolicPromptAction(
     return output;
   } catch (error) {
     console.error("Error in generateSymbolicPromptAction:", error);
-    throw new Error("Failed to get a symbolic prompt. Please try again.");
+    throw new Error("Failed to get a symbolic prompt. The AI may be busy or the input may have been blocked. Please try again.");
   }
 }
 
@@ -49,7 +46,7 @@ export async function continueChatAction(
     return output;
   } catch (error) {
     console.error("Error in continueChatAction:", error);
-    throw new Error("Failed to get a chat response. Please try again.");
+    throw new Error("Failed to get a chat response. The AI may be busy or the input may have been blocked. Please try again.");
   }
 }
 
@@ -61,9 +58,6 @@ export async function unveilHeartAction(
     return output;
   } catch (error) {
     console.error("Error in unveilHeartAction:", error);
-    if (error instanceof Error) {
-        throw new Error(error.message);
-    }
-    throw new Error("Failed to get a chat response. Please try again.");
+    throw new Error("Failed to get a chat response. The AI may be busy or the input may have been blocked. Please try again.");
   }
 }
