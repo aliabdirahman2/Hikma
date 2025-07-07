@@ -124,7 +124,7 @@ export default function ReflectionPage() {
             toast({
                 variant: "destructive",
                 title: "The Mirror Remains Veiled",
-                description: result.reasoning,
+                description: "Hikma's words are still scattered. The reflection is incomplete. Please try again.",
             });
             setVeiledChat(false);
             setReflection(null);
