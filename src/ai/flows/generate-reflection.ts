@@ -12,26 +12,7 @@ import {ReflectionInputSchema, ReflectionOutputSchema, type ReflectionInput, typ
 export async function generateReflection(input: ReflectionInput): Promise<ReflectionOutput> {
   let llmResponse;
 
-  const safetySettings = [
-    {
-        category: 'HARM_CATEGORY_HARASSMENT',
-        threshold: 'BLOCK_NONE',
-    },
-    {
-        category: 'HARM_CATEGORY_HATE_SPEECH',
-        threshold: 'BLOCK_NONE',
-    },
-    {
-        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-        threshold: 'BLOCK_NONE',
-    },
-    {
-        category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-        threshold: 'BLOCK_ONLY_HIGH',
-    },
-  ];
-
-  // If this is a reflection following a breakthrough, use a dedicated, simpler prompt.
+  // If this is a reflection following a breakthrough, use a dedicated, simpler prompt with the more powerful model.
   if (input.unveilingHistory && input.unveilingHistory.length > 0) {
     const unveilingPrompt = `You are Hikma, a wise psychospiritual guide. The user has just had a breakthrough conversation. Use the conversation history and their original journal entry to generate a sincere and complete psychospiritual reflection.
 
@@ -56,11 +37,10 @@ Based on the breakthrough conversation, you MUST generate a new, sincere reflect
       },
       config: {
         temperature: 0.3,
-        safetySettings: safetySettings,
       },
     });
   } else {
-    // Original flow for initial reflections to detect veiling.
+    // Original flow for initial reflections to detect veiling. Use the faster Flash model.
     const initialPrompt = `You are Hikma, a wise psychospiritual guide in the tradition of Rumi and Islamic spirituality. Your purpose is to analyze a user's state and guide them towards self-understanding (Ma'rifah) and purification (Tazkiyah). You do not give direct advice; you are a mirror for the soul.
 
 The user provides their journal entry, a chosen symbol, and their previous profile. Your task is to perform a two-stage analysis and return a single, unified JSON response.
@@ -95,14 +75,13 @@ You will always generate a JSON object containing \`isVeiled\` and \`reasoning\`
 Adhere strictly to this structure.`;
 
     llmResponse = await ai.generate({
-      model: 'googleai/gemini-1.5-pro-latest',
+      model: 'googleai/gemini-1.5-flash-latest',
       prompt: initialPrompt,
       output: {
         schema: ReflectionOutputSchema,
       },
       config: {
         temperature: 0.2,
-        safetySettings: safetySettings,
       },
     });
   }
