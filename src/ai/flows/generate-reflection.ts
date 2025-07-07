@@ -12,6 +12,25 @@ import {ReflectionInputSchema, ReflectionOutputSchema, type ReflectionInput, typ
 export async function generateReflection(input: ReflectionInput): Promise<ReflectionOutput> {
   let llmResponse;
 
+  const safetySettings = [
+    {
+        category: 'HARM_CATEGORY_HARASSMENT',
+        threshold: 'BLOCK_NONE',
+    },
+    {
+        category: 'HARM_CATEGORY_HATE_SPEECH',
+        threshold: 'BLOCK_NONE',
+    },
+    {
+        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+        threshold: 'BLOCK_NONE',
+    },
+    {
+        category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+        threshold: 'BLOCK_ONLY_HIGH',
+    },
+  ];
+
   // If this is a reflection following a breakthrough, use a dedicated, simpler prompt.
   if (input.unveilingHistory && input.unveilingHistory.length > 0) {
     const unveilingPrompt = `You are Hikma, a wise psychospiritual guide. The user has just had a breakthrough conversation. Use the conversation history and their original journal entry to generate a sincere and complete psychospiritual reflection.
@@ -19,12 +38,12 @@ export async function generateReflection(input: ReflectionInput): Promise<Reflec
 **User's Journal:**
 """${input.journal}"""
 
-**Breakthrough Conversation:**
+**Breakthrough Conversation (This is the MOST IMPORTANT context):**
 ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.content}`).join('\n')}
 
-**Your Task & Output Format:**
-Based on the breakthrough conversation, generate a new reflection. You MUST return your entire response as a single JSON object that adheres to the required output schema.
-- The 'isVeiled' flag MUST be 'false'.
+**Your Task & Output Format (MANDATE):**
+Based on the breakthrough conversation, you MUST generate a new, sincere reflection. You MUST return your entire response as a single JSON object that adheres to the required output schema.
+- The 'isVeiled' flag MUST be 'false'. There are no exceptions.
 - You MUST provide non-empty values for ALL of the following fields: 'soulStage', 'temperamentBalance', 'poeticReflection', 'probingQuestions', and 'wisdomSeed'.
 - The optional field ('optionalPrompt') should only be included if it is truly relevant and insightful.
 - Your 'reasoning' should explain the new diagnosis based on the breakthrough.`;
@@ -36,7 +55,8 @@ Based on the breakthrough conversation, generate a new reflection. You MUST retu
         schema: ReflectionOutputSchema,
       },
       config: {
-        temperature: 0.3, // A little more creative freedom for the reflection
+        temperature: 0.3,
+        safetySettings: safetySettings,
       },
     });
   } else {
@@ -82,6 +102,7 @@ Adhere strictly to this structure.`;
       },
       config: {
         temperature: 0.2,
+        safetySettings: safetySettings,
       },
     });
   }
