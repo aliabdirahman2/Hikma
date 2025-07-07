@@ -21,7 +21,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -38,21 +39,19 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [firebaseReady, setFirebaseReady] = useState(false);
+  const [showConfigWarning, setShowConfigWarning] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
     if (auth) {
       setFirebaseReady(true);
+      setShowConfigWarning(false);
     } else {
-      toast({
-        variant: "destructive",
-        title: "Firebase Not Configured",
-        description: "Please provide Firebase credentials to enable sign up.",
-        duration: 5000,
-      });
+      setFirebaseReady(false);
+      setShowConfigWarning(true);
     }
-  }, [toast]);
+  }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,6 +105,15 @@ export default function SignupPage() {
         </CardHeader>
         <form onSubmit={handleSignUp}>
           <CardContent className="grid gap-4">
+            {showConfigWarning && (
+                <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Firebase Not Configured</AlertTitle>
+                    <AlertDescription>
+                    Please provide Firebase credentials to enable sign up.
+                    </AlertDescription>
+                </Alert>
+            )}
             <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isLoading || !firebaseReady}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Sign up with Google
