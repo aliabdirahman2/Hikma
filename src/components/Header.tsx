@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { signOut } from "firebase/auth";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
 
@@ -72,12 +72,12 @@ export function Header() {
           ) : (
              pathname !== "/features" && (
                 <div className="flex items-center gap-2">
-                  <Button asChild variant="ghost" size="sm">
-                    <Link href="/login">Login</Link>
-                  </Button>
-                  <Button asChild size="sm">
-                    <Link href="/signup">Sign Up</Link>
-                  </Button>
+                   <Link href="/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>
+                    Login
+                  </Link>
+                  <Link href="/signup" className={cn(buttonVariants({ size: 'sm' }))}>
+                    Sign Up
+                  </Link>
                 </div>
               )
           )}
