@@ -70,16 +70,14 @@ export function Header() {
           {user ? (
             <Button onClick={handleLogout} variant="outline" size="sm">Logout</Button>
           ) : (
-             pathname !== "/features" && (
-                <div className="flex items-center gap-2">
-                   <Link href="/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>
-                    Login
-                  </Link>
-                  <Link href="/signup" className={cn(buttonVariants({ size: 'sm' }))}>
-                    Sign Up
-                  </Link>
-                </div>
-              )
+            <div className="flex items-center gap-2">
+                <Link href="/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>
+                Login
+                </Link>
+                <Link href="/signup" className={cn(buttonVariants({ size: 'sm' }))}>
+                Sign Up
+                </Link>
+            </div>
           )}
         </div>
       </div>
