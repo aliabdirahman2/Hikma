@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import { Header } from "@/components/Header";
 import { AuthProvider } from "@/hooks/useAuth";
+import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Hikma",
@@ -38,7 +39,8 @@ export default function RootLayout({
         <AuthProvider>
           <div className="relative flex min-h-screen flex-col">
             <Header />
-            <main className="flex-1">{children}</main>
+            <div className="flex-1">{children}</div>
+            <Footer />
           </div>
           <Toaster />
         </AuthProvider>

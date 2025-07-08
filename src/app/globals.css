@@ -2,54 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
-    --background: 48 83% 95%;
+    --background: 60 56% 91%; /* beige #F5F5DC */
     --foreground: 240 10% 10%;
-    --card: 48 83% 95%;
+    --card: 60 56% 91%;
     --card-foreground: 240 10% 10%;
-    --popover: 48 83% 95%;
+    --popover: 60 56% 91%;
     --popover-foreground: 240 10% 10%;
-    --primary: 275 60% 50%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 275 60% 80%;
-    --secondary-foreground: 275 60% 50%;
-    --muted: 39 56% 90%;
-    --muted-foreground: 240 10% 30%;
-    --accent: 40 30% 85%;
-    --accent-foreground: 240 10% 10%;
+    --primary: 300 100% 25%; /* plum #800080 */
+    --primary-foreground: 60 50% 95%;
+    --secondary: 300 50% 85%;
+    --secondary-foreground: 300 100% 25%;
+    --muted: 60 40% 96%;
+    --muted-foreground: 240 10% 40%;
+    --accent: 30 44% 66%; /* gold #D4A27A */
+    --accent-foreground: 30 100% 15%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 40 30% 80%;
-    --input: 40 30% 88%;
-    --ring: 275 60% 50%;
+    --border: 60 20% 85%;
+    --input: 60 20% 88%;
+    --ring: 300 100% 25%;
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 240 10% 10%;
-    --foreground: 48 83% 95%;
-    --card: 240 10% 10%;
-    --card-foreground: 48 83% 95%;
-    --popover: 240 10% 10%;
-    --popover-foreground: 48 83% 95%;
-    --primary: 275 60% 60%;
-    --primary-foreground: 240 10% 10%;
-    --secondary: 275 60% 20%;
-    --secondary-foreground: 275 60% 70%;
-    --muted: 240 5% 15%;
-    --muted-foreground: 48 83% 90%;
-    --accent: 275 60% 30%;
-    --accent-foreground: 48 83% 95%;
+    --background: 300 10% 10%;
+    --foreground: 60 50% 95%;
+    --card: 300 10% 10%;
+    --card-foreground: 60 50% 95%;
+    --popover: 300 10% 10%;
+    --popover-foreground: 60 50% 95%;
+    --primary: 300 80% 70%;
+    --primary-foreground: 300 10% 10%;
+    --secondary: 300 40% 20%;
+    --secondary-foreground: 300 80% 80%;
+    --muted: 300 5% 15%;
+    --muted-foreground: 60 30% 85%;
+    --accent: 30 50% 70%;
+    --accent-foreground: 30 100% 15%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5% 25%;
-    --input: 240 5% 25%;
-    --ring: 275 60% 60%;
+    --border: 300 5% 20%;
+    --input: 300 5% 20%;
+    --ring: 300 80% 70%;
   }
 }
 
@@ -79,4 +75,16 @@ body {
 
 .nur-pulse {
   animation: nur-pulse 4s infinite ease-in-out;
+}
+
+@keyframes sunrise {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-sunrise-gradient {
+    background: linear-gradient(270deg, #800080, #D4A27A, #F5F5DC, #800080);
+    background-size: 600% 600%;
+    animation: sunrise 20s ease infinite;
 }
