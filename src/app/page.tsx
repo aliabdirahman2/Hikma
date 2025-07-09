@@ -105,7 +105,7 @@ export default function LandingPage() {
                           Begin the Journey <ArrowRight className="ml-2"/>
                       </Link>
                   </Button>
-                  <Button asChild size="lg" variant="outline" className="font-headline text-lg text-white border-white/50 hover:bg-white/10 hover:text-white">
+                  <Button asChild size="lg" variant="outline" className="font-headline text-lg text-white border-white/50 bg-transparent hover:bg-white/10 hover:text-white">
                       <a href="#features">
                           Explore How It Works
                       </a>
