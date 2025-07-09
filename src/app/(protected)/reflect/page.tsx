@@ -200,6 +200,60 @@ export default function ReflectionPage() {
                 </button>
               ))}
             </div>
+             <div className="mt-12">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary">
+                            <BookHeart /> Learn About the Temperaments
+                        </CardTitle>
+                        <CardDescription>Understand the elements within you to find your balance.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Accordion type="single" collapsible className="w-full">
+                            <AccordionItem value="sanguine">
+                                <AccordionTrigger>Sanguine (Air)</AccordionTrigger>
+                                <AccordionContent>
+                                    <p className="mb-2">The sanguine temperament is associated with the element of Air. It is social, optimistic, and pleasure-seeking. Those with a sanguine nature are often charismatic, creative, and lively.</p>
+                                    <p><b>Virtues:</b> Joyful, charismatic, compassionate, creative.</p>
+                                    <p><b>Vices when imbalanced:</b> Fickle, lustful, scattered, prone to distraction.</p>
+                                </AccordionContent>
+                            </AccordionItem>
+                            <AccordionItem value="choleric">
+                                <AccordionTrigger>Choleric (Fire)</AccordionTrigger>
+                                <AccordionContent>
+                                    <p className="mb-2">The choleric temperament corresponds to the element of Fire. It is ambitious, decisive, and passionate. Cholerics are natural leaders, driven and focused on their goals.</p>
+                                    <p><b>Virtues:</b> Courageous, decisive, passionate, strong-willed.</p>
+                                    <p><b>Vices when imbalanced:</b> Angry, prideful, domineering, ruthless.</p>
+                                </AccordionContent>
+                            </AccordionItem>
+                            <AccordionItem value="melancholic">
+                                <AccordionTrigger>Melancholic (Earth)</AccordionTrigger>
+                                <AccordionContent>
+                                    <p className="mb-2">The melancholic temperament is linked to the element of Earth. It is thoughtful, introspective, and detail-oriented. Melancholics are often deeply feeling, analytical, and appreciate of truth and beauty.</p>
+                                    <p><b>Virtues:</b> Contemplative, analytical, empathetic, meticulous.</p>
+                                    <p><b>Vices when imbalanced:</b> Sad, anxious, rigid, overly critical.</p>
+                                </AccordionContent>
+                            </AccordionItem>
+                            <AccordionItem value="phlegmatic">
+                                <AccordionTrigger>Phlegmatic (Water)</AccordionTrigger>
+                                <AccordionContent>
+                                    <p className="mb-2">The phlegmatic temperament is associated with the element of Water. It is calm, agreeable, and consistent. Phlegmatics are peaceful, patient, and value stability and harmony.</p>
+                                    <p><b>Virtues:</b> Peaceful, patient, reliable, diplomatic.</p>
+                                    <p><b>Vices when imbalanced:</b> Apathetic, lazy, passive, resistant to change.</p>
+                                </AccordionContent>
+                            </AccordionItem>
+                             <AccordionItem value="balance">
+                                <AccordionTrigger>The Prophetic Balance</AccordionTrigger>
+                                <AccordionContent>
+                                    <p className="mb-2">The goal of spiritual work (tazkiyah) is not to eliminate any temperament, but to achieve a state of perfect balance (i'tidāl). The Prophet Muhammad (peace be upon him) is the ultimate example of this equilibrium. He embodied the best qualities of all four temperaments without any of their flaws.</p>
+                                    <p className="mb-2">He possessed the courage of the Choleric without the anger, the joy of the Sanguine without the fickleness, the empathy of the Melancholic without the sadness, and the peace of the Phlegmatic without the apathy. </p>
+                                    <p>As we get closer to the prophetic model, our own temperaments become refined and perfected. We learn to use our innate disposition in service of the good, the beautiful, and the true, bringing our inner landscape into harmony.</p>
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
+                    </CardContent>
+                </Card>
+              </div>
           </motion.div>
         )}
 
@@ -301,59 +355,6 @@ export default function ReflectionPage() {
                 )}
               </div>
               
-              <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary">
-                        <BookHeart /> Learn About the Temperaments
-                    </CardTitle>
-                    <CardDescription>Understand the elements within you to find your balance.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Accordion type="single" collapsible className="w-full">
-                        <AccordionItem value="sanguine">
-                            <AccordionTrigger>Sanguine (Air)</AccordionTrigger>
-                            <AccordionContent>
-                                <p className="mb-2">The sanguine temperament is associated with the element of Air. It is social, optimistic, and pleasure-seeking. Those with a sanguine nature are often charismatic, creative, and lively.</p>
-                                <p><b>Virtues:</b> Joyful, charismatic, compassionate, creative.</p>
-                                <p><b>Vices when imbalanced:</b> Fickle, lustful, scattered, prone to distraction.</p>
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="choleric">
-                            <AccordionTrigger>Choleric (Fire)</AccordionTrigger>
-                            <AccordionContent>
-                                <p className="mb-2">The choleric temperament corresponds to the element of Fire. It is ambitious, decisive, and passionate. Cholerics are natural leaders, driven and focused on their goals.</p>
-                                <p><b>Virtues:</b> Courageous, decisive, passionate, strong-willed.</p>
-                                <p><b>Vices when imbalanced:</b> Angry, prideful, domineering, ruthless.</p>
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="melancholic">
-                            <AccordionTrigger>Melancholic (Earth)</AccordionTrigger>
-                            <AccordionContent>
-                                <p className="mb-2">The melancholic temperament is linked to the element of Earth. It is thoughtful, introspective, and detail-oriented. Melancholics are often deeply feeling, analytical, and appreciate of truth and beauty.</p>
-                                <p><b>Virtues:</b> Contemplative, analytical, empathetic, meticulous.</p>
-                                <p><b>Vices when imbalanced:</b> Sad, anxious, rigid, overly critical.</p>
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="phlegmatic">
-                            <AccordionTrigger>Phlegmatic (Water)</AccordionTrigger>
-                            <AccordionContent>
-                                <p className="mb-2">The phlegmatic temperament is associated with the element of Water. It is calm, agreeable, and consistent. Phlegmatics are peaceful, patient, and value stability and harmony.</p>
-                                <p><b>Virtues:</b> Peaceful, patient, reliable, diplomatic.</p>
-                                <p><b>Vices when imbalanced:</b> Apathetic, lazy, passive, resistant to change.</p>
-                            </AccordionContent>
-                        </AccordionItem>
-                         <AccordionItem value="balance">
-                            <AccordionTrigger>The Prophetic Balance</AccordionTrigger>
-                            <AccordionContent>
-                                <p className="mb-2">The goal of spiritual work (tazkiyah) is not to eliminate any temperament, but to achieve a state of perfect balance (i'tidāl). The Prophet Muhammad (peace be upon him) is the ultimate example of this equilibrium. He embodied the best qualities of all four temperaments without any of their flaws.</p>
-                                <p className="mb-2">He possessed the courage of the Choleric without the anger, the joy of the Sanguine without the fickleness, the empathy of the Melancholic without the sadness, and the peace of the Phlegmatic without the apathy. </p>
-                                <p>As we get closer to the prophetic model, our own temperaments become refined and perfected. We learn to use our innate disposition in service of the good, the beautiful, and the true, bringing our inner landscape into harmony.</p>
-                            </AccordionContent>
-                        </AccordionItem>
-                    </Accordion>
-                </CardContent>
-              </Card>
-
                <div className="mt-8 border-t pt-8">
                  <ChatWithHikma reflection={reflection} journal={journalText} />
                </div>
