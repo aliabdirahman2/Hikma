@@ -1,7 +1,3 @@
-import { redirect } from 'next/navigation'
-
-// This file handles requests to /page and redirects them to the homepage.
-// It overrides any problematic page.tsx file at this path, fixing the build error.
-export async function GET(request: Request) {
-  redirect('/')
-}
+// This file is intentionally left blank to disable the old route handler.
+// The redirect is now handled in next.config.js for better reliability.
+export {};
