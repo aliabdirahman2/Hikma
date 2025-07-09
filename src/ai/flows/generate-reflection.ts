@@ -12,6 +12,25 @@ import {ReflectionInputSchema, ReflectionOutputSchema, type ReflectionInput, typ
 export async function generateReflection(input: ReflectionInput): Promise<ReflectionOutput> {
   let llmResponse;
 
+  const safetySettings = [
+      {
+          category: 'HARM_CATEGORY_HATE_SPEECH',
+          threshold: 'BLOCK_ONLY_HIGH',
+      },
+      {
+          category: 'HARM_CATEGORY_HARASSMENT',
+          threshold: 'BLOCK_ONLY_HIGH',
+      },
+      {
+          category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+          threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+      },
+      {
+          category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+          threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+      }
+  ];
+
   // If this is a reflection following a breakthrough, use a dedicated, simpler prompt with the more powerful model.
   if (input.unveilingHistory && input.unveilingHistory.length > 0) {
     const unveilingPrompt = `You are Hikma, a wise psychospiritual guide. The user has just had a breakthrough conversation. Use the conversation history and their original journal entry to generate a sincere and complete psychospiritual reflection.
@@ -37,6 +56,7 @@ Based on the breakthrough conversation, you MUST generate a new, sincere reflect
       },
       config: {
         temperature: 0.3,
+        safetySettings,
       },
     });
   } else {
@@ -82,6 +102,7 @@ Adhere strictly to this structure.`;
       },
       config: {
         temperature: 0.2,
+        safetySettings,
       },
     });
   }
