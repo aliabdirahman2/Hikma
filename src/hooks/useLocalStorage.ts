@@ -1,36 +1,51 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
-function useLocalStorage<T>(baseKey: string, initialValue: T): [T, (value: T | ((prevState: T) => T)) => void] {
-  const { user, loading } = useAuth();
-  const [storedValue, setStoredValue] = useState<T>(initialValue);
-
+function useLocalStorage<T>(
+  baseKey: string,
+  initialValue: T
+): [T, (value: T | ((prevState: T) => T)) => void] {
+  const { user } = useAuth();
   const key = user ? `${baseKey}-${user.uid}` : null;
+  const initialValueRef = useRef(initialValue);
 
-  useEffect(() => {
-    if (loading || !key || typeof window === "undefined") {
-      // Wait until authentication is resolved and we have a user-specific key
-      return;
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    if (typeof window === "undefined" || !key) {
+      return initialValueRef.current;
     }
-
     try {
       const item = window.localStorage.getItem(key);
-      if (item) {
-        setStoredValue(JSON.parse(item));
-      } else {
-        setStoredValue(initialValue);
-      }
+      return item ? JSON.parse(item) : initialValueRef.current;
     } catch (error) {
       console.error(`Error reading localStorage key “${key}”:`, error);
-      setStoredValue(initialValue);
+      return initialValueRef.current;
     }
-  }, [key, loading, initialValue]);
+  });
+  
+  // This effect runs when the user logs in or out (key changes)
+  // to load their specific data.
+  useEffect(() => {
+    if (key) {
+      try {
+        const item = window.localStorage.getItem(key);
+        if (item) {
+          setStoredValue(JSON.parse(item));
+        } else {
+          // If no data is found for this user, set it to the initial value.
+          setStoredValue(initialValueRef.current);
+        }
+      } catch (error) {
+        console.error(`Error reading localStorage key “${key}”:`, error);
+        setStoredValue(initialValueRef.current);
+      }
+    }
+  }, [key]);
 
   const setValue = (value: T | ((prevState: T) => T)) => {
-    if (loading || !key || typeof window === "undefined") {
-      // Do not attempt to set value if auth is loading or user is not logged in.
+    if (!key || typeof window === "undefined") {
+      console.warn("Could not save to localStorage: no user or window not present.");
       return;
     }
 
