@@ -22,6 +22,11 @@ export function Header() {
     }
     try {
       await signOut(auth);
+      // Clear all localStorage on logout to ensure a clean state for the next user
+      // This is crucial in a shared browser environment.
+      if (typeof window !== 'undefined') {
+        window.localStorage.clear();
+      }
       toast({ title: "Logged Out", description: "You have been successfully logged out." });
       router.push("/");
     } catch (error) {
@@ -52,6 +57,9 @@ export function Header() {
                 </Link>
                 <Link href="/reflect" className={navLinkClasses("/reflect")}>
                   Reflect
+                </Link>
+                 <Link href="/process" className={navLinkClasses("/process")}>
+                  Process
                 </Link>
                 <Link href="/practices" className={navLinkClasses("/practices")}>
                   Practices

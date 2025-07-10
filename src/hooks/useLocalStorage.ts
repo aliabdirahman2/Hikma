@@ -1,36 +1,48 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
-function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((prevState: T) => T)) => void] {
-  // We initialize the state with the initialValue. This ensures that the first render on both the server
-  // and the client is identical, preventing a hydration mismatch.
+function useLocalStorage<T>(baseKey: string, initialValue: T): [T, (value: T | ((prevState: T) => T)) => void] {
+  const { user } = useAuth();
+  
+  // The key is now user-specific, or a fallback if the user is not logged in.
+  const key = user ? `${baseKey}-${user.uid}` : baseKey;
+
   const [storedValue, setStoredValue] = useState<T>(initialValue);
 
-  // This effect runs only on the client, after the component has mounted.
+  // Effect to read from localStorage and sync state
   useEffect(() => {
+    // Only run this effect if we're on the client and the user is available.
+    if (typeof window === "undefined" || !user) {
+      return;
+    }
+    
     try {
-      // Try to get the item from localStorage.
       const item = window.localStorage.getItem(key);
-      // If the item exists, parse it and update our state.
       if (item) {
         setStoredValue(JSON.parse(item));
+      } else {
+        // If no item is found, set the initial value to both state and localStorage
+        setStoredValue(initialValue);
+        window.localStorage.setItem(key, JSON.stringify(initialValue));
       }
     } catch (error) {
       console.error("Error reading from localStorage:", error);
+      setStoredValue(initialValue);
     }
-    // The dependency array with `key` ensures this effect runs if the key changes,
-    // though typically it won't. This is safer than an empty array.
-  }, [key]);
+  }, [key, user]); // Rerun effect if key changes (i.e., user logs in/out)
 
   const setValue = (value: T | ((prevState: T) => T)) => {
+    // This check is important. Only allow setting value if the user is logged in.
+    if (!user) {
+        console.warn("Cannot set localStorage value: no user is logged in.");
+        return;
+    }
+
     try {
-      // This allows the new value to be a value, or a function that receives the previous state.
       const valueToStore = value instanceof Function ? value(storedValue) : value;
-      // Update our React state.
       setStoredValue(valueToStore);
-      // Persist the new value to localStorage.
       if (typeof window !== "undefined") {
          window.localStorage.setItem(key, JSON.stringify(valueToStore));
       }

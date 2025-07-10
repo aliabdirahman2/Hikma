@@ -15,9 +15,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
 
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [profile] = useLocalStorage<PsychospiritualProfile>(
     "hikma-profile",
     INITIAL_PROFILE

@@ -49,8 +49,8 @@ export default function ArchivePage() {
         </div>
       ) : (
         <div className="space-y-8">
-          {sortedArchive.map((entry) => (
-            <Card key={entry.date} className="overflow-hidden">
+          {sortedArchive.map((entry, index) => (
+            <Card key={entry.date + index} className="overflow-hidden">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
