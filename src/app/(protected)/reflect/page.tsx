@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, type ReactElement } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, MessageCircle, AlertTriangle, BookOpen, Heart, BookHeart } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, MessageCircle, AlertTriangle, BookOpen, Heart, BookHeart, Check, Plus } from "lucide-react";
 import { reflectionAction } from "@/app/actions";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import type { FullReflection, PsychospiritualProfile, ArchivedReflection, Message } from "@/lib/types";
+import type { FullReflection, PsychospiritualProfile, ArchivedReflection, Message, TrackedHabit, PrescribedHabit } from "@/lib/types";
 import { INITIAL_PROFILE } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,12 +37,31 @@ export default function ReflectionPage() {
   const [veiledChat, setVeiledChat] = useState(false);
   const [profile, setProfile] = useLocalStorage<PsychospiritualProfile>("hikma-profile", INITIAL_PROFILE);
   const [archive, setArchive] = useLocalStorage<ArchivedReflection[]>("hikma-archive", []);
+  const [habits, setHabits] = useLocalStorage<TrackedHabit[]>("hikma-habits", []);
   const { toast } = useToast();
 
   const handleSymbolSelect = (symbol: Symbol) => {
     setSelectedSymbol(symbol);
     setStep("journal");
   };
+
+  const handleAddHabit = (habit: PrescribedHabit) => {
+    const newHabit: TrackedHabit = {
+        ...habit,
+        id: `${Date.now()}-${habit.name.replace(/\s/g, '')}`,
+        createdAt: new Date().toISOString(),
+        completedDates: [],
+    };
+    setHabits(currentHabits => [...currentHabits, newHabit]);
+    toast({
+        title: "Practice Added",
+        description: `"${habit.name}" has been added to your daily practices.`
+    });
+  };
+
+  const isHabitTracked = (habitName: string) => {
+    return habits.some(h => h.name === habitName);
+  }
 
   const handleSubmit = async () => {
     if (!selectedSymbol || !journalText) return;
@@ -329,10 +348,39 @@ export default function ReflectionPage() {
                 </CardHeader>
                 <CardContent>
                   <ul className="list-disc pl-5 space-y-2 text-base">
-                    {reflection.probingQuestions.map((q, i) => <li key={i}>{q}</li>)}
+                    {reflection.probingQuestions?.map((q, i) => <li key={i}>{q}</li>)}
                   </ul>
                 </CardContent>
               </Card>
+              
+              {reflection.prescribedHabits && reflection.prescribedHabits.length > 0 && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline text-2xl">Inner Practices</CardTitle>
+                        <CardDescription>Hikma suggests these practices to help cultivate balance and integrate your reflection.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {reflection.prescribedHabits.map((habit, i) => (
+                            <div key={i} className="flex items-start justify-between gap-4 p-4 rounded-lg bg-muted/50">
+                                <div className="flex-1">
+                                    <p className="font-bold">{habit.name}</p>
+                                    <p className="text-sm text-muted-foreground mt-1 italic">&ldquo;{habit.why}&rdquo;</p>
+                                    <p className="text-xs font-semibold uppercase text-primary mt-2">{habit.frequency} &bull; {habit.label}</p>
+                                </div>
+                                <Button 
+                                    size="sm" 
+                                    onClick={() => handleAddHabit(habit)}
+                                    disabled={isHabitTracked(habit.name)}
+                                    variant={isHabitTracked(habit.name) ? "outline" : "default"}
+                                >
+                                    {isHabitTracked(habit.name) ? <Check className="mr-2"/> : <Plus className="mr-2"/>}
+                                    {isHabitTracked(habit.name) ? 'Accepted' : 'Accept'}
+                                </Button>
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card>
@@ -346,7 +394,7 @@ export default function ReflectionPage() {
                 {reflection.optionalPrompt && (
                   <Card>
                      <CardHeader>
-                      <CardTitle className="font-headline text-xl">Inner Practice</CardTitle>
+                      <CardTitle className="font-headline text-xl">Deeper Contemplation</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p>{reflection.optionalPrompt}</p>

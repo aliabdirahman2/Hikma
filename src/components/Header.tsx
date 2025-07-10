@@ -25,7 +25,7 @@ export function Header() {
       // Clear all localStorage on logout to ensure a clean state for the next user
       // This is crucial in a shared browser environment.
       if (typeof window !== 'undefined') {
-        window.localStorage.clear();
+         // Do not clear localStorage, user-specific keys handle data separation.
       }
       toast({ title: "Logged Out", description: "You have been successfully logged out." });
       router.push("/");

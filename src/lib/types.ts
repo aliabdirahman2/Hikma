@@ -6,10 +6,10 @@ export type Message = {
 };
 
 const TemperamentBalanceSchema = z.object({
-    sanguine: z.number(),
-    choleric: z.number(),
-    melancholic: z.number(),
-    phlegmatic: z.number(),
+    sanguine: z.number().describe("A value from 0-100 representing the Sanguine (Air) temperament. Associated with being social, optimistic, and creative."),
+    choleric: z.number().describe("A value from 0-100 representing the Choleric (Fire) temperament. Associated with being ambitious, decisive, and passionate."),
+    melancholic: z.number().describe("A value from 0-100 representing the Melancholic (Earth) temperament. Associated with being thoughtful, introspective, and analytical."),
+    phlegmatic: z.number().describe("A value from 0-100 representing the Phlegmatic (Water) temperament. Associated with being calm, agreeable, and patient."),
 });
 
 export type PsychospiritualProfile = {
@@ -19,10 +19,10 @@ export type PsychospiritualProfile = {
 };
 
 export const HabitSchema = z.object({
-  name: z.string(),
-  why: z.string(),
-  frequency: z.string(),
-  label: z.string(),
+  name: z.string().describe("The name of the spiritual practice or habit."),
+  why: z.string().describe("A concise, compassionate explanation of why this practice is beneficial for the user's current state."),
+  frequency: z.string().describe("A suggested frequency for the practice (e.g., 'Daily', 'Once a week')."),
+  label: z.string().describe("A short category for the habit, e.g., 'Self-Reflection', 'Grounding', 'Devotion', 'Action', 'Compassion'."),
 });
 export type PrescribedHabit = z.infer<typeof HabitSchema>;
 

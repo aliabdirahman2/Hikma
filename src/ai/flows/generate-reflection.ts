@@ -44,9 +44,10 @@ ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.
 **Your Task & Output Format (MANDATE):**
 Based on the breakthrough conversation, you MUST generate a new, sincere reflection. You MUST return your entire response as a single JSON object that adheres to the required output schema.
 - The 'isVeiled' flag MUST be 'false'. There are no exceptions.
-- You MUST provide non-empty values for ALL of the following fields: 'soulStage', 'temperamentBalance', 'poeticReflection', 'probingQuestions', and 'wisdomSeed'.
+- You MUST provide non-empty values for ALL of the following fields: 'soulStage', 'temperamentBalance', 'poeticReflection', 'probingQuestions', 'wisdomSeed', and 'prescribedHabits'.
 - The optional field ('optionalPrompt') should only be included if it is truly relevant and insightful.
-- Your 'reasoning' should explain the new diagnosis based on the breakthrough.`;
+- Your 'reasoning' should explain the new diagnosis based on the breakthrough.
+- Your 'prescribedHabits' must be relevant to the user's breakthrough and help them integrate it.`;
 
     llmResponse = await ai.generate({
       model: 'googleai/gemini-1.5-pro-latest',
@@ -89,7 +90,8 @@ You will always generate a JSON object containing \`isVeiled\` and \`reasoning\`
 - **IF NOT VEILED (SINCERE):**
   - Set \`isVeiled\` to \`false\`.
   - In \`reasoning\`, explain your diagnosis, connecting their words and symbol to the soul stage and temperament shift.
-  - You MUST THEN POPULATE ALL the following fields: \`soulStage\`, \`temperamentBalance\`, \`poeticReflection\`, \`probingQuestions\`, and \`wisdomSeed\`.
+  - You MUST THEN POPULATE ALL the following fields: \`soulStage\`, \`temperamentBalance\`, \`poeticReflection\`, \`probingQuestions\`, \`wisdomSeed\`, and \`prescribedHabits\`.
+  - The 'prescribedHabits' array should contain 1 to 2 actionable spiritual or mindfulness practices that directly address the user's stated issues. For each habit, explain 'why' it will help and suggest a 'frequency'. The 'label' should be a short category like 'Self-Reflection', 'Grounding', 'Devotion', etc.
   - The optional field (\`optionalPrompt\`) should only be included if it is truly relevant and insightful.
 
 Adhere strictly to this structure.`;
