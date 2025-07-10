@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -53,17 +54,23 @@ export default function SignupPage() {
     }
   }, []);
 
+  const handleSignUpSuccess = () => {
+    toast({
+      title: "Account Created",
+      description: "Welcome to Hikma. Let's begin your journey.",
+    });
+    // Set a flag to trigger onboarding on the next page
+    sessionStorage.setItem('isNewUser', 'true');
+    router.push("/dashboard");
+  }
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) return;
     setIsLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      toast({
-        title: "Account Created",
-        description: "Welcome to Hikma. You are now logged in.",
-      });
-      router.push("/dashboard");
+      handleSignUpSuccess();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -81,8 +88,7 @@ export default function SignupPage() {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      toast({ title: "Login Successful", description: "Welcome." });
-      router.push("/dashboard");
+      handleSignUpSuccess();
     } catch (error: any) {
       toast({
         variant: "destructive",

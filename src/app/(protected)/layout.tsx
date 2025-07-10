@@ -1,8 +1,9 @@
+
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
@@ -14,12 +15,13 @@ export default function ProtectedLayout({
 }) {
   const { user, loading } = useAuth();
   const router = useRouter();
-  
-  // This state is now managed inside the layout to control the onboarding flow
+
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useLocalStorage(
     user ? `hikma-onboarding-completed-${user.uid}` : 'hikma-onboarding-completed', 
     false
   );
+  
+  const [isNewUser, setIsNewUser] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -27,8 +29,20 @@ export default function ProtectedLayout({
     }
   }, [user, loading, router]);
 
+  useEffect(() => {
+    // Check for the session flag on component mount
+    const newUserFlag = sessionStorage.getItem('isNewUser');
+    if (newUserFlag === 'true') {
+      setIsNewUser(true);
+      // Clean up the flag so it's not used again on refresh
+      sessionStorage.removeItem('isNewUser');
+    }
+  }, []);
+
+
   const handleOnboardingComplete = () => {
     setHasCompletedOnboarding(true);
+    setIsNewUser(false); // Onboarding is done, exit the onboarding view
   };
   
   if (loading || !user) {
@@ -39,8 +53,8 @@ export default function ProtectedLayout({
     );
   }
 
-  // If the user is logged in but hasn't completed onboarding, show the flow.
-  if (user && !hasCompletedOnboarding) {
+  // Show onboarding if it's a new user and they haven't somehow already completed it.
+  if (isNewUser && !hasCompletedOnboarding) {
     return <OnboardingFlow onComplete={handleOnboardingComplete} />;
   }
 
