@@ -63,6 +63,22 @@ export default function ReflectionPage() {
     return habits.some(h => h.name === habitName);
   }
 
+  const handleIncompleteReflection = (result: FullReflection) => {
+    // Graceful failure: if reflection is incomplete, treat it as veiled.
+    toast({
+      variant: "default",
+      title: "The Mirror is Hazy",
+      description: "Hikma's words were not clear. Perhaps there is more to unveil.",
+    });
+    setReflection({
+      ...result,
+      isVeiled: true,
+      reasoning: result.reasoning || "The reflection was unclear, suggesting a need for deeper honesty.",
+    });
+    setProfile(p => ({ ...p, veiledCount: p.veiledCount + 1 }));
+    setStep("veiled");
+  }
+
   const handleSubmit = async () => {
     if (!selectedSymbol || !journalText) return;
     setIsLoading(true);
@@ -73,30 +89,31 @@ export default function ReflectionPage() {
         journal: journalText,
         previousProfile: profile,
       });
-      setReflection(result);
 
       if (result.isVeiled) {
+        setReflection(result);
         setProfile(p => ({ ...p, veiledCount: p.veiledCount + 1 }));
         setStep("veiled");
       } else {
         if (!result.soulStage || !result.temperamentBalance || !result.poeticReflection || !result.probingQuestions || !result.wisdomSeed) {
-            // This case should be rare now with server-side checks, but as a fallback:
-            throw new Error("The model returned an incomplete reflection. Please try again.");
-        }
-        setProfile({
-          soulStage: result.soulStage,
-          temperamentBalance: result.temperamentBalance,
-          veiledCount: 0,
-        });
+            handleIncompleteReflection(result);
+        } else {
+            setReflection(result);
+            setProfile({
+              soulStage: result.soulStage,
+              temperamentBalance: result.temperamentBalance,
+              veiledCount: 0,
+            });
 
-        const newArchiveEntry: ArchivedReflection = {
-            date: new Date().toISOString(),
-            reflection: result,
-            journal: journalText,
-            symbol: selectedSymbol,
-        };
-        setArchive(prevArchive => [...prevArchive, newArchiveEntry]);
-        setStep("reflection");
+            const newArchiveEntry: ArchivedReflection = {
+                date: new Date().toISOString(),
+                reflection: result,
+                journal: journalText,
+                symbol: selectedSymbol,
+            };
+            setArchive(prevArchive => [...prevArchive, newArchiveEntry]);
+            setStep("reflection");
+        }
       }
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Could not get a reflection. Please try again.";
@@ -157,14 +174,8 @@ export default function ReflectionPage() {
         } else {
             // Safeguard against incomplete data from the AI
             if (!result.soulStage || !result.temperamentBalance || !result.poeticReflection || !result.probingQuestions || !result.wisdomSeed) {
-                toast({
-                    variant: "destructive",
-                    title: "An Incomplete Reflection",
-                    description: "Hikma's words are scattered. The reflection could not be fully formed. Please try again from your journal.",
-                });
-                setVeiledChat(false);
-                setReflection(null);
-                setStep('journal');
+                handleIncompleteReflection(result);
+                setVeiledChat(false); // Make sure we exit chat view
                 return;
             }
             

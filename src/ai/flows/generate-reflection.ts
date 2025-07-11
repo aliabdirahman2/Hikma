@@ -94,8 +94,8 @@ You will always generate a JSON object containing \`isVeiled\` and \`reasoning\`
   - You MUST THEN POPULATE ALL the following fields: \`soulStage\`, \`temperamentBalance\`, \`poeticReflection\`, \`probingQuestions\`, \`wisdomSeed\`, and \`prescribedHabits\`.
   - The 'prescribedHabits' array should contain 1 to 2 actionable spiritual or mindfulness practices that directly address the user's stated issues. For each habit, explain 'why' it will help and suggest a 'frequency'. The 'label' should be a short category like 'Self-Reflection', 'Grounding', 'Devotion', 'Action', 'Compassion', etc.
   - The optional field (\`optionalPrompt\`) should only be included if it is truly relevant and insightful.
-
-Adhere strictly to this structure.`;
+  
+**IMPORTANT FINAL CHECK:** Before finalizing your response, double-check your own work. If you have determined \`isVeiled\` is \`false\`, you absolutely MUST provide values for all required fields. An incomplete response is not acceptable. Adhere strictly to this structure.`;
 
     llmResponse = await ai.generate({
       model: 'googleai/gemini-1.5-flash-latest',
