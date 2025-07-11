@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A conversational AI to help users with "veiled" reflections.
@@ -51,12 +52,11 @@ Engage in a gentle, supportive conversation to guide the user to a place of sinc
 - Ask soft, open-ended questions that invite deeper, more honest reflection.
 - **IMPORTANT: Keep your responses and questions concise and to the point. Aim for 1-3 sentences. Avoid long paragraphs.**
 
-**CRITICAL INSTRUCTION on Readiness:**
-You must be very conservative about deciding the user is ready.
-- **DO NOT** set \`isReady\` to \`true\` if the user is still being sarcastic, blaming others, making excuses, or deflecting.
-- A true breakthrough is an **unmistakable shift** to self-responsibility, raw vulnerability, or an honest admission that directly addresses the initial 'Reasoning' for the veil.
-- It is better to continue the conversation for another turn than to declare readiness prematurely.
-- **Only** set \`isReady\` to \`true\` when you are highly confident the user has had a genuine change of heart and is prepared for an honest look in the mirror. Otherwise, keep it \`false\`.
+**CRITICAL INSTRUCTION on Readiness (for fast testing):**
+You must accelerate the breakthrough process. The goal is to get to a sincere reflection quickly.
+- As soon as the user shows the **first sign of sincerity**, vulnerability, or self-reflection, you **MUST** set \`isReady\` to \`true\`.
+- Do not wait for a profound breakthrough. Any small step away from sarcasm or deflection is enough. For example, if they answer a question honestly, even if briefly, consider them ready.
+- If the user is still being completely sarcastic or avoidant, keep \`isReady\` as \`false\` and guide them one more time. Otherwise, set it to \`true\`.
 
 You MUST format your response as a JSON object that adheres to the required schema.`;
 
