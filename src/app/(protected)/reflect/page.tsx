@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState, type ReactElement } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -345,14 +346,12 @@ export default function ReflectionPage() {
         {step === "reflection" && reflection && (
           <motion.div key="reflection" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }} className="w-full">
             <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary"><Wand2/>Poetic Reflection</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-lg italic whitespace-pre-wrap leading-relaxed">&ldquo;{reflection.poeticReflection}&rdquo;</p>
-                </CardContent>
-              </Card>
+                <div className="sufi-mihrab">
+                    <div className="p-8">
+                        <h2 className="text-center font-headline text-2xl text-primary mb-4">Poetic Reflection</h2>
+                        <p className="text-lg italic whitespace-pre-wrap leading-relaxed text-center">&ldquo;{reflection.poeticReflection}&rdquo;</p>
+                    </div>
+                </div>
 
               <Card>
                 <CardHeader>

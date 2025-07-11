@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -126,7 +127,7 @@ export default function LandingPage() {
               <div className="max-w-2xl mx-auto space-y-4 text-base">
                   <p>Hikma helps you pause, reflect, and return to what is essential.</p>
                   <p>Whether you’re overwhelmed by noise, craving meaning, or trying to live with presence — this is your inner sanctuary.</p>
-                  <p>Inspired by spiritual traditions and guided by psychospiritual frameworks, Hikma is your tazkiyah companion in the digital age.</p>
+                   <p>It is a companion for those who are upright with themselves, and seek quietness with mankind. To improve one's character and treat others with forbearance is the path.</p>
               </div>
           </div>
       </section>
@@ -136,32 +137,24 @@ export default function LandingPage() {
           <div className="container">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {features.slice(0, 3).map((feature) => (
-                      <Card key={feature.title} className="flex flex-col text-center items-center hover:shadow-lg transition-shadow duration-300">
-                          <CardHeader>
-                              <div className="p-4 bg-primary/10 rounded-full mx-auto w-fit">
-                                  {feature.icon}
-                              </div>
-                              <CardTitle className="font-headline text-2xl pt-4">{feature.title}</CardTitle>
-                          </CardHeader>
-                          <CardContent className="flex-grow">
-                              <CardDescription>{feature.description}</CardDescription>
-                          </CardContent>
-                      </Card>
+                      <div key={feature.title} className="bg-card p-6 text-center flex flex-col items-center hover:shadow-lg transition-shadow duration-300 sufi-octagon">
+                          <div className="p-4 bg-primary/10 rounded-full mx-auto w-fit">
+                              {feature.icon}
+                          </div>
+                          <h3 className="font-headline text-2xl pt-4 text-card-foreground">{feature.title}</h3>
+                          <p className="flex-grow mt-2 text-muted-foreground">{feature.description}</p>
+                      </div>
                   ))}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8 justify-center lg:max-w-[67%] lg:mx-auto">
                   {features.slice(3, 5).map((feature) => (
-                      <Card key={feature.title} className="flex flex-col text-center items-center hover:shadow-lg transition-shadow duration-300">
-                          <CardHeader>
-                              <div className="p-4 bg-primary/10 rounded-full mx-auto w-fit">
-                                  {feature.icon}
-                              </div>
-                              <CardTitle className="font-headline text-2xl pt-4">{feature.title}</CardTitle>
-                          </CardHeader>
-                          <CardContent className="flex-grow">
-                              <CardDescription>{feature.description}</CardDescription>
-                          </CardContent>
-                      </Card>
+                       <div key={feature.title} className="bg-card p-6 text-center flex flex-col items-center hover:shadow-lg transition-shadow duration-300 sufi-octagon">
+                          <div className="p-4 bg-primary/10 rounded-full mx-auto w-fit">
+                              {feature.icon}
+                          </div>
+                          <h3 className="font-headline text-2xl pt-4 text-card-foreground">{feature.title}</h3>
+                          <p className="flex-grow mt-2 text-muted-foreground">{feature.description}</p>
+                      </div>
                   ))}
               </div>
           </div>
@@ -225,17 +218,18 @@ export default function LandingPage() {
       </section>
       
       {/* Final CTA Section */}
-      <section id="final-cta" className="py-24 bg-primary text-white text-center">
-           <div className="container max-w-3xl">
+       <section id="final-cta" className="py-24 bg-primary text-white text-center">
+           <div className="container max-w-3xl flex flex-col items-center">
               <h2 className="text-4xl md:text-5xl font-headline mb-4">
                   Begin your path of hikma.
               </h2>
               <p className="text-lg md:text-xl text-primary-foreground/80 mb-8">
                   The work starts when you return to your heart.
               </p>
-              <Button asChild size="lg" className="font-headline text-xl py-8 px-10 bg-white text-primary hover:bg-white/90">
+              <Button asChild size="lg" className="font-headline text-xl h-24 w-24 rounded-full bg-white text-primary hover:bg-white/90 flex-col gap-0">
                   <Link href="/signup">
-                      Create Your Journal
+                      <span>Begin</span>
+                      <ArrowRight className="h-5 w-5 mt-1"/>
                   </Link>
               </Button>
               <p className="text-sm mt-4 text-primary-foreground/70">
