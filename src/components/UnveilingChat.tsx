@@ -176,89 +176,89 @@ export function UnveilingChat({ journal, reasoning, onReady, symbol }: Unveiling
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start w-full">
-        <div className="md:col-span-1 flex flex-col items-center gap-8">
-             <div className="flex flex-col items-center justify-center p-4">
-                <UnveilingHeartAnimation progress={breakthroughProgress} />
-                <p className="text-sm font-semibold text-primary mt-4">
-                  {Math.round(breakthroughProgress * 100)}% Unveiled
-                </p>
-            </div>
-            <div className="flex flex-col items-center gap-4 w-full">
+    <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-8">
+
+        {/* Centering Ritual Section */}
+        <div className="flex flex-col items-center gap-6 p-4">
+            <UnveilingHeartAnimation progress={breakthroughProgress} />
+            <p className="text-sm font-semibold text-primary -mt-2">
+                {Math.round(breakthroughProgress * 100)}% Unveiled
+            </p>
+            <div className="text-center">
                 <h3 className="font-headline text-lg text-primary">Center Yourself</h3>
-                <BreathAnimation symbol={symbol} />
-            </div>
-            <div className="w-full md:hidden mt-4">
-                 <h4 className="font-headline text-md text-primary mb-2 flex items-center gap-2"><Wand2 size={16}/> Nudges of Sincerity</h4>
-                <div className="space-y-2">
-                    {nudges.map(nudge => (
-                        <button key={nudge} onClick={() => handleNudgeClick(nudge)} className="w-full text-left text-sm p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors">
-                            {nudge}
-                        </button>
-                    ))}
+                <p className="text-sm text-muted-foreground">Breathe with your element.</p>
+                <div className="mt-4 flex justify-center">
+                    <BreathAnimation symbol={symbol} />
                 </div>
             </div>
         </div>
-        <Card className="w-full md:col-span-2">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 font-headline text-2xl text-amber-600">
-                    <Sparkles /> Unveiling the Heart
-                </CardTitle>
-                <CardDescription>A gentle conversation to clear the mirror within.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                    <ScrollArea className="h-64 pr-4">
-                        <div className="space-y-4" ref={scrollAreaRef}>
-                            {messages.map((message, index) => (
-                            <div
-                                key={index}
-                                className={cn(
-                                "flex w-fit max-w-xs flex-col gap-2 rounded-lg px-3 py-2 text-sm",
-                                message.role === "user"
-                                    ? "ml-auto bg-primary text-primary-foreground"
-                                    : "bg-muted"
-                                )}
-                            >
-                                {message.content}
-                            </div>
-                            ))}
-                            {isLoading && <div className="flex justify-start"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>}
-                        </div>
-                    </ScrollArea>
 
-                    <form
-                        onSubmit={handleSendMessage}
-                        className="mt-4 flex w-full items-center space-x-2"
-                    >
-                        <Input
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder="Speak from your heart..."
-                            disabled={isLoading}
-                        />
-                         <Button type="button" size="icon" variant={isRecording ? "destructive" : "outline"} onClick={handleVoiceClick} disabled={isLoading}>
-                            <Mic className="h-4 w-4" />
-                            <span className="sr-only">Use Microphone</span>
-                        </Button>
-                        <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
-                            {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : <Send className="h-4 w-4" />}
-                            <span className="sr-only">Send</span>
-                        </Button>
-                    </form>
-                </div>
-                <div className="w-full md:w-48 flex-shrink-0 hidden md:block">
-                    <h4 className="font-headline text-md text-primary mb-2 flex items-center gap-2"><Wand2 size={16}/> Nudges of Sincerity</h4>
-                    <div className="space-y-2">
-                        {nudges.map(nudge => (
-                            <button key={nudge} onClick={() => handleNudgeClick(nudge)} className="w-full text-left text-sm p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors">
-                                {nudge}
-                            </button>
-                        ))}
+        {/* Chat Section */}
+        <div className="w-full max-w-2xl">
+            <Card className="w-full bg-transparent shadow-none border-none">
+                <CardHeader className="text-center">
+                    <CardTitle className="font-headline text-2xl text-amber-600 flex items-center justify-center gap-2">
+                        <Sparkles /> Unveiling the Heart
+                    </CardTitle>
+                    <CardDescription>A gentle conversation to clear the mirror within.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        {/* Main Chat Area */}
+                        <div className="md:col-span-3">
+                             <ScrollArea className="h-64 pr-4">
+                                <div className="space-y-4" ref={scrollAreaRef}>
+                                    {messages.map((message, index) => (
+                                    <div
+                                        key={index}
+                                        className={cn(
+                                        "flex w-fit max-w-xs flex-col gap-2 rounded-lg px-3 py-2 text-sm",
+                                        message.role === "user"
+                                            ? "ml-auto bg-primary text-primary-foreground"
+                                            : "bg-muted"
+                                        )}
+                                    >
+                                        {message.content}
+                                    </div>
+                                    ))}
+                                    {isLoading && <div className="flex justify-start"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>}
+                                </div>
+                            </ScrollArea>
+                            <form
+                                onSubmit={handleSendMessage}
+                                className="mt-4 flex w-full items-center space-x-2"
+                            >
+                                <Input
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    placeholder="Speak from your heart..."
+                                    disabled={isLoading}
+                                />
+                                <Button type="button" size="icon" variant={isRecording ? "destructive" : "outline"} onClick={handleVoiceClick} disabled={isLoading}>
+                                    <Mic className="h-4 w-4" />
+                                    <span className="sr-only">Use Microphone</span>
+                                </Button>
+                                <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
+                                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : <Send className="h-4 w-4" />}
+                                    <span className="sr-only">Send</span>
+                                </Button>
+                            </form>
+                        </div>
+                        {/* Nudges */}
+                        <div className="w-full md:col-span-1">
+                             <h4 className="font-headline text-md text-primary mb-2 flex items-center gap-2"><Wand2 size={16}/> Nudges</h4>
+                            <div className="space-y-2">
+                                {nudges.map(nudge => (
+                                    <button key={nudge} onClick={() => handleNudgeClick(nudge)} className="w-full text-left text-sm p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors">
+                                        {nudge}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </CardContent>
-        </Card>
+                </CardContent>
+            </Card>
+        </div>
     </div>
   );
 }
