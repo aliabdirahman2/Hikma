@@ -315,6 +315,7 @@ export default function ReflectionPage() {
                     journal={journalText} 
                     reasoning={reflection.reasoning}
                     onReady={handleReadyForSincereReflection}
+                    symbol={selectedSymbol!}
                 />
             ) : (
                 <Card className="max-w-md mx-auto text-center">
