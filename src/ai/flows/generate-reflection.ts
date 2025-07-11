@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A psychospiritual diagnostic AI agent.
@@ -33,20 +34,20 @@ export async function generateReflection(input: ReflectionInput): Promise<Reflec
 
   // If this is a reflection following a breakthrough, use a dedicated, simpler prompt with the more powerful model.
   if (input.unveilingHistory && input.unveilingHistory.length > 0) {
-    const unveilingPrompt = `You are Hikma, a wise psychospiritual guide. The user has just had a breakthrough conversation. Use the conversation history and their original journal entry to generate a sincere and complete psychospiritual reflection.
+    const unveilingPrompt = `You are Hikma, a wise psychospiritual guide. The user has just had a breakthrough conversation, making them ready for a sincere reflection. Use the conversation history and their original journal entry to generate a complete psychospiritual reflection.
 
 **User's Journal:**
 """${input.journal}"""
 
-**Breakthrough Conversation (This is the MOST IMPORTANT context):**
+**Breakthrough Conversation (This is the MOST IMPORTANT context for your new reflection):**
 ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.content}`).join('\n')}
 
-**Your Task & Output Format (MANDATE):**
+**Your Task & Output Format (MANDATORY):**
 Based on the breakthrough conversation, you MUST generate a new, sincere reflection. You MUST return your entire response as a single JSON object that adheres to the required output schema.
-- The 'isVeiled' flag MUST be 'false'. There are no exceptions.
+- The 'isVeiled' flag MUST be set to 'false'. There are no exceptions to this rule.
 - You MUST provide non-empty values for ALL of the following fields: 'soulStage', 'temperamentBalance', 'poeticReflection', 'probingQuestions', 'wisdomSeed', and 'prescribedHabits'.
 - The optional field ('optionalPrompt') should only be included if it is truly relevant and insightful.
-- Your 'reasoning' should explain the new diagnosis based on the breakthrough.
+- Your 'reasoning' should explain the new diagnosis based on the user's breakthrough, not the previous veiled state.
 - Your 'prescribedHabits' must be relevant to the user's breakthrough and help them integrate it.`;
 
     llmResponse = await ai.generate({
@@ -91,7 +92,7 @@ You will always generate a JSON object containing \`isVeiled\` and \`reasoning\`
   - Set \`isVeiled\` to \`false\`.
   - In \`reasoning\`, explain your diagnosis, connecting their words and symbol to the soul stage and temperament shift.
   - You MUST THEN POPULATE ALL the following fields: \`soulStage\`, \`temperamentBalance\`, \`poeticReflection\`, \`probingQuestions\`, \`wisdomSeed\`, and \`prescribedHabits\`.
-  - The 'prescribedHabits' array should contain 1 to 2 actionable spiritual or mindfulness practices that directly address the user's stated issues. For each habit, explain 'why' it will help and suggest a 'frequency'. The 'label' should be a short category like 'Self-Reflection', 'Grounding', 'Devotion', etc.
+  - The 'prescribedHabits' array should contain 1 to 2 actionable spiritual or mindfulness practices that directly address the user's stated issues. For each habit, explain 'why' it will help and suggest a 'frequency'. The 'label' should be a short category like 'Self-Reflection', 'Grounding', 'Devotion', 'Action', 'Compassion', etc.
   - The optional field (\`optionalPrompt\`) should only be included if it is truly relevant and insightful.
 
 Adhere strictly to this structure.`;

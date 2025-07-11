@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
@@ -7,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, Send, Sparkles, Heart } from "lucide-react";
+import { Loader2, Send, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { UnveilingHeartAnimation } from "./UnveilingHeartAnimation";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 
 interface UnveilingChatProps {
@@ -100,8 +101,11 @@ export function UnveilingChat({ journal, reasoning, onReady }: UnveilingChatProp
 
   return (
     <div className="flex flex-col md:flex-row gap-8 items-center w-full">
-        <div className="w-full md:w-1/3 flex items-center justify-center p-4">
+        <div className="w-full md:w-1/3 flex flex-col items-center justify-center p-4">
             <UnveilingHeartAnimation progress={breakthroughProgress} />
+            <p className="text-sm font-semibold text-primary mt-4">
+              {Math.round(breakthroughProgress * 100)}% Unveiled
+            </p>
         </div>
         <Card className="w-full md:w-2/3">
         <CardHeader>
