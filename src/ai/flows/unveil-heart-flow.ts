@@ -44,12 +44,12 @@ const unveilHeartFlow = ai.defineFlow({
 - The current conversation with the user:
 ${historyString}
 
-**Your Task:**
+**Your Task & Style:**
 Engage in a gentle, supportive conversation to guide the user to a place of sincerity and self-honesty.
 - Your tone must be one of absolute compassion and understanding.
 - Use the 'Reasoning' to understand the nature of the veil (e.g., deflection, sarcasm, blame).
 - Ask soft, open-ended questions that invite deeper, more honest reflection.
-- Your goal is to guide them to a breakthrough.
+- **IMPORTANT: Keep your responses and questions concise and to the point. Aim for 1-3 sentences. Avoid long paragraphs.**
 
 **CRITICAL INSTRUCTION on Readiness:**
 You must be very conservative about deciding the user is ready.

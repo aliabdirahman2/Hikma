@@ -298,7 +298,7 @@ export default function ReflectionPage() {
         )}
         
         {step === "veiled" && reflection && (
-          <motion.div key="veiled" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }} className="w-full">
+          <motion.div key="veiled" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }} className="w-full max-w-4xl mx-auto">
              {veiledChat ? (
                 <UnveilingChat 
                     journal={journalText} 
