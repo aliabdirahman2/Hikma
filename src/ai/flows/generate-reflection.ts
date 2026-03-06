@@ -13,6 +13,8 @@ import {ReflectionInputSchema, ReflectionOutputSchema, type ReflectionInput, typ
 export async function generateReflection(input: ReflectionInput): Promise<ReflectionOutput> {
   let llmResponse;
 
+  // Refined safety settings to be less restrictive for spiritual/introspective content
+  // while still maintaining core safety boundaries.
   const safetySettings = [
       {
           category: 'HARM_CATEGORY_HATE_SPEECH',
@@ -28,44 +30,42 @@ export async function generateReflection(input: ReflectionInput): Promise<Reflec
       },
       {
           category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-          threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+          threshold: 'BLOCK_ONLY_HIGH',
       }
   ];
 
-  const prompt = `You are Hikma, a wise psychospiritual guide in the tradition of Rumi, Ibn Arabi, and Islamic spirituality. Your purpose is to analyze a user's state and guide them towards self-understanding (Ma'rifah) and purification (Tazkiyah). You are a companion for polishing the mirror of the heart. You do not give direct advice; you are a mirror for the soul.
+  const prompt = `You are Hikma, a wise psychospiritual guide in the tradition of Rumi, Ibn Arabi, and Islamic spirituality. Your purpose is to analyze a user's state and guide them towards self-understanding (Ma'rifah) and purification (Tazkiyah). You are a companion for polishing the mirror of the heart.
 
-Your language should be deeply poetic and metaphorical, echoing Sufi mystics. Use concepts like the garden of the heart, the wine of divine love, the Beloved, veils of light and darkness, the fire of separation, and the ocean of unity. Embrace paradox.
-
-The user provides their journal entry, a chosen symbol, and their previous profile. Your task is to perform an analysis and return a single, unified JSON response.
+Your language should be deeply poetic and metaphorical. Use concepts like the garden of the heart, the wine of divine love, the Beloved, veils of light and darkness, the fire of separation, and the ocean of unity.
 
 **User's Input:**
 - Symbol: ${input.symbol}
 - Journal: """${input.journal}"""
 - Previous Profile: ${JSON.stringify(input.previousProfile)}
 ${input.unveilingHistory ? `
-**Breakthrough Conversation History (Use this as the primary context for the unveiled heart):**
+**Breakthrough Conversation History:**
 ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.content}`).join('\n')}
 ` : ''}
 
-**Your Task & Output Format (MANDATORY):**
-- **CRITICAL RULE:** If an 'unveilingHistory' is provided, you MUST generate a sincere reflection and you MUST set 'isVeiled' to 'false'. There are no exceptions to this rule.
-- If no 'unveilingHistory' is provided, you must decide whether to generate a Sincere Reflection or a Veiled Reflection.
-- **Sincere Reflection:** This is the default. Generate this UNLESS the user's journal is clearly sarcastic, aggressive, extremely short (1-5 words), or completely off-topic. For a sincere reflection, you MUST provide non-empty values for ALL of the following fields: 'soulStage', 'temperamentBalance', 'poeticReflection', 'probingQuestions', 'wisdomSeed', and 'prescribedHabits', and set 'isVeiled' to 'false'.
-- **Veiled Reflection:** Only generate this if the user's journal is clearly avoidant or not a genuine attempt. In this case, set 'isVeiled' to 'true' and provide a concise 'reasoning' (e.g., "The heart speaks in metaphors, not memes."). Do not include the other fields.
-- Your 'reasoning' (whether for a veiled or sincere reflection) should explain your diagnosis, connecting their words and symbol to the soul stage and temperament shift.
-- Your 'prescribedHabits' must be relevant to the user's entry and help them integrate the reflection, like polishing the heart's mirror.
+**Your Task & Output Format:**
+- **CRITICAL RULE:** If an 'unveilingHistory' is provided, you MUST set 'isVeiled' to 'false'.
+- Otherwise, only set 'isVeiled' to 'true' if the journal entry is clearly sarcastic, extremely brief (less than 5 words), or intentionally deflective.
+- **Sincere Reflection (isVeiled: false):** Provide values for ALL fields: 'soulStage', 'temperamentBalance', 'poeticReflection', 'probingQuestions', 'wisdomSeed', and 'prescribedHabits'.
+- **Veiled Reflection (isVeiled: true):** Set 'isVeiled' to 'true' and provide a concise 'reasoning'.
+
+Your 'reasoning' should explain your diagnosis, connecting their words and symbol to the soul stage and temperament shift.
+Your 'prescribedHabits' must be relevant and help them integrate the reflection.
 
 You MUST return your entire response as a single JSON object that adheres to the required output schema.`;
   
   llmResponse = await ai.generate({
-    // Use the more powerful model if there's an unveiling history to get a richer reflection.
     model: (input.unveilingHistory && input.unveilingHistory.length > 0) ? 'googleai/gemini-1.5-pro-latest' : 'googleai/gemini-1.5-flash-latest',
     prompt: prompt,
     output: {
       schema: ReflectionOutputSchema,
     },
     config: {
-      temperature: 0.3,
+      temperature: 0.4,
       safetySettings,
     },
   });
@@ -76,12 +76,12 @@ You MUST return your entire response as a single JSON object that adheres to the
     throw new Error("The wise one is silent for now. The model did not return a response.");
   }
   
-  // After a successful unveiling, guarantee isVeiled is false.
+  // Guarantee isVeiled is false after unveiling history
   if (input.unveilingHistory && input.unveilingHistory.length > 0) {
     output.isVeiled = false;
   }
 
-  // Normalize temperament balance if it exists.
+  // Normalize temperament balance to ensure it adds up to 100
   if (output.temperamentBalance) {
     const { sanguine, choleric, melancholic, phlegmatic } = output.temperamentBalance;
     const total = sanguine + choleric + melancholic + phlegmatic;
@@ -90,7 +90,7 @@ You MUST return your entire response as a single JSON object that adheres to the
         const s = Math.round((sanguine / total) * 100);
         const c = Math.round((choleric / total) * 100);
         const m = Math.round((melancholic / total) * 100);
-        const p = 100 - s - c - m; // Ensure sum is exactly 100
+        const p = 100 - s - c - m;
         
         output.temperamentBalance.sanguine = s;
         output.temperamentBalance.choleric = c;
