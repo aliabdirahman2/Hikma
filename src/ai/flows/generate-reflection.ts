@@ -11,7 +11,8 @@ import {ReflectionInputSchema, ReflectionOutputSchema, type ReflectionInput, typ
 
 
 export async function generateReflection(input: ReflectionInput): Promise<ReflectionOutput> {
-  // Refined safety settings for spiritual and introspective content.
+  console.error(">>> [HIKMA FLOW] generateReflection flow execution started");
+
   const safetySettings = [
       {
           category: 'HARM_CATEGORY_HATE_SPEECH',
@@ -47,47 +48,53 @@ ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.
 
 **Mandatory Logic & Output:**
 1. **CRITICAL:** If 'unveilingHistory' is present, the veil has lifted. You MUST set 'isVeiled' to 'false'.
-2. **Initial Reflection:** Only set 'isVeiled' to 'true' if the journal is clearly sarcastic, defensive, or contains fewer than 5 words. Otherwise, assume sincerity (Fitra).
+2. **Veiling Rule:** Only set 'isVeiled' to 'true' if the journal is clearly sarcastic, intentionally defensive, or contains fewer than 5 words. Otherwise, assume sincerity (Fitra).
 3. **Fields:** If 'isVeiled' is false, you MUST provide values for: 'soulStage', 'temperamentBalance', 'poeticReflection', 'probingQuestions', 'wisdomSeed', and 'prescribedHabits'.
-4. **Temperament:** Assign values (totaling 100) to Sanguine (Air), Choleric (Fire), Melancholic (Earth), and Phlegmatic (Water) based on the "climate" of their words.
 
 Return a single JSON object adhering to the schema.`;
   
-  const llmResponse = await ai.generate({
-    model: (input.unveilingHistory && input.unveilingHistory.length > 0) ? 'googleai/gemini-1.5-pro-latest' : 'googleai/gemini-1.5-flash-latest',
-    prompt: prompt,
-    output: {
-      schema: ReflectionOutputSchema,
-    },
-    config: {
-      temperature: 0.4,
-      safetySettings,
-    },
-  });
+  try {
+    const llmResponse = await ai.generate({
+      model: (input.unveilingHistory && input.unveilingHistory.length > 0) ? 'googleai/gemini-1.5-pro-latest' : 'googleai/gemini-1.5-flash-latest',
+      prompt: prompt,
+      output: {
+        schema: ReflectionOutputSchema,
+      },
+      config: {
+        temperature: 0.4,
+        safetySettings,
+      },
+    });
 
-  const { output } = llmResponse;
+    const { output } = llmResponse;
 
-  if (!output) {
-    throw new Error("Hikma is in deep contemplation. The mirror did not reflect a response.");
-  }
-  
-  // Force isVeiled to false if we have history, regardless of LLM output
-  if (input.unveilingHistory && input.unveilingHistory.length > 0) {
-    output.isVeiled = false;
-  }
-
-  // Ensure balance normalization
-  if (output.temperamentBalance) {
-    const { sanguine, choleric, melancholic, phlegmatic } = output.temperamentBalance;
-    const total = sanguine + choleric + melancholic + phlegmatic;
-    if (total !== 100 && total > 0) {
-        const s = Math.round((sanguine / total) * 100);
-        const c = Math.round((choleric / total) * 100);
-        const m = Math.round((melancholic / total) * 100);
-        const p = 100 - s - c - m;
-        output.temperamentBalance = { sanguine: s, choleric: c, melancholic: m, phlegmatic: p };
+    if (!output) {
+      console.error("!!! [HIKMA FLOW] LLM returned empty output");
+      throw new Error("Hikma is in deep contemplation. The mirror did not reflect a response.");
     }
-  }
+    
+    // Force isVeiled to false if we have history, regardless of LLM output
+    if (input.unveilingHistory && input.unveilingHistory.length > 0) {
+      output.isVeiled = false;
+    }
 
-  return output;
+    // Ensure balance normalization if present
+    if (output.temperamentBalance) {
+      const { sanguine, choleric, melancholic, phlegmatic } = output.temperamentBalance;
+      const total = sanguine + choleric + melancholic + phlegmatic;
+      if (total !== 100 && total > 0) {
+          const s = Math.round((sanguine / total) * 100);
+          const c = Math.round((choleric / total) * 100);
+          const m = Math.round((melancholic / total) * 100);
+          const p = 100 - s - c - m;
+          output.temperamentBalance = { sanguine: s, choleric: c, melancholic: m, phlegmatic: p };
+      }
+    }
+
+    console.error(">>> [HIKMA FLOW] LLM response successfully processed");
+    return output;
+  } catch (err: any) {
+    console.error("!!! [HIKMA FLOW] Error during ai.generate:", err.message);
+    throw err;
+  }
 }
