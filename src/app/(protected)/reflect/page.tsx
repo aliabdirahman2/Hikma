@@ -82,6 +82,7 @@ export default function ReflectionPage() {
 
   const handleSubmit = async () => {
     if (!selectedSymbol || !journalText) return;
+    console.log(">>> [HIKMA CLIENT] handleSubmit triggered");
     setIsLoading(true);
 
     try {
