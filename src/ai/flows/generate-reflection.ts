@@ -54,7 +54,7 @@ ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.
 Return a single JSON object adhering to the schema.`;
   
   try {
-    const modelName = (input.unveilingHistory && input.unveilingHistory.length > 0) ? 'googleai/gemini-1.5-pro-latest' : 'googleai/gemini-1.5-flash-latest';
+    const modelName = (input.unveilingHistory && input.unveilingHistory.length > 0) ? 'googleai/gemini-1.5-pro' : 'googleai/gemini-1.5-flash';
     console.error(`[${timestamp}] >>> [HIKMA FLOW] Calling model: ${modelName}`);
 
     const llmResponse = await ai.generate({

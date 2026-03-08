@@ -33,17 +33,10 @@ const symbolicPromptFlow = ai.defineFlow({
 
 This phrase should encapsulate a core theme or tension from the user's input. It should be short, abstract, and open to interpretation.
 
-Examples of the desired output format:
-- "a flame wrapped in silk"
-- "a cloud spinning inward"
-- "a seed in dry soil"
-- "an echo in an empty room"
-- "a river flowing uphill"
-
 Your response MUST ONLY be the phrase itself, inside the JSON object. Do not add any explanation, greeting, or conversational text.`;
 
     const llmResponse = await ai.generate({
-        model: 'googleai/gemini-1.5-flash-latest',
+        model: 'googleai/gemini-1.5-flash',
         system: systemPrompt,
         prompt: `Journal: ${input.journal}\n\nReflection: ${JSON.stringify(input.reflection)}`,
         output: {

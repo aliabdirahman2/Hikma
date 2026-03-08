@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A conversational agent to help lift the "veils" from the heart.
@@ -48,7 +47,7 @@ ${historyString}
 Return a JSON object.`;
 
     const llmResponse = await ai.generate({
-        model: 'googleai/gemini-1.5-pro-latest',
+        model: 'googleai/gemini-1.5-pro',
         prompt: systemPrompt,
         output: {
             schema: UnveilHeartOutputSchema,
