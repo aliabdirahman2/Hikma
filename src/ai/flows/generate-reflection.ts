@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A psychospiritual diagnostic AI agent (Hikma).
@@ -54,11 +55,11 @@ ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.
 Return a single JSON object adhering to the schema.`;
   
   try {
-    const modelName = (input.unveilingHistory && input.unveilingHistory.length > 0) ? 'googleai/gemini-1.5-pro' : 'googleai/gemini-1.5-flash';
-    console.error(`[${timestamp}] >>> [HIKMA FLOW] Calling model: ${modelName}`);
+    const modelId = (input.unveilingHistory && input.unveilingHistory.length > 0) ? 'googleai/gemini-1.5-pro' : 'googleai/gemini-1.5-flash';
+    console.error(`[${timestamp}] >>> [HIKMA FLOW] Calling model: ${modelId}`);
 
     const llmResponse = await ai.generate({
-      model: modelName,
+      model: modelId,
       prompt: prompt,
       output: {
         schema: ReflectionOutputSchema,
@@ -76,12 +77,10 @@ Return a single JSON object adhering to the schema.`;
       throw new Error("Hikma is in deep contemplation. The mirror did not reflect a response.");
     }
     
-    // Force isVeiled to false if we have history, regardless of LLM output
     if (input.unveilingHistory && input.unveilingHistory.length > 0) {
       output.isVeiled = false;
     }
 
-    // Ensure balance normalization if present
     if (output.temperamentBalance) {
       const { sanguine, choleric, melancholic, phlegmatic } = output.temperamentBalance;
       const total = sanguine + choleric + melancholic + phlegmatic;

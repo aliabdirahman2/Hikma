@@ -1,10 +1,7 @@
+
 'use server';
 /**
  * @fileOverview Generates a symbolic prompt for the user to reflect upon.
- *
- * - generateSymbolicPrompt - A function that creates a poetic, metaphorical phrase.
- * - SymbolicPromptInput - The input type for the function.
- * - SymbolicPromptOutput - The return type for the function.
  */
 
 import {ai} from '@/ai/genkit';

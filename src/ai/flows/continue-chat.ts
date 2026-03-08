@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A conversational AI agent for psychospiritual guidance.
@@ -34,14 +35,12 @@ const continueChatFlow = ai.defineFlow({
     inputSchema: ChatInputSchema,
     outputSchema: ChatOutputSchema,
 }, async (input) => {
-    // Create a more concise context string to avoid overly large prompts.
     const reflectionContext = `
 - Soul Stage: ${input.reflection.soulStage}
 - Poetic Reflection: "${input.reflection.poeticReflection}"
 - Wisdom Seed: "${input.reflection.wisdomSeed}"
 `;
     
-    // Construct the conversation history into a single string for clarity.
     const historyString = input.history
       .map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.content}`)
       .join('\n');

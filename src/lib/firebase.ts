@@ -1,3 +1,4 @@
+
 "use client";
 
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
@@ -15,19 +16,15 @@ const firebaseConfig = {
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 
-// Initialize Firebase only if the API key is provided
-if (firebaseConfig.apiKey) {
+if (typeof window !== 'undefined' && firebaseConfig.apiKey) {
     try {
         app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
         auth = getAuth(app);
     } catch (error) {
         console.error("Firebase initialization failed:", error);
     }
-} else {
-    // This warning will show in the browser console if Firebase is not configured
-    if (typeof window !== 'undefined') {
-        console.warn("Firebase configuration is missing. Authentication features will be disabled. Please set your NEXT_PUBLIC_FIREBASE environment variables.");
-    }
+} else if (typeof window !== 'undefined') {
+    console.warn("Firebase configuration is missing. Authentication features will be disabled.");
 }
 
 export { app, auth };
