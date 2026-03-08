@@ -1,4 +1,3 @@
-
 "use server";
 
 import { generateReflection } from "@/ai/flows/generate-reflection";
@@ -31,26 +30,24 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Pr
 }
 
 export async function reflectionAction(input: ReflectionInput): Promise<ReflectionOutput> {
-  // LOUD logging to ensure it appears in the terminal instance
-  console.error(">>> [HIKMA ACTION] reflectionAction TRIGGERED");
-  console.error(">>> [HIKMA ACTION] Input Symbol:", input.symbol);
-  console.error(">>> [HIKMA ACTION] Journal Length:", input.journal.length);
-
-  // Explicit check for the API Key
+  const timestamp = new Date().toISOString();
+  console.error(`\n[${timestamp}] >>> [HIKMA ACTION] reflectionAction START`);
+  console.error(`[${timestamp}] >>> Input Symbol: ${input.symbol}`);
+  
   if (!process.env.GOOGLE_GENAI_API_KEY && !process.env.GEMINI_API_KEY) {
-    console.error("!!! [HIKMA CONFIG ERROR] No Google/Gemini API key found in process.env");
+    console.error(`[${timestamp}] !!! [HIKMA CONFIG ERROR] NO API KEY DETECTED IN PROCESS.ENV`);
   }
   
   try {
     const result = await withRetry(() => generateReflection(input));
-    console.error(">>> [HIKMA ACTION] SUCCESS: Reflection generated.");
-    console.error(">>> [HIKMA ACTION] Result Veiled:", result.isVeiled);
+    console.error(`[${timestamp}] >>> [HIKMA ACTION] SUCCESS: Reflection generated.`);
     return result;
   } catch (error: any) {
-    console.error("!!! [HIKMA ACTION] CRITICAL FAILURE:", error.message);
-    if (error.stack) console.error(error.stack);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error(`[${timestamp}] !!! [HIKMA ACTION] CRITICAL FAILURE: ${errorMsg}`);
     
-    throw new Error("The mirror of the heart is currently obscured by heavy clouds. Please take a deep breath and try again in a moment.");
+    // SURFACE THE REAL ERROR TO THE UI FOR DIAGNOSTICS
+    throw new Error(`The mirror of the heart is obscured: ${errorMsg}`);
   }
 }
 
@@ -61,7 +58,7 @@ export async function generateSymbolicPromptAction(input: SymbolicPromptInput): 
     return result;
   } catch (error: any) {
     console.error("!!! [HIKMA ACTION] Symbolic Prompt Failed:", error.message);
-    throw new Error("The symbolic realm is quiet for now. Let's try to listen again in a moment.");
+    throw new Error(`The symbolic realm is quiet: ${error.message}`);
   }
 }
 
@@ -72,7 +69,7 @@ export async function continueChatAction(input: ChatInput): Promise<ChatOutput> 
     return result;
   } catch (error: any) {
     console.error("!!! [HIKMA ACTION] Chat Failed:", error.message);
-    throw new Error("Hikma is in deep contemplation. Please wait a moment before speaking again.");
+    throw new Error(`Hikma is in contemplation: ${error.message}`);
   }
 }
 
@@ -80,10 +77,9 @@ export async function unveilHeartAction(input: UnveilHeartInput): Promise<Unveil
   console.error(">>> [HIKMA ACTION] unveilHeartAction TRIGGERED");
   try {
     const result = await withRetry(() => unveilHeart(input));
-    console.error(">>> [HIKMA ACTION] Unveiling Result Ready:", result.isReady);
     return result;
   } catch (error: any) {
     console.error("!!! [HIKMA ACTION] Unveiling Failed:", error.message);
-    throw new Error("The veil is heavy right now. Let us breathe together and try again.");
+    throw new Error(`The veil is heavy: ${error.message}`);
   }
 }

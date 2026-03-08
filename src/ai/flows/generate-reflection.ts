@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A psychospiritual diagnostic AI agent (Hikma).
@@ -11,7 +10,8 @@ import {ReflectionInputSchema, ReflectionOutputSchema, type ReflectionInput, typ
 
 
 export async function generateReflection(input: ReflectionInput): Promise<ReflectionOutput> {
-  console.error(">>> [HIKMA FLOW] generateReflection flow execution started");
+  const timestamp = new Date().toISOString();
+  console.error(`[${timestamp}] >>> [HIKMA FLOW] generateReflection flow execution started`);
 
   const safetySettings = [
       {
@@ -54,8 +54,11 @@ ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.
 Return a single JSON object adhering to the schema.`;
   
   try {
+    const modelName = (input.unveilingHistory && input.unveilingHistory.length > 0) ? 'googleai/gemini-1.5-pro-latest' : 'googleai/gemini-1.5-flash-latest';
+    console.error(`[${timestamp}] >>> [HIKMA FLOW] Calling model: ${modelName}`);
+
     const llmResponse = await ai.generate({
-      model: (input.unveilingHistory && input.unveilingHistory.length > 0) ? 'googleai/gemini-1.5-pro-latest' : 'googleai/gemini-1.5-flash-latest',
+      model: modelName,
       prompt: prompt,
       output: {
         schema: ReflectionOutputSchema,
@@ -69,7 +72,7 @@ Return a single JSON object adhering to the schema.`;
     const { output } = llmResponse;
 
     if (!output) {
-      console.error("!!! [HIKMA FLOW] LLM returned empty output");
+      console.error(`[${timestamp}] !!! [HIKMA FLOW] LLM returned empty output`);
       throw new Error("Hikma is in deep contemplation. The mirror did not reflect a response.");
     }
     
@@ -91,10 +94,10 @@ Return a single JSON object adhering to the schema.`;
       }
     }
 
-    console.error(">>> [HIKMA FLOW] LLM response successfully processed");
+    console.error(`[${timestamp}] >>> [HIKMA FLOW] LLM response successfully processed`);
     return output;
   } catch (err: any) {
-    console.error("!!! [HIKMA FLOW] Error during ai.generate:", err.message);
+    console.error(`[${timestamp}] !!! [HIKMA FLOW] Error during ai.generate: ${err.message}`);
     throw err;
   }
 }
