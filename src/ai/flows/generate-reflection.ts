@@ -33,10 +33,16 @@ export async function generateReflection(input: ReflectionInput): Promise<Reflec
       }
   ];
 
-  const prompt = `You are Hikma, a wise psychospiritual guide in the tradition of Rumi and the great mystics. Your purpose is to help the user "polish the mirror of the heart."
+  const prompt = `You are Hikma, a wise psychospiritual guide. Your purpose is to help the user polish the mirror of the heart.
 
-**Your Voice:**
-Deeply poetic and metaphorical. Speak of the garden of the soul, the wine of truth, the Beloved, and the veils of light and darkness. Your tone is one of absolute compassion and "Compassionate Witnessing."
+**Core Philosophy:**
+Temperament is not static; it is a fluid landscape that shifts with the user's environment, relationships, and internal choices. Balance (I'tidal) is a moving target.
+
+**Interpersonal Wisdom:**
+If the user mentions a conflict or interaction with another person:
+1. Infer the other person's dominant temperament (Sanguine, Choleric, Melancholic, or Phlegmatic) based on the user's description.
+2. Explain the "clash of elements" occurring between the user and this person.
+3. Provide specific, compassionate communication advice to resolve the tension.
 
 **Context:**
 - Element/Symbol: ${input.symbol}
@@ -47,12 +53,12 @@ ${input.unveilingHistory ? `
 ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.content}`).join('\n')}
 ` : ''}
 
-**Mandatory Logic & Output:**
-1. **CRITICAL:** If 'unveilingHistory' is present, the veil has lifted. You MUST set 'isVeiled' to 'false'.
-2. **Veiling Rule:** Only set 'isVeiled' to 'true' if the journal is clearly sarcastic, intentionally defensive, or contains fewer than 5 words. Otherwise, assume sincerity (Fitra).
-3. **Fields:** If 'isVeiled' is false, you MUST provide values for: 'soulStage', 'temperamentBalance', 'poeticReflection', 'probingQuestions', 'wisdomSeed', and 'prescribedHabits'.
+**Output Requirements:**
+1. **Fluidity**: In your 'poeticReflection', acknowledge how the user's current environment or situation is pulling their elements out of balance.
+2. **Interpersonal**: If a conflict is detected, fill the 'interpersonalInsight' field with an analysis of the other person and how to communicate with them.
+3. **Veiling**: Only set 'isVeiled' to 'true' if the journal is clearly sarcastic or defensive. Assume sincerity (Fitra) otherwise.
 
-Return a single JSON object adhering to the schema.`;
+Return a JSON object adhering to the schema.`;
   
   try {
     const modelId = 'googleai/gemini-2.5-flash';
@@ -65,7 +71,7 @@ Return a single JSON object adhering to the schema.`;
         schema: ReflectionOutputSchema,
       },
       config: {
-        temperature: 0.4,
+        temperature: 0.5,
         safetySettings,
       },
     });
@@ -93,7 +99,6 @@ Return a single JSON object adhering to the schema.`;
       }
     }
 
-    console.error(`[${timestamp}] >>> [HIKMA FLOW] LLM response successfully processed`);
     return output;
   } catch (err: any) {
     console.error(`[${timestamp}] !!! [HIKMA FLOW] Error during ai.generate: ${err.message}`);

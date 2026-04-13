@@ -55,6 +55,7 @@ export const ReflectionOutputSchema = z.object({
   wisdomSeed: z.string().optional(),
   optionalPrompt: z.string().optional(),
   prescribedHabits: z.array(HabitSchema).optional(),
+  interpersonalInsight: z.string().optional().describe("If the journal mentions a conflict with another person, provide an analysis of that person's likely temperament and advice on how to communicate with them harmoniously."),
 });
 export type ReflectionOutput = z.infer<typeof ReflectionOutputSchema>;
 

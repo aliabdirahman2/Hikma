@@ -2,7 +2,7 @@
 "use client";
 import React, { useState, type ReactElement } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, MessageCircle, AlertTriangle, BookOpen, Heart, BookHeart, Check, Plus } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, MessageCircle, AlertTriangle, BookOpen, Heart, BookHeart, Check, Plus, Users } from "lucide-react";
 import { reflectionAction } from "@/app/actions";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import type { FullReflection, PsychospiritualProfile, ArchivedReflection, Message, TrackedHabit, PrescribedHabit } from "@/lib/types";
@@ -65,7 +65,6 @@ export default function ReflectionPage() {
   }
 
   const handleIncompleteReflection = (result: FullReflection) => {
-    // Graceful failure: if reflection is incomplete, treat it as veiled.
     toast({
       variant: "default",
       title: "The Mirror is Hazy",
@@ -82,7 +81,6 @@ export default function ReflectionPage() {
 
   const handleSubmit = async () => {
     if (!selectedSymbol || !journalText) return;
-    console.log(">>> [HIKMA CLIENT] handleSubmit triggered");
     setIsLoading(true);
 
     try {
@@ -174,10 +172,9 @@ export default function ReflectionPage() {
             setReflection(null);
             setStep('journal');
         } else {
-            // Safeguard against incomplete data from the AI
             if (!result.soulStage || !result.temperamentBalance || !result.poeticReflection || !result.probingQuestions || !result.wisdomSeed) {
                 handleIncompleteReflection(result);
-                setVeiledChat(false); // Make sure we exit chat view
+                setVeiledChat(false);
                 return;
             }
             
@@ -245,41 +242,33 @@ export default function ReflectionPage() {
                             <AccordionItem value="sanguine">
                                 <AccordionTrigger>Sanguine (Air)</AccordionTrigger>
                                 <AccordionContent>
-                                    <p className="mb-2">The sanguine temperament is associated with the element of Air. It is social, optimistic, and pleasure-seeking. Those with a sanguine nature are often charismatic, creative, and lively.</p>
+                                    <p className="mb-2">The sanguine temperament is associated with the element of Air. It is social, optimistic, and pleasure-seeking.</p>
                                     <p><b>Virtues:</b> Joyful, charismatic, compassionate, creative.</p>
-                                    <p><b>Vices when imbalanced:</b> Fickle, lustful, scattered, prone to distraction.</p>
+                                    <p><b>Vices:</b> Fickle, scattered, prone to distraction.</p>
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="choleric">
                                 <AccordionTrigger>Choleric (Fire)</AccordionTrigger>
                                 <AccordionContent>
-                                    <p className="mb-2">The choleric temperament corresponds to the element of Fire. It is ambitious, decisive, and passionate. Cholerics are natural leaders, driven and focused on their goals.</p>
+                                    <p className="mb-2">The choleric temperament corresponds to the element of Fire. It is ambitious, decisive, and passionate.</p>
                                     <p><b>Virtues:</b> Courageous, decisive, passionate, strong-willed.</p>
-                                    <p><b>Vices when imbalanced:</b> Angry, prideful, domineering, ruthless.</p>
+                                    <p><b>Vices:</b> Angry, prideful, domineering.</p>
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="melancholic">
                                 <AccordionTrigger>Melancholic (Earth)</AccordionTrigger>
                                 <AccordionContent>
-                                    <p className="mb-2">The melancholic temperament is linked to the element of Earth. It is thoughtful, introspective, and detail-oriented. Melancholics are often deeply feeling, analytical, and appreciate of truth and beauty.</p>
+                                    <p className="mb-2">The melancholic temperament is linked to the element of Earth. It is thoughtful, introspective, and detail-oriented.</p>
                                     <p><b>Virtues:</b> Contemplative, analytical, empathetic, meticulous.</p>
-                                    <p><b>Vices when imbalanced:</b> Sad, anxious, rigid, overly critical.</p>
+                                    <p><b>Vices:</b> Sad, anxious, rigid.</p>
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="phlegmatic">
                                 <AccordionTrigger>Phlegmatic (Water)</AccordionTrigger>
                                 <AccordionContent>
-                                    <p className="mb-2">The phlegmatic temperament is associated with the element of Water. It is calm, agreeable, and consistent. Phlegmatics are peaceful, patient, and value stability and harmony.</p>
+                                    <p className="mb-2">The phlegmatic temperament is associated with the element of Water. It is calm, agreeable, and consistent.</p>
                                     <p><b>Virtues:</b> Peaceful, patient, reliable, diplomatic.</p>
-                                    <p><b>Vices when imbalanced:</b> Apathetic, lazy, passive, resistant to change.</p>
-                                </AccordionContent>
-                            </AccordionItem>
-                             <AccordionItem value="balance">
-                                <AccordionTrigger>The Prophetic Balance</AccordionTrigger>
-                                <AccordionContent>
-                                    <p className="mb-2">The goal of spiritual work (tazkiyah) is not to eliminate any temperament, but to achieve a state of perfect balance (i'tidāl). The Prophet Muhammad (peace be upon him) is the ultimate example of this equilibrium. He embodied the best qualities of all four temperaments without any of their flaws.</p>
-                                    <p className="mb-2">He possessed the courage of the Choleric without the anger, the joy of the Sanguine without the fickleness, the empathy of the Melancholic without the sadness, and the peace of the Phlegmatic without the apathy. </p>
-                                    <p>As we get closer to the prophetic model, our own temperaments become refined and perfected. We learn to use our innate disposition in service of the good, the beautiful, and the true, bringing our inner landscape into harmony.</p>
+                                    <p><b>Vices:</b> Apathetic, lazy, passive.</p>
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
@@ -292,11 +281,11 @@ export default function ReflectionPage() {
         {step === "journal" && (
           <motion.div key="journal" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }}>
             <h1 className="font-headline text-3xl md:text-4xl text-center mb-4 text-primary">Speak Your Heart</h1>
-            <p className="text-muted-foreground text-center text-lg mb-8">What tension, regret, or contradiction is present for you?</p>
+            <p className="text-muted-foreground text-center text-lg mb-8">What tension, conflict, or environment is present for you?</p>
             <Textarea
               value={journalText}
               onChange={(e) => setJournalText(e.target.value)}
-              placeholder="The truth of your heart is a sacred text..."
+              placeholder="If you are facing conflict, describe the interaction. Hikma will help you find the bridge..."
               rows={8}
               className="text-lg"
               disabled={isLoading}
@@ -329,7 +318,6 @@ export default function ReflectionPage() {
                     </CardHeader>
                     <CardContent>
                         <p className="text-lg italic text-muted-foreground">&ldquo;{reflection.reasoning}&rdquo;</p>
-                        <p className="mt-4 text-sm">Honesty is the first step on any true path. The mirror cannot reflect what is hidden.</p>
                         <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
                             <Button onClick={handleTryAgain}>
                                 <BookOpen className="mr-2" /> Try Again
@@ -354,6 +342,20 @@ export default function ReflectionPage() {
                     </div>
                 </div>
 
+              {reflection.interpersonalInsight && (
+                <Card className="border-accent bg-accent/5">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-2xl flex items-center gap-2">
+                            <Users className="text-primary" /> Interpersonal Bridge
+                        </CardTitle>
+                        <CardDescription>Insights on the elements clashing in your relationships.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-base leading-relaxed italic">{reflection.interpersonalInsight}</p>
+                    </CardContent>
+                </Card>
+              )}
+
               <Card>
                 <CardHeader>
                   <CardTitle className="font-headline text-2xl">Probing Questions</CardTitle>
@@ -369,7 +371,6 @@ export default function ReflectionPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="font-headline text-2xl">Inner Practices</CardTitle>
-                        <CardDescription>Hikma suggests these practices to help cultivate balance and integrate your reflection.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {reflection.prescribedHabits.map((habit, i) => (
