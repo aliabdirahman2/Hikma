@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A psychospiritual diagnostic AI agent (Hikma).
@@ -12,7 +11,6 @@ import {ReflectionInputSchema, ReflectionOutputSchema, type ReflectionInput, typ
 
 export async function generateReflection(input: ReflectionInput): Promise<ReflectionOutput> {
   const timestamp = new Date().toISOString();
-  console.error(`[${timestamp}] >>> [HIKMA FLOW] generateReflection flow execution started`);
 
   const safetySettings = [
       {
@@ -35,35 +33,39 @@ export async function generateReflection(input: ReflectionInput): Promise<Reflec
 
   const prompt = `You are Hikma, a wise psychospiritual guide. Your purpose is to help the user polish the mirror of the heart.
 
-**Core Philosophy:**
-Temperament is not static; it is a fluid landscape that shifts with the user's environment, relationships, and internal choices. Balance (I'tidal) is a moving target.
+**Core Philosophy: Fluid Temperament**
+Temperament is not static. Balance (I'tidal) depends on context. 
+- In a "Passion Project/Creative" context, high Choleric (Fire) and Sanguine (Air) are beneficial.
+- In a "Family/Home" context, high Phlegmatic (Water) and Melancholic (Earth) are prioritized for peace.
+- In "Solitude", Melancholic (Earth) provides depth.
+Infer the user's environment from their journal and adjust your 'poeticReflection' to reflect whether their current element is serving that environment or causing friction.
 
-**Interpersonal Wisdom:**
-If the user mentions a conflict or interaction with another person:
-1. Infer the other person's dominant temperament (Sanguine, Choleric, Melancholic, or Phlegmatic) based on the user's description.
-2. Explain the "clash of elements" occurring between the user and this person.
-3. Provide specific, compassionate communication advice to resolve the tension.
+**Interpersonal Alchemy:**
+If the user mentions a conflict with another person:
+1. Set 'isConflictDetected' to true.
+2. If this is the FIRST time (no 'conflictDiagnosticAnswers'), provide 3 'diagnosticQuestions' to learn more about the other person's behavior, and leave the rest of the fields (wisdomSeed, etc.) minimal or empty.
+3. If 'conflictDiagnosticAnswers' are provided:
+    - Infer the other person's dominant temperament ('otherPersonTemperament').
+    - Explain the "clash of elements" (e.g., "Your Fire is meeting their Stone").
+    - Provide specific communication advice in 'interpersonalInsight'.
 
 **Context:**
 - Element/Symbol: ${input.symbol}
 - User's Journal: """${input.journal}"""
 - Previous Soul State: ${JSON.stringify(input.previousProfile)}
+${input.conflictDiagnosticAnswers ? `**Diagnostic Answers about the other person:**\n${input.conflictDiagnosticAnswers}` : ''}
 ${input.unveilingHistory ? `
 **Breakthrough Conversation History:**
 ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.content}`).join('\n')}
 ` : ''}
 
 **Output Requirements:**
-1. **Fluidity**: In your 'poeticReflection', acknowledge how the user's current environment or situation is pulling their elements out of balance.
-2. **Interpersonal**: If a conflict is detected, fill the 'interpersonalInsight' field with an analysis of the other person and how to communicate with them.
-3. **Veiling**: Only set 'isVeiled' to 'true' if the journal is clearly sarcastic or defensive. Assume sincerity (Fitra) otherwise.
-
-Return a JSON object adhering to the schema.`;
+- Return a JSON object adhering to the schema.
+- 'isVeiled': Only true if the user is being clearly sarcastic or intentionally evasive.
+- 'temperamentBalance': Must sum to exactly 100.`;
   
   try {
     const modelId = 'googleai/gemini-2.5-flash';
-    console.error(`[${timestamp}] >>> [HIKMA FLOW] Calling model: ${modelId}`);
-
     const llmResponse = await ai.generate({
       model: modelId,
       prompt: prompt,
@@ -79,29 +81,39 @@ Return a JSON object adhering to the schema.`;
     const { output } = llmResponse;
 
     if (!output) {
-      console.error(`[${timestamp}] !!! [HIKMA FLOW] LLM returned empty output`);
       throw new Error("Hikma is in deep contemplation. The mirror did not reflect a response.");
     }
     
+    // Reset veil if coming from a successful unveiling chat
     if (input.unveilingHistory && input.unveilingHistory.length > 0) {
       output.isVeiled = false;
     }
 
+    // Normalize user temperament
     if (output.temperamentBalance) {
-      const { sanguine, choleric, melancholic, phlegmatic } = output.temperamentBalance;
-      const total = sanguine + choleric + melancholic + phlegmatic;
-      if (total !== 100 && total > 0) {
-          const s = Math.round((sanguine / total) * 100);
-          const c = Math.round((choleric / total) * 100);
-          const m = Math.round((melancholic / total) * 100);
-          const p = 100 - s - c - m;
-          output.temperamentBalance = { sanguine: s, choleric: c, melancholic: m, phlegmatic: p };
-      }
+      output.temperamentBalance = normalizeTemperament(output.temperamentBalance);
+    }
+
+    // Normalize other person's temperament
+    if (output.otherPersonTemperament) {
+        output.otherPersonTemperament = normalizeTemperament(output.otherPersonTemperament);
     }
 
     return output;
   } catch (err: any) {
-    console.error(`[${timestamp}] !!! [HIKMA FLOW] Error during ai.generate: ${err.message}`);
+    console.error(`[${timestamp}] !!! [HIKMA FLOW] Error: ${err.message}`);
     throw err;
   }
+}
+
+function normalizeTemperament(balance: any) {
+    const { sanguine, choleric, melancholic, phlegmatic } = balance;
+    const total = sanguine + choleric + melancholic + phlegmatic;
+    if (total === 0) return { sanguine: 25, choleric: 25, melancholic: 25, phlegmatic: 25 };
+    
+    const s = Math.round((sanguine / total) * 100);
+    const c = Math.round((choleric / total) * 100);
+    const m = Math.round((melancholic / total) * 100);
+    const p = 100 - s - c - m;
+    return { sanguine: s, choleric: c, melancholic: m, phlegmatic: p };
 }

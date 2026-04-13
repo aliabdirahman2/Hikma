@@ -12,10 +12,12 @@ const TemperamentBalanceSchema = z.object({
     phlegmatic: z.number().describe("A value from 0-100 representing the Phlegmatic (Water) temperament. Associated with being calm, agreeable, and patient."),
 });
 
+export type TemperamentBalance = z.infer<typeof TemperamentBalanceSchema>;
+
 export type PsychospiritualProfile = {
   soulStage: string;
   veiledCount: number;
-  temperamentBalance: z.infer<typeof TemperamentBalanceSchema>;
+  temperamentBalance: TemperamentBalance;
 };
 
 export const HabitSchema = z.object({
@@ -41,9 +43,9 @@ export const ReflectionInputSchema = z.object({
     temperamentBalance: TemperamentBalanceSchema,
   }),
   unveilingHistory: z.custom<Message[]>().optional(),
+  conflictDiagnosticAnswers: z.string().optional().describe("Answers to the diagnostic questions if a conflict was detected."),
 });
 export type ReflectionInput = z.infer<typeof ReflectionInputSchema>;
-
 
 export const ReflectionOutputSchema = z.object({
   isVeiled: z.boolean(),
@@ -55,7 +57,12 @@ export const ReflectionOutputSchema = z.object({
   wisdomSeed: z.string().optional(),
   optionalPrompt: z.string().optional(),
   prescribedHabits: z.array(HabitSchema).optional(),
-  interpersonalInsight: z.string().optional().describe("If the journal mentions a conflict with another person, provide an analysis of that person's likely temperament and advice on how to communicate with them harmoniously."),
+  
+  // Conflict / Interpersonal Logic
+  isConflictDetected: z.boolean().optional().describe("Set to true if the journal describes a conflict with another person."),
+  diagnosticQuestions: z.array(z.string()).optional().describe("Three questions to ask about the other person if a conflict is detected."),
+  interpersonalInsight: z.string().optional().describe("Detailed analysis of the element clash and communication advice."),
+  otherPersonTemperament: TemperamentBalanceSchema.optional().describe("Inferred temperament of the person the user is in conflict with."),
 });
 export type ReflectionOutput = z.infer<typeof ReflectionOutputSchema>;
 

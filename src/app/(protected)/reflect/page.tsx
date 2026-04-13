@@ -1,15 +1,15 @@
-
 "use client";
-import React, { useState, type ReactElement } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Wand2, Wind, Droplets, Mountain, Flame, Loader2, MessageCircle, AlertTriangle, BookOpen, Heart, BookHeart, Check, Plus, Users } from "lucide-react";
+import { ArrowRight, Sparkles, Wind, Droplets, Mountain, Flame, Loader2, MessageCircle, AlertTriangle, BookOpen, Heart, BookHeart, Check, Plus, Users, Send } from "lucide-react";
 import { reflectionAction } from "@/app/actions";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import type { FullReflection, PsychospiritualProfile, ArchivedReflection, Message, TrackedHabit, PrescribedHabit } from "@/lib/types";
+import type { FullReflection, PsychospiritualProfile, ArchivedReflection, Message, TrackedHabit, PrescribedHabit, TemperamentBalance } from "@/lib/types";
 import { INITIAL_PROFILE } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import {
   Accordion,
   AccordionContent,
@@ -19,6 +19,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { ChatWithHikma } from "@/components/ChatWithHikma";
 import { UnveilingChat } from "@/components/UnveilingChat";
+import { TemperamentWheel } from "@/components/TemperamentWheel";
 
 const symbols = [
   { id: 'wind', icon: <Wind className="w-10 h-10" />, label: 'Wind (Air)' },
@@ -30,9 +31,10 @@ const symbols = [
 type Symbol = typeof symbols[number]['id'];
 
 export default function ReflectionPage() {
-  const [step, setStep] = useState<"symbol" | "journal" | "reflection" | "veiled">("symbol");
+  const [step, setStep] = useState<"symbol" | "journal" | "diagnostic" | "reflection" | "veiled">("symbol");
   const [selectedSymbol, setSelectedSymbol] = useState<Symbol | null>(null);
   const [journalText, setJournalText] = useState("");
+  const [diagnosticAnswers, setDiagnosticAnswers] = useState("");
   const [reflection, setReflection] = useState<FullReflection | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [veiledChat, setVeiledChat] = useState(false);
@@ -54,32 +56,12 @@ export default function ReflectionPage() {
         completedDates: [],
     };
     setHabits(currentHabits => [...currentHabits, newHabit]);
-    toast({
-        title: "Practice Added",
-        description: `"${habit.name}" has been added to your daily practices.`
-    });
+    toast({ title: "Practice Added", description: `"${habit.name}" has been added to your daily practices.` });
   };
 
-  const isHabitTracked = (habitName: string) => {
-    return habits.some(h => h.name === habitName);
-  }
+  const isHabitTracked = (habitName: string) => habits.some(h => h.name === habitName);
 
-  const handleIncompleteReflection = (result: FullReflection) => {
-    toast({
-      variant: "default",
-      title: "The Mirror is Hazy",
-      description: "Hikma's words were not clear. Perhaps there is more to unveil.",
-    });
-    setReflection({
-      ...result,
-      isVeiled: true,
-      reasoning: result.reasoning || "The reflection was unclear, suggesting a need for deeper honesty.",
-    });
-    setProfile(p => ({ ...p, veiledCount: p.veiledCount + 1 }));
-    setStep("veiled");
-  }
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (diagAnswers?: string) => {
     if (!selectedSymbol || !journalText) return;
     setIsLoading(true);
 
@@ -88,101 +70,19 @@ export default function ReflectionPage() {
         symbol: selectedSymbol,
         journal: journalText,
         previousProfile: profile,
+        conflictDiagnosticAnswers: diagAnswers,
       });
 
       if (result.isVeiled) {
         setReflection(result);
         setProfile(p => ({ ...p, veiledCount: p.veiledCount + 1 }));
         setStep("veiled");
+      } else if (result.isConflictDetected && result.diagnosticQuestions && !diagAnswers) {
+        setReflection(result);
+        setStep("diagnostic");
       } else {
-        if (!result.soulStage || !result.temperamentBalance || !result.poeticReflection || !result.probingQuestions || !result.wisdomSeed) {
-            handleIncompleteReflection(result);
-        } else {
-            setReflection(result);
-            setProfile({
-              soulStage: result.soulStage,
-              temperamentBalance: result.temperamentBalance,
-              veiledCount: 0,
-            });
-
-            const newArchiveEntry: ArchivedReflection = {
-                date: new Date().toISOString(),
-                reflection: result,
-                journal: journalText,
-                symbol: selectedSymbol,
-            };
-            setArchive(prevArchive => [...prevArchive, newArchiveEntry]);
-            setStep("reflection");
-        }
-      }
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Could not get a reflection. Please try again.";
-      toast({
-        variant: "destructive",
-        title: "An error occurred",
-        description: errorMessage,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const pageVariants = {
-    initial: { opacity: 0, y: 20 },
-    in: { opacity: 1, y: 0 },
-    out: { opacity: 0, y: -20 },
-  };
-
-  const resetFlow = () => {
-    setStep('symbol');
-    setReflection(null);
-    setJournalText("");
-    setSelectedSymbol(null);
-    setVeiledChat(false);
-  }
-
-  const handleTryAgain = () => {
-    setVeiledChat(false);
-    setReflection(null);
-    setStep('journal');
-  }
-  
-  const handleStartVeiledChat = () => {
-    setVeiledChat(true);
-  }
-  
-  const handleReadyForSincereReflection = async (chatHistory: Message[]) => {
-    if (!selectedSymbol || !journalText) return;
-    
-    try {
-        const result = await reflectionAction({
-            symbol: selectedSymbol,
-            journal: journalText,
-            previousProfile: profile,
-            unveilingHistory: chatHistory,
-        });
-
-        if (result.isVeiled) {
-            toast({
-                variant: "destructive",
-                title: "The Mirror Remains Veiled",
-                description: "Hikma's words are still scattered. The reflection is incomplete. Please try again.",
-            });
-            setVeiledChat(false);
-            setReflection(null);
-            setStep('journal');
-        } else {
-            if (!result.soulStage || !result.temperamentBalance || !result.poeticReflection || !result.probingQuestions || !result.wisdomSeed) {
-                handleIncompleteReflection(result);
-                setVeiledChat(false);
-                return;
-            }
-            
-            toast({
-                title: "The Veil Lifts",
-                description: "Your heart has opened. Here is your reflection.",
-            });
-            setReflection(result);
+        setReflection(result);
+        if (result.soulStage && result.temperamentBalance) {
             setProfile({
                 soulStage: result.soulStage,
                 temperamentBalance: result.temperamentBalance,
@@ -197,24 +97,37 @@ export default function ReflectionPage() {
             setArchive(prevArchive => [...prevArchive, newArchiveEntry]);
             setStep("reflection");
         }
+      }
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Could not get a reflection. Please try again.";
-        toast({
-            variant: "destructive",
-            title: "An error occurred",
-            description: errorMessage,
-        });
-        setVeiledChat(false);
-        setReflection(null);
-        setStep('journal');
+      toast({
+        variant: "destructive",
+        title: "An error occurred",
+        description: error instanceof Error ? error.message : "Could not get a reflection.",
+      });
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleDiagnosticSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSubmit(diagnosticAnswers);
+  };
+
+  const resetFlow = () => {
+    setStep('symbol');
+    setReflection(null);
+    setJournalText("");
+    setSelectedSymbol(null);
+    setVeiledChat(false);
+    setDiagnosticAnswers("");
   };
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-12 min-h-[calc(100vh-150px)] flex flex-col justify-center">
       <AnimatePresence mode="wait">
         {step === "symbol" && (
-          <motion.div key="symbol" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }}>
+          <motion.div key="symbol" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
             <h1 className="font-headline text-3xl md:text-4xl text-center mb-4 text-primary">A Symbolic Prompt</h1>
             <p className="text-muted-foreground text-center text-lg mb-10">Choose the image that feels closest to your state today.</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -224,209 +137,161 @@ export default function ReflectionPage() {
                   onClick={() => handleSymbolSelect(symbol.id)}
                   className="group aspect-square flex flex-col items-center justify-center p-4 bg-muted/50 rounded-lg border-2 border-transparent hover:border-primary hover:bg-accent transition-all duration-300"
                 >
-                  <div className="text-primary transition-transform duration-300 group-hover:scale-110">{symbol.icon}</div>
-                  <p className="font-headline text-lg mt-4 text-muted-foreground group-hover:text-primary transition-colors">{symbol.label}</p>
+                  <div className="text-primary group-hover:scale-110 transition-transform">{symbol.icon}</div>
+                  <p className="font-headline text-lg mt-4 text-muted-foreground group-hover:text-primary">{symbol.label}</p>
                 </button>
               ))}
             </div>
-             <div className="mt-12">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 font-headline text-2xl text-primary">
-                            <BookHeart /> Learn About the Temperaments
-                        </CardTitle>
-                        <CardDescription>Understand the elements within you to find your balance.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Accordion type="single" collapsible className="w-full">
-                            <AccordionItem value="sanguine">
-                                <AccordionTrigger>Sanguine (Air)</AccordionTrigger>
-                                <AccordionContent>
-                                    <p className="mb-2">The sanguine temperament is associated with the element of Air. It is social, optimistic, and pleasure-seeking.</p>
-                                    <p><b>Virtues:</b> Joyful, charismatic, compassionate, creative.</p>
-                                    <p><b>Vices:</b> Fickle, scattered, prone to distraction.</p>
-                                </AccordionContent>
-                            </AccordionItem>
-                            <AccordionItem value="choleric">
-                                <AccordionTrigger>Choleric (Fire)</AccordionTrigger>
-                                <AccordionContent>
-                                    <p className="mb-2">The choleric temperament corresponds to the element of Fire. It is ambitious, decisive, and passionate.</p>
-                                    <p><b>Virtues:</b> Courageous, decisive, passionate, strong-willed.</p>
-                                    <p><b>Vices:</b> Angry, prideful, domineering.</p>
-                                </AccordionContent>
-                            </AccordionItem>
-                            <AccordionItem value="melancholic">
-                                <AccordionTrigger>Melancholic (Earth)</AccordionTrigger>
-                                <AccordionContent>
-                                    <p className="mb-2">The melancholic temperament is linked to the element of Earth. It is thoughtful, introspective, and detail-oriented.</p>
-                                    <p><b>Virtues:</b> Contemplative, analytical, empathetic, meticulous.</p>
-                                    <p><b>Vices:</b> Sad, anxious, rigid.</p>
-                                </AccordionContent>
-                            </AccordionItem>
-                            <AccordionItem value="phlegmatic">
-                                <AccordionTrigger>Phlegmatic (Water)</AccordionTrigger>
-                                <AccordionContent>
-                                    <p className="mb-2">The phlegmatic temperament is associated with the element of Water. It is calm, agreeable, and consistent.</p>
-                                    <p><b>Virtues:</b> Peaceful, patient, reliable, diplomatic.</p>
-                                    <p><b>Vices:</b> Apathetic, lazy, passive.</p>
-                                </AccordionContent>
-                            </AccordionItem>
-                        </Accordion>
-                    </CardContent>
-                </Card>
-              </div>
           </motion.div>
         )}
 
         {step === "journal" && (
-          <motion.div key="journal" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }}>
+          <motion.div key="journal" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
             <h1 className="font-headline text-3xl md:text-4xl text-center mb-4 text-primary">Speak Your Heart</h1>
             <p className="text-muted-foreground text-center text-lg mb-8">What tension, conflict, or environment is present for you?</p>
             <Textarea
               value={journalText}
               onChange={(e) => setJournalText(e.target.value)}
-              placeholder="If you are facing conflict, describe the interaction. Hikma will help you find the bridge..."
+              placeholder="Describe your current landscape, or a conflict you are facing..."
               rows={8}
               className="text-lg"
               disabled={isLoading}
             />
             <div className="mt-8 flex justify-center">
-              <Button onClick={handleSubmit} size="lg" disabled={isLoading || !journalText.trim()}>
+              <Button onClick={() => handleSubmit()} size="lg" disabled={isLoading || !journalText.trim()}>
                 {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Sparkles className="mr-2 h-5 w-5" />}
                 Receive Reflection
               </Button>
             </div>
           </motion.div>
         )}
-        
-        {step === "veiled" && reflection && (
-          <motion.div key="veiled" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }} className="w-full max-w-4xl mx-auto">
-             {veiledChat ? (
-                <UnveilingChat 
-                    journal={journalText} 
-                    reasoning={reflection.reasoning}
-                    onReady={handleReadyForSincereReflection}
-                    symbol={selectedSymbol!}
-                />
-            ) : (
-                <Card className="max-w-md mx-auto text-center">
-                    <CardHeader>
-                        <div className="mx-auto bg-amber-100 dark:bg-amber-900 p-3 rounded-full w-fit">
-                            <AlertTriangle className="size-8 text-amber-500" />
-                        </div>
-                        <CardTitle className="font-headline text-2xl text-primary mt-4">The Mirror is Veiled</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-lg italic text-muted-foreground">&ldquo;{reflection.reasoning}&rdquo;</p>
-                        <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-                            <Button onClick={handleTryAgain}>
-                                <BookOpen className="mr-2" /> Try Again
-                            </Button>
-                            <Button onClick={handleStartVeiledChat} variant="secondary">
-                                <Heart className="mr-2"/> Talk to Unveil
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
+
+        {step === "diagnostic" && reflection?.diagnosticQuestions && (
+          <motion.div key="diagnostic" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+            <Card className="max-w-xl mx-auto border-primary/20">
+                <CardHeader>
+                    <CardTitle className="font-headline text-2xl text-primary flex items-center gap-2">
+                        <Users /> Diagnostic Unveiling
+                    </CardTitle>
+                    <CardDescription>Hikma senses a shadow between you and another. To find the bridge, please reflect on these:</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                        {reflection.diagnosticQuestions.map((q, i) => (
+                            <div key={i} className="p-3 bg-muted/50 rounded-md italic text-sm border-l-2 border-primary">
+                                {q}
+                            </div>
+                        ))}
+                    </div>
+                    <form onSubmit={handleDiagnosticSubmit}>
+                        <Textarea 
+                            value={diagnosticAnswers}
+                            onChange={(e) => setDiagnosticAnswers(e.target.value)}
+                            placeholder="Share your observations of their behavior and the interaction..."
+                            rows={6}
+                            required
+                        />
+                        <Button type="submit" className="w-full mt-6" disabled={isLoading || !diagnosticAnswers.trim()}>
+                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Send className="mr-2 h-4 w-4"/>}
+                            Unveil the Bridge
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
           </motion.div>
         )}
 
         {step === "reflection" && reflection && (
-          <motion.div key="reflection" initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.5 }} className="w-full">
-            <div className="space-y-6">
-                <div className="sufi-mihrab">
-                    <div className="p-8">
-                        <h2 className="text-center font-headline text-2xl text-primary mb-4">Poetic Reflection</h2>
-                        <p className="text-lg italic whitespace-pre-wrap leading-relaxed text-center">&ldquo;{reflection.poeticReflection}&rdquo;</p>
-                    </div>
+          <motion.div key="reflection" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
+            <div className="sufi-mihrab">
+                <div className="p-8">
+                    <h2 className="text-center font-headline text-2xl text-primary mb-4">Poetic Reflection</h2>
+                    <p className="text-lg italic whitespace-pre-wrap leading-relaxed text-center">&ldquo;{reflection.poeticReflection}&rdquo;</p>
                 </div>
+            </div>
 
-              {reflection.interpersonalInsight && (
+            {reflection.interpersonalInsight && (
                 <Card className="border-accent bg-accent/5">
                     <CardHeader>
-                        <CardTitle className="font-headline text-2xl flex items-center gap-2">
+                        <CardTitle className="font-headline text-2xl flex items-center gap-2 text-accent-foreground">
                             <Users className="text-primary" /> Interpersonal Bridge
                         </CardTitle>
-                        <CardDescription>Insights on the elements clashing in your relationships.</CardDescription>
+                        <CardDescription>Analysis of the elements clashing in your relationships.</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-6">
                         <p className="text-base leading-relaxed italic">{reflection.interpersonalInsight}</p>
-                    </CardContent>
-                </Card>
-              )}
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-headline text-2xl">Probing Questions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="list-disc pl-5 space-y-2 text-base">
-                    {reflection.probingQuestions?.map((q, i) => <li key={i}>{q}</li>)}
-                  </ul>
-                </CardContent>
-              </Card>
-              
-              {reflection.prescribedHabits && reflection.prescribedHabits.length > 0 && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline text-2xl">Inner Practices</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {reflection.prescribedHabits.map((habit, i) => (
-                            <div key={i} className="flex items-start justify-between gap-4 p-4 rounded-lg bg-muted/50">
-                                <div className="flex-1">
-                                    <p className="font-bold">{habit.name}</p>
-                                    <p className="text-sm text-muted-foreground mt-1 italic">&ldquo;{habit.why}&rdquo;</p>
-                                    <p className="text-xs font-semibold uppercase text-primary mt-2">{habit.frequency} &bull; {habit.label}</p>
+                        
+                        {reflection.otherPersonTemperament && reflection.temperamentBalance && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-accent/20">
+                                <div>
+                                    <p className="text-xs font-bold text-center uppercase mb-2">Your State</p>
+                                    <TemperamentWheel data={reflection.temperamentBalance} />
                                 </div>
-                                <Button 
-                                    size="sm" 
-                                    onClick={() => handleAddHabit(habit)}
-                                    disabled={isHabitTracked(habit.name)}
-                                    variant={isHabitTracked(habit.name) ? "outline" : "default"}
-                                >
-                                    {isHabitTracked(habit.name) ? <Check className="mr-2"/> : <Plus className="mr-2"/>}
-                                    {isHabitTracked(habit.name) ? 'Accepted' : 'Accept'}
-                                </Button>
+                                <div>
+                                    <p className="text-xs font-bold text-center uppercase mb-2">Their State</p>
+                                    <TemperamentWheel data={reflection.otherPersonTemperament} />
+                                </div>
                             </div>
-                        ))}
+                        )}
                     </CardContent>
                 </Card>
-              )}
+            )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
-                   <CardHeader>
-                    <CardTitle className="font-headline text-xl">Wisdom Seed</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="font-medium">{reflection.wisdomSeed}</p>
-                  </CardContent>
-                </Card>
-                {reflection.optionalPrompt && (
-                  <Card>
-                     <CardHeader>
-                      <CardTitle className="font-headline text-xl">Deeper Contemplation</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p>{reflection.optionalPrompt}</p>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-              
-               <div className="mt-8 border-t pt-8">
-                 <ChatWithHikma reflection={reflection} journal={journalText} />
-               </div>
+            <Card>
+              <CardHeader><CardTitle className="font-headline text-2xl">Inner Practices</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                  {reflection.prescribedHabits?.map((habit, i) => (
+                      <div key={i} className="flex items-start justify-between gap-4 p-4 rounded-lg bg-muted/50">
+                          <div className="flex-1">
+                              <p className="font-bold">{habit.name}</p>
+                              <p className="text-sm text-muted-foreground mt-1 italic">{habit.why}</p>
+                          </div>
+                          <Button size="sm" onClick={() => handleAddHabit(habit)} disabled={isHabitTracked(habit.name)} variant={isHabitTracked(habit.name) ? "outline" : "default"}>
+                              {isHabitTracked(habit.name) ? <Check className="mr-2"/> : <Plus className="mr-2"/>}
+                              {isHabitTracked(habit.name) ? 'Accepted' : 'Accept'}
+                          </Button>
+                      </div>
+                  ))}
+              </CardContent>
+              <CardFooter className="bg-muted/30 text-center py-4 flex flex-col gap-2">
+                <p className="text-sm font-headline text-primary">Wisdom Seed</p>
+                <p className="font-medium">{reflection.wisdomSeed}</p>
+              </CardFooter>
+            </Card>
 
-               <div className="mt-8 flex justify-center border-t pt-8">
-                 <Button onClick={resetFlow} size="lg" variant="outline">
-                   Begin a New Reflection <ArrowRight className="ml-2 h-5 w-5" />
-                 </Button>
-               </div>
+            <div className="flex justify-center pt-8">
+                <Button onClick={resetFlow} variant="outline" size="lg">Begin a New Reflection</Button>
             </div>
           </motion.div>
+        )}
+        
+        {step === "veiled" && reflection && (
+            <motion.div key="veiled" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+                <Card className="max-w-md mx-auto text-center border-amber-200">
+                    <CardHeader>
+                        <AlertTriangle className="mx-auto size-12 text-amber-500 mb-4" />
+                        <CardTitle className="font-headline text-2xl text-primary">The Mirror is Veiled</CardTitle>
+                        <CardDescription>&ldquo;{reflection.reasoning}&rdquo;</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <Button onClick={() => setStep('journal')}>Try Again</Button>
+                        <Button variant="secondary" onClick={() => setVeiledChat(true)}>Talk to Unveil</Button>
+                    </CardContent>
+                </Card>
+                {veiledChat && (
+                    <div className="mt-12">
+                         <UnveilingChat 
+                            journal={journalText} 
+                            reasoning={reflection.reasoning} 
+                            onReady={(history) => {
+                                setVeiledChat(false);
+                                // Recursive call could go here or specialized unveiling submit
+                            }}
+                            symbol={selectedSymbol!}
+                         />
+                    </div>
+                )}
+            </motion.div>
         )}
       </AnimatePresence>
     </div>
