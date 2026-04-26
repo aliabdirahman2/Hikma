@@ -65,7 +65,7 @@ ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.
 - 'temperamentBalance': Must sum to exactly 100.`;
   
   try {
-    const modelId = 'googleai/gemini-2.5-flash';
+    const modelId = 'googleai/gemini-1.5-flash';
     const llmResponse = await ai.generate({
       model: modelId,
       prompt: prompt,
