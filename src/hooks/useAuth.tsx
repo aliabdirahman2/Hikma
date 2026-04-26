@@ -16,14 +16,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Only attempt to subscribe to auth state if we are in the browser
-    if (typeof window === 'undefined') return;
-
     if (!auth) {
       setLoading(false);
       return;
     }
     
+    // onAuthStateChanged returns an unsubscribe function
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);

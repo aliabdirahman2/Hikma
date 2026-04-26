@@ -8,12 +8,19 @@ import { signOut } from "firebase/auth";
 import { Button, buttonVariants } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
+import { useEffect, useState } from "react";
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [mounted, setMounted] = useState(false);
+
+  // Defer rendering of auth-dependent parts until after hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = async () => {
     if (!auth) {
@@ -46,7 +53,7 @@ export function Header() {
             </div>
           </Link>
           <nav className="hidden items-center gap-6 text-sm md:flex">
-            {user && (
+            {mounted && user && (
               <>
                 <Link href="/dashboard" className={navLinkClasses("/dashboard")}>
                   Dashboard
@@ -68,17 +75,19 @@ export function Header() {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          {user ? (
-            <Button onClick={handleLogout} variant="outline" size="sm">Logout</Button>
-          ) : (
-            <div className="flex items-center gap-2">
-                <Link href="/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>
-                Login
-                </Link>
-                <Link href="/signup" className={cn(buttonVariants({ size: 'sm' }))}>
-                Sign Up
-                </Link>
-            </div>
+          {mounted && (
+            user ? (
+              <Button onClick={handleLogout} variant="outline" size="sm">Logout</Button>
+            ) : (
+              <div className="flex items-center gap-2">
+                  <Link href="/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>
+                  Login
+                  </Link>
+                  <Link href="/signup" className={cn(buttonVariants({ size: 'sm' }))}>
+                  Sign Up
+                  </Link>
+              </div>
+            )
           )}
         </div>
       </div>
