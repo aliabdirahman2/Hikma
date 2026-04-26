@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
@@ -39,80 +38,15 @@ export function UnveilingChat({ journal, reasoning, onReady, symbol }: Unveiling
   const [isLoading, setIsLoading] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [breakthroughProgress, setBreakthroughProgress] = useState(0);
+  const [questionCount, setQuestionCount] = useState(0);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-
-  const [isRecording, setIsRecording] = useState(false);
-  const recognitionRef = useRef<any>(null);
-
-
-  useEffect(() => {
-    // Check for browser support for Web Speech API
-    const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-        // Silently disable the feature if not supported
-        return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-
-    recognition.onresult = (event: any) => {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-            if (event.results[i].isFinal) {
-                finalTranscript += event.results[i][0].transcript;
-            }
-        }
-        if (finalTranscript) {
-            setInput(prev => prev ? `${prev} ${finalTranscript}` : finalTranscript);
-        }
-    };
-
-    recognition.onerror = (event: any) => {
-        console.error(`Speech recognition error: ${event.error}`);
-        setIsRecording(false);
-    };
-
-    recognition.onend = () => {
-        setIsRecording(false);
-    };
-    
-    recognitionRef.current = recognition;
-
-    return () => {
-        if (recognitionRef.current) {
-            recognitionRef.current.stop();
-        }
-    };
-  }, []);
-
 
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
-  
-  const handleVoiceClick = () => {
-    if (!recognitionRef.current) {
-        toast({
-            variant: "destructive",
-            title: "Voice Not Supported",
-            description: "Speech recognition is not supported or enabled in your browser.",
-        });
-        return;
-    }
-
-    if (isRecording) {
-      recognitionRef.current.stop();
-    } else {
-      recognitionRef.current.start();
-    }
-    setIsRecording(!isRecording);
-  };
-
 
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -132,13 +66,16 @@ export function UnveilingChat({ journal, reasoning, onReady, symbol }: Unveiling
         });
 
         setMessages(prev => [...prev, { role: "model", content: result.response }]);
+        const nextCount = questionCount + 1;
+        setQuestionCount(nextCount);
 
-        if (result.isReady) {
+        // Transition if AI says ready OR we hit 3 questions
+        if (result.isReady || nextCount >= 3) {
             setIsTransitioning(true);
             setBreakthroughProgress(1);
             setTimeout(() => onReady(newMessages), 3000); 
         } else {
-            setBreakthroughProgress(prev => Math.min(0.8, prev + 0.15));
+            setBreakthroughProgress(prev => Math.min(0.9, prev + 0.3));
         }
 
     } catch (error) {
@@ -153,10 +90,6 @@ export function UnveilingChat({ journal, reasoning, onReady, symbol }: Unveiling
     }
   };
   
-  const handleNudgeClick = (nudge: string) => {
-    setInput(prev => prev ? `${prev}\n${nudge}` : nudge);
-  }
-
   if (isTransitioning) {
     return (
         <div className="w-full text-center p-8 flex flex-col items-center justify-center min-h-[400px]">
@@ -168,7 +101,7 @@ export function UnveilingChat({ journal, reasoning, onReady, symbol }: Unveiling
                 <UnveilingHeartAnimation progress={1} />
                 <h2 className="font-headline text-2xl text-primary mt-6">The Heart Opens</h2>
                 <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
-                    Feel this openness. Breathe into this space. A new reflection is being prepared for you in this light.
+                    Feel this openness. Breathe into this space. The mirror is being cleared.
                 </p>
             </motion.div>
         </div>
@@ -177,85 +110,55 @@ export function UnveilingChat({ journal, reasoning, onReady, symbol }: Unveiling
 
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-8">
-
-        {/* Centering Ritual Section */}
         <div className="flex flex-col items-center gap-6 p-4">
             <UnveilingHeartAnimation progress={breakthroughProgress} />
-            <p className="text-sm font-semibold text-primary -mt-2">
-                {Math.round(breakthroughProgress * 100)}% Unveiled
-            </p>
             <div className="text-center">
-                <h3 className="font-headline text-lg text-primary">Center Yourself</h3>
-                <p className="text-sm text-muted-foreground">Breathe with your element.</p>
+                <h3 className="font-headline text-lg text-primary">The Heart Mirror</h3>
+                <p className="text-sm text-muted-foreground">Question {questionCount + 1} of 3</p>
                 <div className="mt-4 flex justify-center">
                     <BreathAnimation symbol={symbol} />
                 </div>
             </div>
         </div>
 
-        {/* Chat Section */}
         <div className="w-full max-w-2xl">
-            <Card className="w-full bg-transparent shadow-none border-none">
+            <Card className="w-full border-primary/20 bg-muted/20">
                 <CardHeader className="text-center">
-                    <CardTitle className="font-headline text-2xl text-amber-600 flex items-center justify-center gap-2">
-                        <Sparkles /> Unveiling the Heart
+                    <CardTitle className="font-headline text-2xl text-primary flex items-center justify-center gap-2">
+                        <Sparkles /> Unveiling
                     </CardTitle>
-                    <CardDescription>A gentle conversation to clear the mirror within.</CardDescription>
+                    <CardDescription>Speak with sincerity to clear the path.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        {/* Main Chat Area */}
-                        <div className="md:col-span-3">
-                             <ScrollArea className="h-64 pr-4">
-                                <div className="space-y-4" ref={scrollAreaRef}>
-                                    {messages.map((message, index) => (
-                                    <div
-                                        key={index}
-                                        className={cn(
-                                        "flex w-fit max-w-xs flex-col gap-2 rounded-lg px-3 py-2 text-sm",
-                                        message.role === "user"
-                                            ? "ml-auto bg-primary text-primary-foreground"
-                                            : "bg-muted"
-                                        )}
-                                    >
-                                        {message.content}
-                                    </div>
-                                    ))}
-                                    {isLoading && <div className="flex justify-start"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>}
-                                </div>
-                            </ScrollArea>
-                            <form
-                                onSubmit={handleSendMessage}
-                                className="mt-4 flex w-full items-center space-x-2"
+                    <ScrollArea className="h-64 pr-4">
+                        <div className="space-y-4" ref={scrollAreaRef}>
+                            {messages.map((message, index) => (
+                            <div
+                                key={index}
+                                className={cn(
+                                "flex w-fit max-w-xs flex-col gap-2 rounded-lg px-3 py-2 text-sm",
+                                message.role === "user"
+                                    ? "ml-auto bg-primary text-primary-foreground"
+                                    : "bg-muted"
+                                )}
                             >
-                                <Input
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    placeholder="Speak from your heart..."
-                                    disabled={isLoading}
-                                />
-                                <Button type="button" size="icon" variant={isRecording ? "destructive" : "outline"} onClick={handleVoiceClick} disabled={isLoading}>
-                                    <Mic className="h-4 w-4" />
-                                    <span className="sr-only">Use Microphone</span>
-                                </Button>
-                                <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
-                                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : <Send className="h-4 w-4" />}
-                                    <span className="sr-only">Send</span>
-                                </Button>
-                            </form>
-                        </div>
-                        {/* Nudges */}
-                        <div className="w-full md:col-span-1">
-                             <h4 className="font-headline text-md text-primary mb-2 flex items-center gap-2"><Wand2 size={16}/> Nudges</h4>
-                            <div className="space-y-2">
-                                {nudges.map(nudge => (
-                                    <button key={nudge} onClick={() => handleNudgeClick(nudge)} className="w-full text-left text-sm p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors">
-                                        {nudge}
-                                    </button>
-                                ))}
+                                {message.content}
                             </div>
+                            ))}
+                            {isLoading && <div className="flex justify-start"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>}
                         </div>
-                    </div>
+                    </ScrollArea>
+                    <form onSubmit={handleSendMessage} className="mt-4 flex w-full items-center space-x-2">
+                        <Input
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="Speak honestly..."
+                            disabled={isLoading}
+                        />
+                        <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
+                            {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : <Send className="h-4 w-4" />}
+                        </Button>
+                    </form>
                 </CardContent>
             </Card>
         </div>

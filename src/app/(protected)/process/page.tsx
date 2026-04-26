@@ -1,46 +1,56 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpenCheck, Waves, Wind, Mountain, Flame, Compass, Edit, Heart, Sparkles } from "lucide-react";
+import { BookOpenCheck, Waves, Wind, Mountain, Flame, Compass, Edit, Heart, Sparkles, Users, User } from "lucide-react";
 
 const steps = [
   {
     icon: <Compass className="size-8 text-primary" />,
-    title: "1. Attune to Your Element",
-    description: "Every soul has an inner climate. Before you can understand the landscape, you must feel the weather. By choosing an element—Fire, Water, Air, or Earth—you are not defining yourself, but rather acknowledging the energy that is most present for you in this moment. This attunement is the key that unlocks the door to your inner world.",
+    title: "1. Attune to the Elemental Climate",
+    description: "Every soul has an inner climate. Before you can understand the landscape, you must feel the weather. By choosing an element—Fire, Water, Air, or Earth—you are acknowledging the energy that is most active for you today.",
     details: [
-      "🔥 Fire: The principle of action, will, and transformation. It can be passion or anger, courage or restlessness.",
-      "🌊 Water: The principle of emotion, intuition, and flow. It can be grief or compassion, empathy or overwhelm.",
-      "🌬️ Air: The principle of intellect, ideas, and vision. It can be clarity or detachment, wisdom or scattered thoughts.",
-      "🪨 Earth: The principle of stability, body, and form. It can be patience or stuckness, groundedness or burden.",
+      "🔥 Fire: The principle of action and will. Vital for creativity, dangerous if uncontrolled in a peaceful environment.",
+      "🌊 Water: The principle of emotion and flow. Vital for empathy, heavy if it turns to stagnation.",
+      "🌬️ Air: The principle of intellect and vision. Vital for clarity, scattered if it loses its grounding.",
+      "🪨 Earth: The principle of stability and form. Vital for endurance, stubborn if it refuses to shift.",
     ]
   },
   {
     icon: <Edit className="size-8 text-primary" />,
-    title: "2. Acknowledge the Contradiction",
-    description: "The soul is not a simple thing; it is a space of sacred paradox. Within your chosen element lies its opposite. Fire can hide a deep coldness. Stillness can ache for motion. Hikma will present you with this core tension, not as a flaw to be fixed, but as an opening—a sacred wound through which the light can enter. Your task is to sit with this tension, to feel its truth.",
+    title: "2. The Intrapersonal Tension",
+    description: "The soul is not static; it is a space of fluid temperament. A state of high Fire is perfect for a passion project but causes friction in a family setting. SeekHikma analyzes your journal to see if your current element serves your environment or causes internal imbalance (I'tidal).",
     details: [
-        "This is the heart of the alchemical process.",
-        "The tension between opposites is where growth occurs.",
-        "Embrace the 'both/and' nature of your inner world."
+        "We track how your temperament shifts between work, home, and solitude.",
+        "Balance is defined by your context, not a single rigid ideal.",
+        "Identifying these tensions is the first step to polishing the mirror."
     ]
   },
   {
     icon: <Heart className="size-8 text-primary" />,
-    title: "3. Unveil the Heart",
-    description: "With the tension revealed, the heart is invited to speak its truth. This is your moment of unveiling (kashf). In a secure, private space, you will respond to a simple prompt. There are no right or wrong answers, only your sincere expression. This is not a performance. It is a prayer. Write, feel, or simply be present with what arises. Hikma listens with compassion, not for judgment, but for the echo of the Divine within your words.",
+    title: "3. Unveiling the Heart Mirror",
+    description: "Rarely do we start by telling the whole truth. If SeekHikma senses the mirror is veiled by sarcasm, deflection, or surface-level words, she will pause. Through a brief Heart Mirror dialogue (max 3 questions), you are invited to move from performance to presence.",
     details: [
-        "Honesty is the only requirement.",
-        "This is a space of absolute safety and privacy.",
-        "Your vulnerability is a strength."
+        "Honesty is the only requirement for the veil to lift.",
+        "The mirror only reflects clearly when the heart is sincere.",
+        "This dialogue helps you move from 'what happened' to 'what I felt'."
+    ]
+  },
+  {
+    icon: <Users className="size-8 text-primary" />,
+    title: "4. Interpersonal Alchemy",
+    description: "Often, our imbalance is triggered by others. If conflict is detected, SeekHikma initiates a 'Diagnostic Unveiling' about the other person. By understanding their elemental dominant, we can map the 'clash of elements' and provide strategies for a bridge.",
+    details: [
+        "Identify if your Fire is meeting their Stone.",
+        "Receive specific communication insights to resolve the element clash.",
+        "Visualize the temperament gap between you and the other."
     ]
   },
   {
     icon: <Sparkles className="size-8 text-primary" />,
-    title: "4. Receive the Reflection",
-    description: "When the heart has spoken with sincerity, the mirror of wisdom responds. Hikma does not give you answers; it reflects your own light back to you, polished and clarified. You will receive insights into your soul's current state, the symbolic meaning behind your words, and a gentle nudge for your spiritual practice. This is not a diagnosis. It is a conversation with your deepest self, a reminder of the path back to the center.",
+    title: "5. Integration & Practice",
+    description: "The journey ends with a Wisdom Seed—a single poetic anchor for your day—and prescribed practices to tend your inner garden. These are not tasks, but invitations to return to your center.",
     details: [
-        "Insights are drawn from spiritual and symbolic frameworks.",
-        "The goal is self-understanding (Ma'rifah), not just information.",
-        "The reflection is a starting point, not a conclusion."
+        "Accepted practices are tracked in your personal 'Garden'.",
+        "Reflections are archived to trace the evolution of your soul.",
+        "The goal is Ma'rifah—the deep, experiential knowledge of the self."
     ]
   },
 ];
@@ -50,16 +60,16 @@ export default function ProcessPage() {
     <div className="container mx-auto max-w-4xl px-4 py-12">
       <div className="text-center mb-12">
         <h1 className="font-headline text-4xl md:text-5xl text-primary mb-2">
-          The Path of Reflection
+          The Path of SeekHikma
         </h1>
         <p className="text-lg text-muted-foreground">
-          Understanding the Four Stages of Your Journey Inward
+          Understanding the Alchemy of the Self and the Other
         </p>
       </div>
 
       <div className="space-y-8">
         {steps.map((step) => (
-          <Card key={step.title} className="overflow-hidden">
+          <Card key={step.title} className="overflow-hidden border-primary/10">
             <CardHeader className="flex flex-row items-start gap-4">
               <div className="p-3 bg-primary/10 rounded-lg">{step.icon}</div>
               <div className="flex-1">

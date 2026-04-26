@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -22,8 +21,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, AlertTriangle } from "lucide-react";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -39,27 +38,21 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [firebaseReady, setFirebaseReady] = useState(false);
-  const [showConfigWarning, setShowConfigWarning] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (auth) {
-      setFirebaseReady(true);
-      setShowConfigWarning(false);
-    } else {
-      setFirebaseReady(false);
-      setShowConfigWarning(true);
+    if (!loading && user) {
+      router.push("/dashboard");
     }
-  }, []);
+  }, [user, loading, router]);
 
   const handleSignUpSuccess = () => {
     toast({
       title: "Account Created",
-      description: "Welcome to Hikma. Let's begin your journey.",
+      description: "Welcome to SeekHikma. Let's begin your journey.",
     });
-    // Set a flag to trigger onboarding on the next page
     sessionStorage.setItem('isNewUser', 'true');
     router.push("/dashboard");
   }
@@ -100,27 +93,20 @@ export default function SignupPage() {
     }
   };
 
+  if (loading) return <div className="flex h-screen w-full items-center justify-center"><Loader2 className="animate-spin" /></div>;
+
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl font-headline">Sign Up</CardTitle>
           <CardDescription>
-            Enter your information to create an account.
+            Join SeekHikma and start your journey inward.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSignUp}>
           <CardContent className="grid gap-4">
-            {showConfigWarning && (
-                <Alert variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Firebase Not Configured</AlertTitle>
-                    <AlertDescription>
-                    Please provide Firebase credentials to enable sign up.
-                    </AlertDescription>
-                </Alert>
-            )}
-            <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isLoading || !firebaseReady}>
+            <Button variant="outline" className="w-full" type="button" onClick={handleGoogleSignIn} disabled={isLoading}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
                 Sign up with Google
             </Button>
@@ -143,7 +129,7 @@ export default function SignupPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading || !firebaseReady}
+                disabled={isLoading}
               />
             </div>
             <div className="grid gap-2">
@@ -155,12 +141,12 @@ export default function SignupPage() {
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading || !firebaseReady}
+                disabled={isLoading}
               />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button className="w-full" type="submit" disabled={isLoading || !firebaseReady}>
+            <Button className="w-full" type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create account
             </Button>

@@ -22,11 +22,6 @@ export function Header() {
     }
     try {
       await signOut(auth);
-      // Clear all localStorage on logout to ensure a clean state for the next user
-      // This is crucial in a shared browser environment.
-      if (typeof window !== 'undefined') {
-         // Do not clear localStorage, user-specific keys handle data separation.
-      }
       toast({ title: "Logged Out", description: "You have been successfully logged out." });
       router.push("/");
     } catch (error) {
@@ -44,10 +39,11 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center justify-between">
         <div className="flex items-center">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
-            <span className="font-bold font-headline text-lg text-primary">
-              Hikma
-            </span>
+          <Link href="/" className="mr-6 flex items-center">
+            <div className="flex items-center font-headline text-lg overflow-hidden rounded-md border border-primary/20">
+                <span className="bg-primary text-background px-2 py-0.5">Seek</span>
+                <span className="bg-background text-primary px-2 py-0.5">Hikma</span>
+            </div>
           </Link>
           <nav className="hidden items-center gap-6 text-sm md:flex">
             {user && (
