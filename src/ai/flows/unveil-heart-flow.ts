@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A conversational agent to help lift the "veils" from the heart.
@@ -14,7 +15,7 @@ const UnveilHeartInputSchema = z.object({
 export type UnveilHeartInput = z.infer<typeof UnveilHeartInputSchema>;
 
 const UnveilHeartOutputSchema = z.object({
-  response: z.string().describe("Hikma's gentle guidance."),
+  response: z.string().describe("SeekHikma's gentle guidance."),
   isReady: z.boolean().describe("True if the user shows the first sign of sincerity or vulnerability."),
 });
 export type UnveilHeartOutput = z.infer<typeof UnveilHeartOutputSchema>;
@@ -29,10 +30,10 @@ const unveilHeartFlow = ai.defineFlow({
     outputSchema: UnveilHeartOutputSchema,
 }, async (input) => {
     const historyString = input.history
-      .map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.content}`)
+      .map(m => `${m.role === 'user' ? 'User' : 'SeekHikma'}: ${m.content}`)
       .join('\n');
 
-    const systemPrompt = `You are Hikma, guiding a user towards sincerity (Sadaqah of the heart).
+    const systemPrompt = `You are SeekHikma, guiding a user towards sincerity (Sadaqah of the heart).
 
 **Context:**
 - Original Journal: """${input.journal}"""
@@ -58,6 +59,6 @@ Return a JSON object.`;
     });
 
     const output = llmResponse.output;
-    if (!output) throw new Error("Hikma is quiet.");
+    if (!output) throw new Error("SeekHikma is quiet.");
     return output;
 });

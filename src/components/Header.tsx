@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -17,7 +18,6 @@ export function Header() {
   const { toast } = useToast();
   const [mounted, setMounted] = useState(false);
 
-  // Defer rendering of auth-dependent parts until after hydration
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -47,10 +47,16 @@ export function Header() {
       <div className="container flex h-14 max-w-screen-2xl items-center justify-between">
         <div className="flex items-center">
           <Link href="/" className="mr-6 flex items-center">
-            <div className="flex items-center font-headline text-lg overflow-hidden rounded-md border border-primary/20">
+            {mounted ? (
+              <div className="flex items-center font-headline text-lg overflow-hidden rounded-md border border-primary/20">
                 <span className="bg-primary text-background px-2 py-0.5">Seek</span>
                 <span className="bg-background text-primary px-2 py-0.5">Hikma</span>
-            </div>
+              </div>
+            ) : (
+              <div className="flex items-center font-headline text-lg opacity-0">
+                <span>SeekHikma</span>
+              </div>
+            )}
           </Link>
           <nav className="hidden items-center gap-6 text-sm md:flex">
             {mounted && user && (

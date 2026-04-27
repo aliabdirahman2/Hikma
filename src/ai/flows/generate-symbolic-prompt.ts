@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Generates a symbolic prompt for the user to reflect upon.

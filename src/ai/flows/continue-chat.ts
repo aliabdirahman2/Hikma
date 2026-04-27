@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A conversational AI agent for psychospiritual guidance.
@@ -20,7 +21,7 @@ const ChatInputSchema = z.object({
 export type ChatInput = z.infer<typeof ChatInputSchema>;
 
 const ChatOutputSchema = z.object({
-  response: z.string().describe("Hikma's conversational response."),
+  response: z.string().describe("SeekHikma's conversational response."),
 });
 export type ChatOutput = z.infer<typeof ChatOutputSchema>;
 
@@ -41,10 +42,10 @@ const continueChatFlow = ai.defineFlow({
 `;
     
     const historyString = input.history
-      .map(m => `${m.role === 'user' ? 'User' : 'Hikma'}: ${m.content}`)
+      .map(m => `${m.role === 'user' ? 'User' : 'SeekHikma'}: ${m.content}`)
       .join('\n');
 
-    const fullPrompt = `You are Hikma, a wise psychospiritual guide continuing a conversation.
+    const fullPrompt = `You are SeekHikma, a wise psychospiritual guide continuing a conversation.
 
 **Your Context:**
 You have the user's original journal entry and key parts of the reflection you previously provided.
