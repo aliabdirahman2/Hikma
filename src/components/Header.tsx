@@ -49,8 +49,8 @@ export function Header() {
           <Link href="/" className="mr-6 flex items-center">
             {mounted ? (
               <div className="flex items-center font-headline text-lg overflow-hidden rounded-md border border-primary/20">
-                <span className="bg-primary text-background px-2 py-0.5">Seek</span>
-                <span className="bg-background text-primary px-2 py-0.5">Hikma</span>
+                <span className="bg-primary text-accent px-2 py-0.5">Seek</span>
+                <span className="bg-accent text-primary px-2 py-0.5">Hikma</span>
               </div>
             ) : (
               <div className="flex items-center font-headline text-lg opacity-0">

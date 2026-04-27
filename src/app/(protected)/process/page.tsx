@@ -1,5 +1,6 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpenCheck, Waves, Wind, Mountain, Flame, Compass, Edit, Heart, Sparkles, Users, User } from "lucide-react";
+import { Compass, Edit, Heart, Sparkles, Users } from "lucide-react";
 
 const steps = [
   {

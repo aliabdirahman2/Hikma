@@ -65,7 +65,7 @@ Based on the full context above (Journal, Reflection, and Conversation History),
 You MUST format your response as a JSON object that adheres to the required schema.`;
 
     const llmResponse = await ai.generate({
-        model: 'googleai/gemini-1.5-flash',
+        model: 'googleai/gemini-1.5-flash-latest',
         prompt: fullPrompt, 
         output: {
             schema: ChatOutputSchema,

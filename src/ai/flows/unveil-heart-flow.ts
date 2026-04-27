@@ -48,7 +48,7 @@ ${historyString}
 Return a JSON object.`;
 
     const llmResponse = await ai.generate({
-        model: 'googleai/gemini-1.5-flash',
+        model: 'googleai/gemini-1.5-flash-latest',
         prompt: systemPrompt,
         output: {
             schema: UnveilHeartOutputSchema,
