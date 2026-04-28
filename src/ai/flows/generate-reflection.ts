@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A psychospiritual diagnostic AI agent (SeekHikma).
@@ -30,8 +29,12 @@ If the user mentions a conflict with another person:
     - Provide specific communication advice in 'interpersonalInsight' that helps bridge the elemental gap.
 
 **The Veil of Sincerity (CRITICAL):**
-Unless the user's journal is a profound, vulnerable, and complete "pouring out of the heart" (high sincerity, zero deflection), you MUST set 'isVeiled' to true.
-If 'isVeiled' is true, provide a gentle reason in 'reasoning' why the heart's mirror is currently hazy (e.g., "The words touch the surface, but the depth remains quiet").
+If 'unveilingHistory' is NOT provided:
+- Unless the user's journal is a profound, vulnerable, and complete "pouring out of the heart" (high sincerity, zero deflection), you MUST set 'isVeiled' to true.
+- If 'isVeiled' is true, provide a gentle reason in 'reasoning' why the heart's mirror is currently hazy (e.g., "The words touch the surface, but the depth remains quiet").
+
+If 'unveilingHistory' IS provided:
+- Use the breakthrough insights from this conversation to inform your final reflection. Set 'isVeiled' to false.
 
 **Context:**
 - Element/Symbol: ${input.symbol}
@@ -39,7 +42,7 @@ If 'isVeiled' is true, provide a gentle reason in 'reasoning' why the heart's mi
 - Previous Soul State: ${JSON.stringify(input.previousProfile)}
 ${input.conflictDiagnosticAnswers ? `**Diagnostic Answers about the other person:**\n${input.conflictDiagnosticAnswers}` : ''}
 ${input.unveilingHistory ? `
-**Breakthrough Conversation History:**
+**Breakthrough Conversation History (Heart Mirror):**
 ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'SeekHikma'}: ${m.content}`).join('\n')}
 ` : ''}
 

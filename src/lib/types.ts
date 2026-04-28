@@ -42,7 +42,7 @@ export const ReflectionInputSchema = z.object({
     veiledCount: z.number(),
     temperamentBalance: TemperamentBalanceSchema,
   }),
-  unveilingHistory: z.custom<Message[]>().optional(),
+  unveilingHistory: z.array(z.custom<Message>()).optional(),
   conflictDiagnosticAnswers: z.string().optional().describe("Answers to the diagnostic questions if a conflict was detected."),
 });
 export type ReflectionInput = z.infer<typeof ReflectionInputSchema>;

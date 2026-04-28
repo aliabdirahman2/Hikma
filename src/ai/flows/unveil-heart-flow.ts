@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A conversational agent to help lift the "veils" from the heart.
@@ -16,7 +15,7 @@ export type UnveilHeartInput = z.infer<typeof UnveilHeartInputSchema>;
 
 const UnveilHeartOutputSchema = z.object({
   response: z.string().describe("SeekHikma's gentle guidance."),
-  isReady: z.boolean().describe("True if the user shows the first sign of sincerity or vulnerability."),
+  isReady: z.boolean().describe("True if the user shows a genuine sign of sincerity, vulnerability, or deeper reflection."),
 });
 export type UnveilHeartOutput = z.infer<typeof UnveilHeartOutputSchema>;
 
@@ -38,14 +37,14 @@ const unveilHeartFlow = ai.defineFlow({
 **Context:**
 - Original Journal: """${input.journal}"""
 - Why the mirror was hazy: "${input.reasoning}"
-- History:
+- Conversation History:
 ${historyString}
 
 **Your Task:**
-1. Provide a short, compassionate response (1-3 sentences) inviting them deeper.
-2. **SPEED RULE:** Set 'isReady' to 'true' as soon as the user shows ANY sign of moving away from sarcasm or deflection. A single honest answer is enough. We want to lift the veil quickly to begin the true work.
+1. Provide a short, compassionate response (1-3 sentences) inviting them deeper. Ask a question that targets the "veil" mentioned in the reasoning.
+2. **SINCERITY RULE:** Only set 'isReady' to 'true' if the user has provided a response that is noticeably more honest, vulnerable, or specific than their initial journal entry. If they are still being defensive or surface-level, 'isReady' must be 'false'.
 
-Return a JSON object.`;
+Return a JSON object with 'response' and 'isReady'.`;
 
     const llmResponse = await ai.generate({
         model: 'googleai/gemini-2.5-flash',
@@ -54,7 +53,7 @@ Return a JSON object.`;
             schema: UnveilHeartOutputSchema,
         },
         config: {
-          temperature: 0.3,
+          temperature: 0.4,
         }
     });
 

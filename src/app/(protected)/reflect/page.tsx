@@ -61,7 +61,7 @@ export default function ReflectionPage() {
 
   const isHabitTracked = (habitName: string) => habits.some(h => h.name === habitName);
 
-  const handleSubmit = async (diagAnswers?: string) => {
+  const handleSubmit = async (diagAnswers?: string, unveilingHistory?: Message[]) => {
     if (!selectedSymbol || !journalText) return;
     setIsLoading(true);
 
@@ -71,9 +71,10 @@ export default function ReflectionPage() {
         journal: journalText,
         previousProfile: profile,
         conflictDiagnosticAnswers: diagAnswers,
+        unveilingHistory: unveilingHistory,
       });
 
-      if (result.isVeiled) {
+      if (result.isVeiled && !unveilingHistory) {
         setReflection(result);
         setProfile(p => ({ ...p, veiledCount: p.veiledCount + 1 }));
         setStep("veiled");
@@ -173,7 +174,7 @@ export default function ReflectionPage() {
                     <CardTitle className="font-headline text-2xl text-primary flex items-center gap-2">
                         <Users /> Diagnostic Unveiling
                     </CardTitle>
-                    <CardDescription>Hikma senses a shadow between you and another. To find the bridge, please reflect on these:</CardDescription>
+                    <CardDescription>SeekHikma senses a shadow between you and another. To find the bridge, please reflect on these:</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-4">
@@ -267,25 +268,26 @@ export default function ReflectionPage() {
         
         {step === "veiled" && reflection && (
             <motion.div key="veiled" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-                <Card className="max-w-md mx-auto text-center border-amber-200">
-                    <CardHeader>
-                        <AlertTriangle className="mx-auto size-12 text-amber-500 mb-4" />
-                        <CardTitle className="font-headline text-2xl text-primary">The Mirror is Veiled</CardTitle>
-                        <CardDescription>&ldquo;{reflection.reasoning}&rdquo;</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Button onClick={() => setStep('journal')}>Try Again</Button>
-                        <Button variant="secondary" onClick={() => setVeiledChat(true)}>Talk to Unveil</Button>
-                    </CardContent>
-                </Card>
-                {veiledChat && (
-                    <div className="mt-12">
+                {!veiledChat ? (
+                    <Card className="max-w-md mx-auto text-center border-amber-200">
+                        <CardHeader>
+                            <AlertTriangle className="mx-auto size-12 text-amber-500 mb-4" />
+                            <CardTitle className="font-headline text-2xl text-primary">The Mirror is Veiled</CardTitle>
+                            <CardDescription>&ldquo;{reflection.reasoning}&rdquo;</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <Button onClick={() => setStep('journal')}>Try Again</Button>
+                            <Button variant="secondary" onClick={() => setVeiledChat(true)}>Talk to Unveil</Button>
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <div className="mt-4">
                          <UnveilingChat 
                             journal={journalText} 
                             reasoning={reflection.reasoning} 
                             onReady={(history) => {
                                 setVeiledChat(false);
-                                // Recursive call could go here or specialized unveiling submit
+                                handleSubmit(undefined, history);
                             }}
                             symbol={selectedSymbol!}
                          />
