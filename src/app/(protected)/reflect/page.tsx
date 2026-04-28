@@ -37,6 +37,7 @@ export default function ReflectionPage() {
   const [diagnosticAnswers, setDiagnosticAnswers] = useState("");
   const [reflection, setReflection] = useState<FullReflection | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUnveilingTransition, setIsUnveilingTransition] = useState(false);
   const [veiledChat, setVeiledChat] = useState(false);
   const [profile, setProfile] = useLocalStorage<PsychospiritualProfile>("hikma-profile", INITIAL_PROFILE);
   const [archive, setArchive] = useLocalStorage<ArchivedReflection[]>("hikma-archive", []);
@@ -96,6 +97,7 @@ export default function ReflectionPage() {
                 symbol: selectedSymbol,
             };
             setArchive(prevArchive => [...prevArchive, newArchiveEntry]);
+            setIsUnveilingTransition(false);
             setStep("reflection");
         }
       }
@@ -105,6 +107,7 @@ export default function ReflectionPage() {
         title: "An error occurred",
         description: error instanceof Error ? error.message : "Could not get a reflection.",
       });
+      setIsUnveilingTransition(false);
     } finally {
       setIsLoading(false);
     }
@@ -121,7 +124,13 @@ export default function ReflectionPage() {
     setJournalText("");
     setSelectedSymbol(null);
     setVeiledChat(false);
+    setIsUnveilingTransition(false);
     setDiagnosticAnswers("");
+  };
+
+  const handleUnveilingReady = (history: Message[]) => {
+    setIsUnveilingTransition(true);
+    handleSubmit(undefined, history);
   };
 
   return (
@@ -268,7 +277,15 @@ export default function ReflectionPage() {
         
         {step === "veiled" && reflection && (
             <motion.div key="veiled" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-                {!veiledChat ? (
+                {isUnveilingTransition ? (
+                    <div className="flex flex-col items-center justify-center p-12 text-center space-y-6">
+                        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                        <div className="space-y-2">
+                            <h2 className="font-headline text-3xl text-primary">Unveiling the Mirror</h2>
+                            <p className="text-muted-foreground max-w-sm">SeekHikma is integrating your honesty into your final reflection...</p>
+                        </div>
+                    </div>
+                ) : !veiledChat ? (
                     <Card className="max-w-md mx-auto text-center border-amber-200">
                         <CardHeader>
                             <AlertTriangle className="mx-auto size-12 text-amber-500 mb-4" />
@@ -285,10 +302,7 @@ export default function ReflectionPage() {
                          <UnveilingChat 
                             journal={journalText} 
                             reasoning={reflection.reasoning} 
-                            onReady={(history) => {
-                                setVeiledChat(false);
-                                handleSubmit(undefined, history);
-                            }}
+                            onReady={handleUnveilingReady}
                             symbol={selectedSymbol!}
                          />
                     </div>
