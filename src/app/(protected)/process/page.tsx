@@ -1,6 +1,7 @@
 
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Compass, Edit, Heart, Sparkles, Users } from "lucide-react";
+import { Compass, Edit, Heart, Sparkles, Users, ShieldAlert } from "lucide-react";
 
 const steps = [
   {
@@ -15,13 +16,13 @@ const steps = [
     ]
   },
   {
-    icon: <Edit className="size-8 text-primary" />,
-    title: "2. The Intrapersonal Tension",
-    description: "The soul is not static; it is a space of fluid temperament. A state of high Fire is perfect for a passion project but causes friction in a family setting. SeekHikma analyzes your journal to see if your current element serves your environment or causes internal imbalance (I'tidal).",
+    icon: <ShieldAlert className="size-8 text-primary" />,
+    title: "2. The Tension: Primary vs. Shadow",
+    description: "Your temperament exists in two states: the Primary (I'tidal) and the Shadow (Nafs). SeekHikma helps you distinguish between your functional energy and your egoic distortions.",
     details: [
-        "We track how your temperament shifts between work, home, and solitude.",
-        "Balance is defined by your context, not a single rigid ideal.",
-        "Identifying these tensions is the first step to polishing the mirror."
+        "Primary State: Energy used for its higher purpose. Fire becomes leadership, Water becomes empathy.",
+        "Shadow State: Energy that has become stagnant or excessive. Water becomes suppression, Earth becomes stubbornness.",
+        "Knowing your Shadow is the only way to avoid being controlled by it."
     ]
   },
   {
@@ -31,7 +32,7 @@ const steps = [
     details: [
         "Honesty is the only requirement for the veil to lift.",
         "The mirror only reflects clearly when the heart is sincere.",
-        "This dialogue helps you move from 'what happened' to 'what I felt'."
+        "Breakthroughs from this chat inform your final reflection directly."
     ]
   },
   {

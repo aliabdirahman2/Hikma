@@ -1,7 +1,8 @@
+
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ShieldAlert, Sparkles } from "lucide-react";
+import { ArrowRight, ShieldAlert, Sparkles, Info } from "lucide-react";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import type { PsychospiritualProfile } from "@/lib/types";
 import { INITIAL_PROFILE } from "@/lib/constants";
@@ -15,6 +16,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useMemo } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function DashboardPage() {
   const [profile] = useLocalStorage<PsychospiritualProfile>(
@@ -25,10 +32,30 @@ export default function DashboardPage() {
   const dominantShadow = useMemo(() => {
     const s = profile?.shadowBalance || INITIAL_PROFILE.shadowBalance;
     const items = [
-      { name: 'Sanguine (Scattered)', val: s.sanguine ?? 0 },
-      { name: 'Choleric (Aggressive)', val: s.choleric ?? 0 },
-      { name: 'Melancholic (Withdrawn)', val: s.melancholic ?? 0 },
-      { name: 'Phlegmatic (Passive)', val: s.phlegmatic ?? 0 },
+      { 
+        id: 'sanguine', 
+        name: 'Sanguine (Scattered)', 
+        val: s.sanguine ?? 0, 
+        desc: "High Air in shadow leads to a loss of focus. You become a 'floating leaf,' easily distracted and unable to ground your vision into reality." 
+      },
+      { 
+        id: 'choleric', 
+        name: 'Choleric (Aggressive)', 
+        val: s.choleric ?? 0, 
+        desc: "Excessive Fire turns to anger. You may find yourself burning bridges or using force where gentle heat was required." 
+      },
+      { 
+        id: 'melancholic', 
+        name: 'Melancholic (Withdrawn)', 
+        val: s.melancholic ?? 0, 
+        desc: "Dense Earth turns to stubbornness or despair. You may feel stuck in the past, unable to shift your perspective even when it causes you pain." 
+      },
+      { 
+        id: 'phlegmatic', 
+        name: 'Phlegmatic (Passive)', 
+        val: s.phlegmatic ?? 0, 
+        desc: "Stagnant Water leads to suppression. You become 'too easy to mess with,' allowing others to override your will. This causes you to suppress your true desires, which later resurfaces as deep-seated resentment or physical fatigue." 
+      },
     ];
     return items.reduce((a, b) => a.val > b.val ? a : b);
   }, [profile]);
@@ -47,8 +74,23 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-2 overflow-hidden">
           <CardHeader>
-            <CardTitle className="font-headline text-2xl">Soul Mapping</CardTitle>
-            <CardDescription>Visualizing your Primary and Shadow temperaments.</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="font-headline text-2xl">Soul Mapping</CardTitle>
+                <CardDescription>Visualizing your Primary and Shadow temperaments.</CardDescription>
+              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="size-5 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p><strong>Primary (Color)</strong>: Your active energetic focus. When balanced (I'tidal), these traits serve your purpose.</p>
+                    <p className="mt-2"><strong>Shadow (Grey)</strong>: The Nafs (egoic) distortion. These represent where energy is excessive or stagnant.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </CardHeader>
           <CardContent className="flex items-center justify-center p-0">
             <TemperamentWheel 
@@ -67,8 +109,11 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm font-medium">Dominant Shadow: <span className="text-primary">{dominantShadow.name}</span></p>
-              <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                When you are out of balance, your {dominantShadow.name.split(' ')[0]} element takes over, causing friction in your heart and relationships.
+              <p className="text-sm text-muted-foreground mt-2 leading-relaxed italic">
+                {dominantShadow.desc}
+              </p>
+              <p className="text-xs text-muted-foreground mt-4 border-t pt-2">
+                SeekHikma infers these from your journal entry by analyzing the tension between your words and your selected element.
               </p>
             </CardContent>
           </Card>

@@ -1,11 +1,11 @@
+
 "use client";
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Leaf, Flame, Waves, Wind, Mountain, BrainCircuit, Heart, Sparkles, SlidersHorizontal, UserCheck } from "lucide-react";
+import { Leaf, BrainCircuit, Sparkles, SlidersHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
-import { cn } from "@/lib/utils";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { INITIAL_PROFILE } from "@/lib/constants";
 import type { PsychospiritualProfile } from "@/lib/types";
@@ -62,26 +62,34 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     if (stepIndex < onboardingSteps.length - 1) {
       setStepIndex(stepIndex + 1);
     } else {
-      // Calculate final profile
-      const finalProfile: PsychospiritualProfile = {
-        ...INITIAL_PROFILE,
-        hikmaDepth: depth,
-        temperamentBalance: {
-          sanguine: answers.sanguine === 0 ? 40 : 20,
-          choleric: answers.choleric === 0 ? 40 : 20,
-          melancholic: answers.melancholic === 0 ? 40 : 20,
-          phlegmatic: answers.phlegmatic === 0 ? 40 : 20,
-        },
-        shadowBalance: {
-          sanguine: answers.sanguine === 0 ? 25 : 10,
-          choleric: answers.choleric === 0 ? 25 : 10,
-          melancholic: answers.melancholic === 0 ? 25 : 10,
-          phlegmatic: answers.phlegmatic === 0 ? 25 : 10,
-        }
-      };
-      setProfile(finalProfile);
-      onComplete();
+      finalizeProfile();
     }
+  };
+
+  const finalizeProfile = () => {
+    // If assessment wasn't completed, we use the initial default balance
+    const temperamentBalance = Object.keys(answers).length >= baselineQuestions.length ? {
+      sanguine: answers.sanguine === 0 ? 40 : 20,
+      choleric: answers.choleric === 0 ? 40 : 20,
+      melancholic: answers.melancholic === 0 ? 40 : 20,
+      phlegmatic: answers.phlegmatic === 0 ? 40 : 20,
+    } : INITIAL_PROFILE.temperamentBalance;
+
+    const shadowBalance = Object.keys(answers).length >= baselineQuestions.length ? {
+      sanguine: answers.sanguine === 0 ? 25 : 10,
+      choleric: answers.choleric === 0 ? 25 : 10,
+      melancholic: answers.melancholic === 0 ? 25 : 10,
+      phlegmatic: answers.phlegmatic === 0 ? 25 : 10,
+    } : INITIAL_PROFILE.shadowBalance;
+
+    const finalProfile: PsychospiritualProfile = {
+      ...INITIAL_PROFILE,
+      hikmaDepth: depth,
+      temperamentBalance,
+      shadowBalance,
+    };
+    setProfile(finalProfile);
+    onComplete();
   };
 
   const currentStep = onboardingSteps[stepIndex];
@@ -115,7 +123,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             <div className="w-full space-y-6 mb-10 text-left">
               {baselineQuestions.map((bq) => (
                 <div key={bq.id} className="space-y-2">
-                  <p className="font-semibold">{bq.q}</p>
+                  <p className="font-semibold text-sm">{bq.q}</p>
                   <div className="flex gap-2">
                     {bq.options.map((opt, i) => (
                       <Button
@@ -134,14 +142,21 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </div>
           )}
 
-          <Button 
-            size="lg" 
-            onClick={handleNext} 
-            className="font-headline text-xl py-7 px-10"
-            disabled={currentStep.id === "baseline" && Object.keys(answers).length < baselineQuestions.length}
-          >
-            {currentStep.buttonText}
-          </Button>
+          <div className="flex gap-4">
+            {currentStep.id === "baseline" && (
+              <Button variant="ghost" size="lg" onClick={() => setStepIndex(stepIndex + 1)}>
+                Skip Assessment
+              </Button>
+            )}
+            <Button 
+              size="lg" 
+              onClick={handleNext} 
+              className="font-headline text-xl py-7 px-10"
+              disabled={currentStep.id === "baseline" && Object.keys(answers).length < baselineQuestions.length}
+            >
+              {currentStep.buttonText}
+            </Button>
+          </div>
         </motion.div>
       </AnimatePresence>
     </div>
