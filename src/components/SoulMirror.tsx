@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import type { PsychospiritualProfile } from "@/lib/types";
+import { INITIAL_PROFILE } from "@/lib/constants";
 
 interface SoulMirrorProps {
   temperamentBalance: PsychospiritualProfile["temperamentBalance"];
@@ -22,27 +23,27 @@ const MirrorIcon = () => (
 
 
 export function SoulMirror({ temperamentBalance, veiledCount }: SoulMirrorProps) {
-  const { sanguine, choleric, melancholic, phlegmatic } = temperamentBalance;
+  const { sanguine, choleric, melancholic, phlegmatic } = temperamentBalance || INITIAL_PROFILE.temperamentBalance;
 
   // Calculate imbalance score. A perfectly balanced score is 0. Max possible score is 150.
   const temperamentImbalance =
-    Math.abs(sanguine - 25) +
-    Math.abs(choleric - 25) +
-    Math.abs(melancholic - 25) +
-    Math.abs(phlegmatic - 25);
+    Math.abs((sanguine ?? 25) - 25) +
+    Math.abs((choleric ?? 25) - 25) +
+    Math.abs((melancholic ?? 25) - 25) +
+    Math.abs((phlegmatic ?? 25) - 25);
   
   // Normalize score to a 0-1 range for opacity. Capped at 90% opacity for heavy fog.
   const temperamentFog = Math.min(0.9, temperamentImbalance / 150);
 
   // Moral fog is binary for now. If there's any veiling, the fog is thick.
-  const moralFog = veiledCount > 0 ? 0.75 : 0;
+  const moralFog = (veiledCount ?? 0) > 0 ? 0.75 : 0;
 
   // The total fog is the greater of the two fogs.
   const fogOpacity = Math.max(temperamentFog, moralFog);
 
   // The divine light (nur) should only appear when the soul is nearing balance AND is not veiled.
   const isBalanced = temperamentImbalance < 25;
-  const isUnveiled = veiledCount === 0;
+  const isUnveiled = (veiledCount ?? 0) === 0;
   const showNur = isBalanced && isUnveiled;
 
   // The opacity of the nur should be strongest when perfectly balanced (score of 0)

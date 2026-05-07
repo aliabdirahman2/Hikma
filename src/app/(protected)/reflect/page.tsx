@@ -1,23 +1,15 @@
 "use client";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Wind, Droplets, Mountain, Flame, Loader2, MessageCircle, AlertTriangle, BookOpen, Heart, BookHeart, Check, Plus, Users, Send } from "lucide-react";
+import { Sparkles, Wind, Droplets, Mountain, Flame, Loader2, MessageCircle, AlertTriangle, Check, Plus, Users, Send } from "lucide-react";
 import { reflectionAction } from "@/app/actions";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import type { FullReflection, PsychospiritualProfile, ArchivedReflection, Message, TrackedHabit, PrescribedHabit, TemperamentBalance } from "@/lib/types";
+import type { FullReflection, PsychospiritualProfile, ArchivedReflection, Message, TrackedHabit, PrescribedHabit } from "@/lib/types";
 import { INITIAL_PROFILE } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { ChatWithHikma } from "@/components/ChatWithHikma";
 import { UnveilingChat } from "@/components/UnveilingChat";
 import { TemperamentWheel } from "@/components/TemperamentWheel";
 
@@ -77,7 +69,7 @@ export default function ReflectionPage() {
 
       if (result.isVeiled && !unveilingHistory) {
         setReflection(result);
-        setProfile(p => ({ ...p, veiledCount: p.veiledCount + 1 }));
+        setProfile(p => ({ ...p, veiledCount: (p.veiledCount || 0) + 1 }));
         setStep("veiled");
       } else if (result.isConflictDetected && result.diagnosticQuestions && !diagAnswers) {
         setReflection(result);
@@ -85,11 +77,13 @@ export default function ReflectionPage() {
       } else {
         setReflection(result);
         if (result.soulStage && result.temperamentBalance) {
-            setProfile({
-                soulStage: result.soulStage,
-                temperamentBalance: result.temperamentBalance,
+            setProfile(prev => ({
+                ...prev,
+                soulStage: result.soulStage!,
+                temperamentBalance: result.temperamentBalance!,
+                shadowBalance: result.shadowBalance || prev.shadowBalance || INITIAL_PROFILE.shadowBalance,
                 veiledCount: 0,
-            });
+            }));
             const newArchiveEntry: ArchivedReflection = {
                 date: new Date().toISOString(),
                 reflection: result,
@@ -301,7 +295,7 @@ export default function ReflectionPage() {
                     <div className="mt-4">
                          <UnveilingChat 
                             journal={journalText} 
-                            reasoning={reflection.reasoning} 
+                            reasoning={reflection.reasoning || "Surface level exploration."} 
                             onReady={handleUnveilingReady}
                             symbol={selectedSymbol!}
                          />

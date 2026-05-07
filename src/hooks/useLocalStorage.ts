@@ -17,23 +17,30 @@ function useLocalStorage<T>(
     }
     try {
       const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValueRef.current;
+      if (!item) return initialValueRef.current;
+      
+      const parsed = JSON.parse(item);
+      // Merge with initial value to handle schema updates/missing fields
+      return typeof parsed === 'object' && parsed !== null 
+        ? { ...initialValueRef.current, ...parsed } 
+        : parsed;
     } catch (error) {
       console.error(`Error reading localStorage key “${key}”:`, error);
       return initialValueRef.current;
     }
   });
   
-  // This effect runs when the user logs in or out (key changes)
-  // to load their specific data.
   useEffect(() => {
     if (key) {
       try {
         const item = window.localStorage.getItem(key);
         if (item) {
-          setStoredValue(JSON.parse(item));
+          const parsed = JSON.parse(item);
+          setStoredValue(typeof parsed === 'object' && parsed !== null 
+            ? { ...initialValueRef.current, ...parsed } 
+            : parsed
+          );
         } else {
-          // If no data is found for this user, set it to the initial value.
           setStoredValue(initialValueRef.current);
         }
       } catch (error) {
@@ -45,7 +52,6 @@ function useLocalStorage<T>(
 
   const setValue = (value: T | ((prevState: T) => T)) => {
     if (!key || typeof window === "undefined") {
-      console.warn("Could not save to localStorage: no user or window not present.");
       return;
     }
 

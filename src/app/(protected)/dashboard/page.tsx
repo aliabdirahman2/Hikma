@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Leaf, ShieldAlert, Sparkles } from "lucide-react";
+import { ArrowRight, ShieldAlert, Sparkles } from "lucide-react";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import type { PsychospiritualProfile } from "@/lib/types";
 import { INITIAL_PROFILE } from "@/lib/constants";
@@ -11,7 +11,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -24,15 +23,15 @@ export default function DashboardPage() {
   );
 
   const dominantShadow = useMemo(() => {
-    const s = profile.shadowBalance;
+    const s = profile?.shadowBalance || INITIAL_PROFILE.shadowBalance;
     const items = [
-      { name: 'Sanguine (Scattered)', val: s.sanguine },
-      { name: 'Choleric (Aggressive)', val: s.choleric },
-      { name: 'Melancholic (Withdrawn)', val: s.melancholic },
-      { name: 'Phlegmatic (Passive)', val: s.phlegmatic },
+      { name: 'Sanguine (Scattered)', val: s.sanguine ?? 0 },
+      { name: 'Choleric (Aggressive)', val: s.choleric ?? 0 },
+      { name: 'Melancholic (Withdrawn)', val: s.melancholic ?? 0 },
+      { name: 'Phlegmatic (Passive)', val: s.phlegmatic ?? 0 },
     ];
     return items.reduce((a, b) => a.val > b.val ? a : b);
-  }, [profile.shadowBalance]);
+  }, [profile]);
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-12">
@@ -41,7 +40,7 @@ export default function DashboardPage() {
           The Inner Horizon
         </h1>
         <p className="text-lg text-muted-foreground italic">
-          &ldquo;{profile.soulStage}&rdquo;
+          &ldquo;{profile?.soulStage || "Seeker of Wisdom"}&rdquo;
         </p>
       </div>
 
@@ -53,8 +52,8 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="flex items-center justify-center p-0">
             <TemperamentWheel 
-              data={profile.temperamentBalance} 
-              shadowData={profile.shadowBalance}
+              data={profile?.temperamentBalance || INITIAL_PROFILE.temperamentBalance} 
+              shadowData={profile?.shadowBalance || INITIAL_PROFILE.shadowBalance}
             />
           </CardContent>
         </Card>
@@ -77,16 +76,19 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="font-headline text-xl flex items-center gap-2">
-                <Sparkles className="size-5 text-primary" /> Hikma Depth
+                <Sparkles className="size-5 text-primary" /> SeekHikma Depth
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between text-sm">
                 <span>Current Depth</span>
-                <span className="font-bold text-primary">{profile.hikmaDepth}%</span>
+                <span className="font-bold text-primary">{profile?.hikmaDepth ?? 50}%</span>
               </div>
               <div className="w-full bg-muted rounded-full h-2 mt-2">
-                <div className="bg-primary h-2 rounded-full" style={{ width: `${profile.hikmaDepth}%` }} />
+                <div 
+                  className="bg-primary h-2 rounded-full transition-all duration-500" 
+                  style={{ width: `${profile?.hikmaDepth ?? 50}%` }} 
+                />
               </div>
             </CardContent>
           </Card>
