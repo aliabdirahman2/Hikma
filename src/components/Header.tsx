@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -10,6 +9,13 @@ import { Button, buttonVariants } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
 import { useEffect, useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Settings } from "lucide-react";
 
 export function Header() {
   const pathname = usePathname();
@@ -23,16 +29,12 @@ export function Header() {
   }, []);
 
   const handleLogout = async () => {
-    if (!auth) {
-      toast({ variant: "destructive", title: "Logout Failed", description: "Firebase is not configured." });
-      return;
-    }
+    if (!auth) return;
     try {
       await signOut(auth);
-      toast({ title: "Logged Out", description: "You have been successfully logged out." });
       router.push("/");
     } catch (error) {
-      toast({ variant: "destructive", title: "Logout Failed", description: "Could not log you out. Please try again." });
+      toast({ variant: "destructive", title: "Logout Failed" });
     }
   };
 
@@ -46,52 +48,46 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center justify-between">
         <div className="flex items-center">
-          <Link href="/" className="mr-6 flex items-center">
-            {mounted ? (
-              <div className="flex items-center font-headline text-lg overflow-hidden rounded-md border border-primary/20">
-                <span className="bg-primary text-accent px-2 py-0.5">Seek</span>
-                <span className="bg-accent text-primary px-2 py-0.5">Hikma</span>
-              </div>
-            ) : (
-              <div className="flex items-center font-headline text-lg opacity-0">
-                <span>SeekHikma</span>
-              </div>
-            )}
-          </Link>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/" className="mr-6 flex items-center">
+                  <div className="flex items-center font-headline text-lg overflow-hidden rounded-md border border-primary/20">
+                    <span className="bg-primary text-[#D4A27A] px-2 py-0.5">Seek</span>
+                    <span className="bg-[#D4A27A] text-primary px-2 py-0.5 font-bold">Hikma</span>
+                  </div>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="font-headline italic">Hikma (حكمة): Arabic for Wisdom, Insight, and Discernment.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <nav className="hidden items-center gap-6 text-sm md:flex">
             {mounted && user && (
               <>
-                <Link href="/dashboard" className={navLinkClasses("/dashboard")}>
-                  Dashboard
-                </Link>
-                <Link href="/reflect" className={navLinkClasses("/reflect")}>
-                  Reflect
-                </Link>
-                 <Link href="/process" className={navLinkClasses("/process")}>
-                  Process
-                </Link>
-                <Link href="/practices" className={navLinkClasses("/practices")}>
-                  Practices
-                </Link>
-                <Link href="/archive" className={navLinkClasses("/archive")}>
-                  Archive
-                </Link>
+                <Link href="/dashboard" className={navLinkClasses("/dashboard")}>Dashboard</Link>
+                <Link href="/reflect" className={navLinkClasses("/reflect")}>Reflect</Link>
+                <Link href="/practices" className={navLinkClasses("/practices")}>Practices</Link>
+                <Link href="/archive" className={navLinkClasses("/archive")}>Archive</Link>
               </>
             )}
           </nav>
         </div>
         <div className="flex items-center gap-4">
+          {mounted && user && (
+            <Link href="/settings" className="text-muted-foreground hover:text-primary transition-colors">
+              <Settings className="size-5" />
+            </Link>
+          )}
           {mounted && (
             user ? (
-              <Button onClick={handleLogout} variant="outline" size="sm">Logout</Button>
+              <Button onClick={handleLogout} variant="ghost" size="sm">Logout</Button>
             ) : (
               <div className="flex items-center gap-2">
-                  <Link href="/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>
-                  Login
-                  </Link>
-                  <Link href="/signup" className={cn(buttonVariants({ size: 'sm' }))}>
-                  Sign Up
-                  </Link>
+                <Link href="/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>Login</Link>
+                <Link href="/signup" className={cn(buttonVariants({ size: 'sm' }))}>Sign Up</Link>
               </div>
             )
           )}

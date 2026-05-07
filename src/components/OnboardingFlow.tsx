@@ -2,48 +2,50 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Leaf, Waves, Flame, Wind, Mountain, GitCommit, Heart, Sparkles, BookOpenCheck } from "lucide-react";
+import { Leaf, Flame, Waves, Wind, Mountain, BrainCircuit, Heart, Sparkles, SlidersHorizontal, UserCheck } from "lucide-react";
 import { Button } from "./ui/button";
+import { Slider } from "./ui/slider";
 import { cn } from "@/lib/utils";
+import useLocalStorage from "@/hooks/useLocalStorage";
+import { INITIAL_PROFILE } from "@/lib/constants";
+import type { PsychospiritualProfile } from "@/lib/types";
 
 const onboardingSteps = [
   {
+    id: "welcome",
     icon: <Leaf className="size-16 text-primary" />,
-    title: "The soul’s journey is inward, not outward.",
-    body: "You’re not here to be fixed. You’re here to listen more deeply—to the quiet voice within. Hikma is your sacred companion. Through symbol, reflection, and guided insight, you’ll begin to understand yourself in new ways.",
+    title: "The soul’s journey is inward.",
+    body: "SeekHikma is your sacred companion. We use ancient temperament models and modern AI to help you polish the mirror of your heart.",
     buttonText: "Begin the Journey",
   },
   {
-    icon: <GitCommit className="size-16 text-primary" />,
-    title: "Every soul has a climate.",
-    body: "Before you speak, you must attune. Choose the element that best matches your current inner state. This is not a test. It’s a way to tune your reflection to your inner atmosphere.",
-    buttonText: "Continue",
+    id: "depth",
+    icon: <SlidersHorizontal className="size-16 text-primary" />,
+    title: "How deep should we go?",
+    body: "Set the rigor of SeekHikma's guidance. Higher depth means more challenging questions and less surface-level comfort.",
+    buttonText: "Set Intention",
   },
   {
-    icon: <BookOpenCheck className="size-16 text-primary" />,
-    title: "Within you are opposites.",
-    body: "Fire may hide fear. Water may hold anger. Earth may ache to move. Hikma will now show you the contradictions living within your current state. These are not mistakes—they are openings.",
-    buttonText: "Reveal My Contradictions",
+    id: "baseline",
+    icon: <BrainCircuit className="size-16 text-primary" />,
+    title: "The Baseline Assessment",
+    body: "Tell us a bit about how you usually react to the world. This helps us map your initial Temperament and Shadow balances.",
+    buttonText: "Complete Assessment",
   },
   {
-    icon: <Heart className="size-16 text-primary" />,
-    title: "This is your moment of unveiling.",
-    body: "In the quiet of reflection, the heart speaks what the tongue cannot. You will be guided by a simple prompt. Write, speak, or feel your way through it. There’s no right answer—only truth and presence. As you open, Hikma listens—not to judge, but to understand.",
-    buttonText: "Begin My Reflection",
-  },
-  {
+    id: "finish",
     icon: <Sparkles className="size-16 text-primary" />,
-    title: "When the heart opens, the mirror speaks.",
-    body: "Once you’ve unveiled your inner world with sincerity, Hikma will offer you a sacred reflection: insights into your soul’s stage, symbolic meanings, and a gentle invitation to deepen your path. You don’t have to strive. Just show up honestly—and the reflection will meet you.",
-    buttonText: "Let's Begin the Work",
+    title: "The path is clear.",
+    body: "You are ready to begin. Remember: honesty is the only requirement for clarity.",
+    buttonText: "Enter the Garden",
   },
 ];
 
-const elementChoices = [
-    { icon: <Flame className="size-10" />, label: "Fire", description: "driven, restless, angry, passionate"},
-    { icon: <Waves className="size-10" />, label: "Water", description: "emotional, grieving, intuitive, soft"},
-    { icon: <Wind className="size-10" />, label: "Air", description: "scattered, detached, visionary, light"},
-    { icon: <Mountain className="size-10" />, label: "Earth", description: "grounded, stuck, burdened, patient"},
+const baselineQuestions = [
+  { id: "sanguine", q: "When I am in a new social group, I am:", options: ["Excited & talkative", "Quietly observing"] },
+  { id: "choleric", q: "When things go wrong, my first reaction is:", options: ["Frustration/Action", "Acceptance/Wait"] },
+  { id: "melancholic", q: "I spend a lot of time thinking about:", options: ["Past mistakes/Details", "Current possibilities"] },
+  { id: "phlegmatic", q: "In a group conflict, I usually:", options: ["Seek peace at all costs", "Stand my ground"] },
 ];
 
 interface OnboardingFlowProps {
@@ -51,66 +53,84 @@ interface OnboardingFlowProps {
 }
 
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
-  const [step, setStep] = useState(0);
-  const [selectedElement, setSelectedElement] = useState<string | null>(null);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [depth, setDepth] = useState(50);
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [profile, setProfile] = useLocalStorage<PsychospiritualProfile>("hikma-profile", INITIAL_PROFILE);
 
   const handleNext = () => {
-    if (step === 1 && !selectedElement) return;
-
-    if (step < onboardingSteps.length - 1) {
-      setStep(step + 1);
+    if (stepIndex < onboardingSteps.length - 1) {
+      setStepIndex(stepIndex + 1);
     } else {
+      // Calculate final profile
+      const finalProfile: PsychospiritualProfile = {
+        ...INITIAL_PROFILE,
+        hikmaDepth: depth,
+        temperamentBalance: {
+          sanguine: answers.sanguine === 0 ? 40 : 20,
+          choleric: answers.choleric === 0 ? 40 : 20,
+          melancholic: answers.melancholic === 0 ? 40 : 20,
+          phlegmatic: answers.phlegmatic === 0 ? 40 : 20,
+        },
+        shadowBalance: {
+          sanguine: answers.sanguine === 0 ? 25 : 10,
+          choleric: answers.choleric === 0 ? 25 : 10,
+          melancholic: answers.melancholic === 0 ? 25 : 10,
+          phlegmatic: answers.phlegmatic === 0 ? 25 : 10,
+        }
+      };
+      setProfile(finalProfile);
       onComplete();
     }
   };
 
-  const currentStep = onboardingSteps[step];
-
-  const pageVariants = {
-    initial: { opacity: 0, y: 30 },
-    in: { opacity: 1, y: 0 },
-    out: { opacity: 0, y: -30 },
-  };
-
-  const pageTransition = {
-    type: "tween",
-    ease: "anticipate",
-    duration: 0.7,
-  };
+  const currentStep = onboardingSteps[stepIndex];
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
+    <div className="flex h-screen w-full items-center justify-center bg-background text-foreground overflow-hidden">
       <AnimatePresence mode="wait">
         <motion.div
-          key={step}
-          initial="initial"
-          animate="in"
-          exit="out"
-          variants={pageVariants}
-          transition={pageTransition}
-          className="flex w-full max-w-2xl flex-col items-center justify-center p-8 text-center"
+          key={stepIndex}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="flex w-full max-w-2xl flex-col items-center p-8 text-center"
         >
           <div className="mb-8">{currentStep.icon}</div>
-          <h1 className="mb-4 font-headline text-4xl text-primary">
-            {currentStep.title}
-          </h1>
-          <p className="mb-10 max-w-lg text-lg leading-relaxed text-muted-foreground">
-            {currentStep.body}
-          </p>
+          <h1 className="mb-4 font-headline text-4xl text-primary">{currentStep.title}</h1>
+          <p className="mb-8 text-lg text-muted-foreground">{currentStep.body}</p>
 
-          {step === 1 && (
-             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                {elementChoices.map(el => (
-                    <button key={el.label} onClick={() => setSelectedElement(el.label)}
-                        className={cn("group p-4 border-2 rounded-lg transition-all duration-300", 
-                            selectedElement === el.label ? 'border-primary bg-accent' : 'border-muted hover:border-primary/50'
-                        )}
-                    >
-                        <div className="text-primary transition-transform duration-300 group-hover:scale-110">{el.icon}</div>
-                        <p className="font-headline text-lg mt-2 text-muted-foreground group-hover:text-primary">{el.label}</p>
-                        <p className="text-xs text-muted-foreground/80 hidden">{el.description}</p>
-                    </button>
-                ))}
+          {currentStep.id === "depth" && (
+            <div className="w-full max-w-sm mb-12 space-y-4">
+              <div className="flex justify-between text-sm font-headline">
+                <span>Gentle Mirror</span>
+                <span>Deep Abyss</span>
+              </div>
+              <Slider value={[depth]} onValueChange={([v]) => setDepth(v)} max={100} step={1} className="py-4" />
+              <p className="italic text-primary">Depth: {depth}%</p>
+            </div>
+          )}
+
+          {currentStep.id === "baseline" && (
+            <div className="w-full space-y-6 mb-10 text-left">
+              {baselineQuestions.map((bq) => (
+                <div key={bq.id} className="space-y-2">
+                  <p className="font-semibold">{bq.q}</p>
+                  <div className="flex gap-2">
+                    {bq.options.map((opt, i) => (
+                      <Button
+                        key={opt}
+                        variant={answers[bq.id] === i ? "default" : "outline"}
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => setAnswers(prev => ({ ...prev, [bq.id]: i }))}
+                      >
+                        {opt}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
@@ -118,7 +138,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             size="lg" 
             onClick={handleNext} 
             className="font-headline text-xl py-7 px-10"
-            disabled={step === 1 && !selectedElement}
+            disabled={currentStep.id === "baseline" && Object.keys(answers).length < baselineQuestions.length}
           >
             {currentStep.buttonText}
           </Button>
