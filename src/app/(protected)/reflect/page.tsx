@@ -12,12 +12,33 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { useToast } from "@/hooks/use-toast";
 import { UnveilingChat } from "@/components/UnveilingChat";
 import { TemperamentWheel } from "@/components/TemperamentWheel";
+import { ChatWithHikma } from "@/components/ChatWithHikma";
 
 const symbols = [
-  { id: 'wind', icon: <Wind className="w-10 h-10" />, label: 'Wind (Air)' },
-  { id: 'flame', icon: <Flame className="w-10 h-10" />, label: 'Flame (Fire)' },
-  { id: 'water', icon: <Droplets className="w-10 h-10" />, label: 'Water (Water)' },
-  { id: 'earth', icon: <Mountain className="w-10 h-10" />, label: 'Earth (Earth)' },
+  { 
+    id: 'wind', 
+    icon: <Wind className="w-10 h-10" />, 
+    label: 'Wind (Air)',
+    desc: 'Intellect, vision, and social movement. When balanced, it brings clarity; when excessive, it scatters focus.' 
+  },
+  { 
+    id: 'flame', 
+    icon: <Flame className="w-10 h-10" />, 
+    label: 'Flame (Fire)',
+    desc: 'Passionate action and transformation. When balanced, it leads with warmth; when excessive, it burns in anger.' 
+  },
+  { 
+    id: 'water', 
+    icon: <Droplets className="w-10 h-10" />, 
+    label: 'Water (Water)',
+    desc: 'Emotion, empathy, and flow. When balanced, it adapts and heals; when excessive, it stagnates into passivity.' 
+  },
+  { 
+    id: 'earth', 
+    icon: <Mountain className="w-10 h-10" />, 
+    label: 'Earth (Earth)',
+    desc: 'Stability, structure, and endurance. When balanced, it provides grounding; when excessive, it hardens into stubbornness.' 
+  },
 ] as const;
 
 type Symbol = typeof symbols[number]['id'];
@@ -128,21 +149,27 @@ export default function ReflectionPage() {
   };
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-12 min-h-[calc(100vh-150px)] flex flex-col justify-center">
+    <div className="container mx-auto max-w-4xl px-4 py-12 min-h-[calc(100vh-150px)] flex flex-col justify-center">
       <AnimatePresence mode="wait">
         {step === "symbol" && (
           <motion.div key="symbol" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-            <h1 className="font-headline text-3xl md:text-4xl text-center mb-4 text-primary">A Symbolic Prompt</h1>
-            <p className="text-muted-foreground text-center text-lg mb-10">Choose the image that feels closest to your state today.</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center mb-10">
+                <h1 className="font-headline text-3xl md:text-5xl text-primary mb-4">A Symbolic Prompt</h1>
+                <p className="text-muted-foreground text-lg max-w-2xl mx-auto italic">
+                    Traditional cultures recognized the "Perfected Mirror"—the spiritual master who balanced all elements. Choose the energy that is most active in your storm today.
+                </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {symbols.map((symbol) => (
                 <button
                   key={symbol.id}
                   onClick={() => handleSymbolSelect(symbol.id)}
-                  className="group aspect-square flex flex-col items-center justify-center p-4 bg-muted/50 rounded-lg border-2 border-transparent hover:border-primary hover:bg-accent transition-all duration-300"
+                  className="group flex flex-col items-center p-6 bg-muted/50 rounded-lg border-2 border-transparent hover:border-primary hover:bg-accent transition-all duration-300 text-center"
                 >
-                  <div className="text-primary group-hover:scale-110 transition-transform">{symbol.icon}</div>
-                  <p className="font-headline text-lg mt-4 text-muted-foreground group-hover:text-primary">{symbol.label}</p>
+                  <div className="text-primary group-hover:scale-110 transition-transform mb-4">{symbol.icon}</div>
+                  <h3 className="font-headline text-xl text-primary mb-2">{symbol.label}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{symbol.desc}</p>
                 </button>
               ))}
             </div>
@@ -208,9 +235,9 @@ export default function ReflectionPage() {
         {step === "reflection" && reflection && (
           <motion.div key="reflection" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
             <div className="sufi-mihrab">
-                <div className="p-8">
-                    <h2 className="text-center font-headline text-2xl text-primary mb-4">Poetic Reflection</h2>
-                    <p className="text-lg italic whitespace-pre-wrap leading-relaxed text-center">&ldquo;{reflection.poeticReflection}&rdquo;</p>
+                <div className="p-8 text-center">
+                    <h2 className="font-headline text-3xl text-primary mb-4">Poetic Reflection</h2>
+                    <p className="text-xl italic whitespace-pre-wrap leading-relaxed">&ldquo;{reflection.poeticReflection}&rdquo;</p>
                 </div>
             </div>
 
@@ -258,10 +285,12 @@ export default function ReflectionPage() {
                   ))}
               </CardContent>
               <CardFooter className="bg-muted/30 text-center py-4 flex flex-col gap-2">
-                <p className="text-sm font-headline text-primary">Wisdom Seed</p>
-                <p className="font-medium">{reflection.wisdomSeed}</p>
+                <p className="text-sm font-headline text-primary uppercase tracking-widest">Wisdom Seed</p>
+                <p className="text-xl font-medium italic">“{reflection.wisdomSeed}”</p>
               </CardFooter>
             </Card>
+
+            <ChatWithHikma reflection={reflection} journal={journalText} />
 
             <div className="flex justify-center pt-8">
                 <Button onClick={resetFlow} variant="outline" size="lg">Begin a New Reflection</Button>
