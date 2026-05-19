@@ -89,7 +89,7 @@ export default function ReflectionPage() {
         unveilingHistory: unveilingHistory,
       });
 
-      // Always clear the transition loading screen once we have a result
+      // ALWAYS clear the transition loading screen once we have a result from the server
       setIsUnveilingTransition(false);
 
       if (result.isVeiled && !unveilingHistory) {

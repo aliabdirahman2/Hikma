@@ -56,7 +56,7 @@ ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'SeekHikma'}: 
 - Return a JSON object strictly following the schema.`;
   
   try {
-    const modelId = 'googleai/gemini-1.5-flash';
+    const modelId = 'googleai/gemini-2.5-flash';
     const llmResponse = await ai.generate({
       model: modelId,
       prompt: prompt,
