@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -88,6 +89,9 @@ export default function ReflectionPage() {
         unveilingHistory: unveilingHistory,
       });
 
+      // Always clear the transition loading screen once we have a result
+      setIsUnveilingTransition(false);
+
       if (result.isVeiled && !unveilingHistory) {
         setReflection(result);
         setProfile(p => ({ ...p, veiledCount: (p.veiledCount || 0) + 1 }));
@@ -112,7 +116,9 @@ export default function ReflectionPage() {
                 symbol: selectedSymbol,
             };
             setArchive(prevArchive => [...prevArchive, newArchiveEntry]);
-            setIsUnveilingTransition(false);
+            setStep("reflection");
+        } else {
+            // Fallback if AI data is incomplete but we aren't veiled
             setStep("reflection");
         }
       }

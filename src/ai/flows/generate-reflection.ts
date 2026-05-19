@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A psychospiritual diagnostic AI agent (SeekHikma).
@@ -55,7 +56,7 @@ ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'SeekHikma'}: 
 - Return a JSON object strictly following the schema.`;
   
   try {
-    const modelId = 'googleai/gemini-2.5-flash';
+    const modelId = 'googleai/gemini-1.5-flash';
     const llmResponse = await ai.generate({
       model: modelId,
       prompt: prompt,
@@ -94,7 +95,8 @@ ${input.unveilingHistory.map(m => `${m.role === 'user' ? 'User' : 'SeekHikma'}: 
 }
 
 function normalizeTemperament(balance: any) {
-    const { sanguine, choleric, melancholic, phlegmatic } = balance;
+    if (!balance) return { sanguine: 25, choleric: 25, melancholic: 25, phlegmatic: 25 };
+    const { sanguine = 0, choleric = 0, melancholic = 0, phlegmatic = 0 } = balance;
     const total = sanguine + choleric + melancholic + phlegmatic;
     if (total === 0) return { sanguine: 25, choleric: 25, melancholic: 25, phlegmatic: 25 };
     
