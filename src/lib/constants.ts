@@ -4,6 +4,7 @@ export const INITIAL_PROFILE: PsychospiritualProfile = {
   soulStage: "The journey begins...",
   veiledCount: 0,
   hikmaDepth: 50,
+  unveilingQuestions: 3,
   temperamentBalance: {
     sanguine: 25,
     choleric: 25,

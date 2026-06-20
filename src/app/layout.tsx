@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Header } from "@/components/Header";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Footer } from "@/components/Footer";
+import { MessageCircle } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Hikma",
@@ -41,6 +42,15 @@ export default function RootLayout({
             <Header />
             <div className="flex-1">{children}</div>
             <Footer />
+            <a
+              href="https://docs.google.com/forms/d/e/1FAIpQLSf0AUsZ1G0TwuamgY7vOuAy8uMrokmA1bLgUtgiYd33ZaeHAQ/viewform?usp=header"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            >
+              <MessageCircle className="h-5 w-5" />
+              <span className="hidden sm:inline">Feedback</span>
+            </a>
           </div>
           <Toaster />
         </AuthProvider>

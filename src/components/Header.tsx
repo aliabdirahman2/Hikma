@@ -70,6 +70,7 @@ export function Header() {
                 <Link href="/dashboard" className={navLinkClasses("/dashboard")}>Dashboard</Link>
                 <Link href="/reflect" className={navLinkClasses("/reflect")}>Reflect</Link>
                 <Link href="/practices" className={navLinkClasses("/practices")}>Practices</Link>
+                <Link href="/surroundedbygeniuses" className={navLinkClasses("/surroundedbygeniuses")}>Surrounded By Geniuses</Link>
                 <Link href="/archive" className={navLinkClasses("/archive")}>Archive</Link>
               </>
             )}

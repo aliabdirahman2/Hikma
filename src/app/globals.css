@@ -98,3 +98,80 @@
     background-size: 600% 600%;
     animation: sunrise 20s ease infinite;
 }
+
+/* ===== Book UI ===== */
+.book-perspective {
+  perspective: 2000px;
+}
+
+.book-container {
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.book-cover {
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+  backface-visibility: hidden;
+}
+
+.book-cover-back {
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
+}
+
+.book-cover.open {
+  transform: rotateY(-160deg);
+}
+
+.book-page {
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1);
+  backface-visibility: hidden;
+}
+
+.book-page.flipped {
+  transform: rotateY(-160deg);
+}
+
+.book-page-back {
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
+}
+
+/* Book edge shadow */
+.book-spine {
+  box-shadow: 
+    inset -3px 0 8px rgba(0, 0, 0, 0.15),
+    inset 3px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Page texture */
+.page-texture {
+  background-image: 
+    radial-gradient(ellipse at 80% 50%, rgba(0,0,0,0.02) 0%, transparent 70%);
+}
+
+/* Gold foil effect on cover */
+@keyframes gold-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.gold-foil {
+  background: linear-gradient(
+    90deg, 
+    hsl(var(--accent)) 0%, 
+    hsl(30 80% 80%) 25%, 
+    hsl(var(--accent)) 50%, 
+    hsl(30 80% 80%) 75%, 
+    hsl(var(--accent)) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gold-shimmer 4s linear infinite;
+}

@@ -20,6 +20,7 @@ export type PsychospiritualProfile = {
   temperamentBalance: TemperamentBalance;
   shadowBalance: TemperamentBalance; // Shadow traits (excess/imbalance)
   hikmaDepth: number; // 1-100
+  unveilingQuestions: number; // 1-10, how many questions the Open Your Heart portion asks
 };
 
 export const HabitSchema = z.object({

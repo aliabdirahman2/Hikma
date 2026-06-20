@@ -12,7 +12,7 @@ export function UnveilingHeartAnimation({ progress }: UnveilingHeartAnimationPro
   const crackOpacity = 1 - progress;
   
   return (
-    <div className="relative w-48 h-48 flex items-center justify-center">
+    <div className="relative w-48 h-48 mx-auto flex items-center justify-center">
       {/* Base Heart */}
       <Heart
         className="w-full h-full text-primary/20"

@@ -49,6 +49,7 @@ export default function ReflectionPage() {
   const [selectedSymbol, setSelectedSymbol] = useState<Symbol | null>(null);
   const [journalText, setJournalText] = useState("");
   const [diagnosticAnswers, setDiagnosticAnswers] = useState("");
+  const [unveilingHistory, setUnveilingHistory] = useState<Message[] | undefined>(undefined);
   const [reflection, setReflection] = useState<FullReflection | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isUnveilingTransition, setIsUnveilingTransition] = useState(false);
@@ -76,7 +77,9 @@ export default function ReflectionPage() {
 
   const isHabitTracked = (habitName: string) => habits.some(h => h.name === habitName);
 
-  const handleSubmit = async (diagAnswers?: string, unveilingHistory?: Message[]) => {
+  const handleSubmit = async (diagAnswers?: string, unveilingHistoryArg?: Message[]) => {
+    // Use the argument if provided (from unveiling), otherwise fall back to stored state
+    const effectiveUnveilingHistory = unveilingHistoryArg || unveilingHistory;
     if (!selectedSymbol || !journalText) return;
     setIsLoading(true);
 
@@ -86,13 +89,13 @@ export default function ReflectionPage() {
         journal: journalText,
         previousProfile: profile,
         conflictDiagnosticAnswers: diagAnswers,
-        unveilingHistory: unveilingHistory,
+        unveilingHistory: effectiveUnveilingHistory,
       });
 
       // ALWAYS clear the transition loading screen once we have a result from the server
       setIsUnveilingTransition(false);
 
-      if (result.isVeiled && !unveilingHistory) {
+      if (result.isVeiled && !effectiveUnveilingHistory) {
         setReflection(result);
         setProfile(p => ({ ...p, veiledCount: (p.veiledCount || 0) + 1 }));
         setStep("veiled");
@@ -136,7 +139,8 @@ export default function ReflectionPage() {
 
   const handleDiagnosticSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleSubmit(diagnosticAnswers);
+    // Pass diagnosticAnswers along with the stored unveilingHistory
+    handleSubmit(diagnosticAnswers, unveilingHistory);
   };
 
   const resetFlow = () => {
@@ -147,9 +151,11 @@ export default function ReflectionPage() {
     setVeiledChat(false);
     setIsUnveilingTransition(false);
     setDiagnosticAnswers("");
+    setUnveilingHistory(undefined);
   };
 
   const handleUnveilingReady = (history: Message[]) => {
+    setUnveilingHistory(history); // Persist the unveiling history for later use in diagnostic flow
     setIsUnveilingTransition(true);
     handleSubmit(undefined, history);
   };
